@@ -4,9 +4,7 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import type { Plugin, RunnableDevEnvironment, ViteDevServer } from 'vite'
 
-import type { Route, VikeLiteOptions } from './index'
-
-import { virtualModuleId, virtualManifestId, virtualAdapterId, virtualEntryClientId, virtualSetupId } from './virtuals'
+import type { Route } from './index'
 
 function generateRoutes(pagesAbsPath: string): { routes: Route[]; errorRoute?: Route } {
   if (!fs.existsSync(pagesAbsPath)) return { routes: [] }
@@ -131,8 +129,11 @@ export default function routerPlugin({
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
-  const virtualAdapterServerId = 'virtual:vike-lite/adapter-server'
-  const virtualAdapterClientId = 'virtual:vike-lite/adapter-client'
+  const virtualModuleId = 'virtual:routes'
+  const virtualManifestId = 'virtual:client-manifest'
+  const virtualAdapterId = 'virtual:vike-lite-adapter'
+  const virtualEntryClientId = 'virtual:entry-client'
+  const virtualSetupId = 'virtual:vike-lite/setup'
   const resolvedVirtualModuleId = '\0' + virtualModuleId
   const resolvedVirtualManifestId = '\0' + virtualManifestId
   const resolvedVirtualEntryClientId = '\0' + virtualEntryClientId
@@ -214,7 +215,7 @@ export default function routerPlugin({
         const isSSR = options!.ssr
 
         // Import the server rendering function from the bridge virtual module
-        let code = `import onRenderHtml from '${virtualAdapterServerId}';\n`
+        let code = `import { onRenderHtml } from '${virtualAdapterId}';\n`
           + `export const config = { onRenderHtml };\n`
           + `export const routes = [\n`
 
@@ -256,9 +257,8 @@ export default function routerPlugin({
         // Import the client rendering function from the bridge virtual module
         return `
           import { routes, errorRoute } from '${virtualModuleId}';
-          import onRenderClient from '${virtualAdapterClientId}';
-          
-          onRenderClient({ routes, errorRoute });
+          import { onRenderClient } from '${virtualAdapterId}';
+          onRenderClient().then((module) => { module.default({ routes, errorRoute })});
         `
       }
 

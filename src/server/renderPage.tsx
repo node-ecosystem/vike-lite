@@ -1,9 +1,9 @@
 import matchRoute from '../shared/matchRoute'
 import { AbortRender } from './abort'
-import { virtualEntryClientId } from '../virtuals'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
+const virtualEntryClientId = 'virtual:entry-client'
 
 const ESCAPE_LOOKUP: Record<string, string> = {
   '&': String.raw`\u0026`,
