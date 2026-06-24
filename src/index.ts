@@ -1,4 +1,4 @@
-type PageContext<Data = unknown> = {
+export type PageContext<Data = unknown> = {
   routeParams: Record<string, string>
   urlOriginal: string
   urlPathname: string
@@ -9,11 +9,11 @@ type PageContext<Data = unknown> = {
   errorMessage?: string
 }
 
-type DataAsync<Data = unknown> = (pageContext: PageContext) => Promise<Data>
+export type DataAsync<Data = unknown> = (pageContext: PageContext) => Promise<Data>
 
-type DataSync<Data = unknown> = (pageContext: PageContext) => Data
+export type DataSync<Data = unknown> = (pageContext: PageContext) => Data
 
-type Route = {
+export type Route = {
   path: string
   page: string
   layout?: string
