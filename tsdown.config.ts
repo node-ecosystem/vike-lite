@@ -1,0 +1,9 @@
+import type { UserConfig } from 'tsdown'
+
+export default {
+  entry: {
+    'vite': 'src/vite-plugin.ts',
+    'server': 'src/server/index.ts',
+    'shared': 'src/shared/index.ts'
+  }
+} satisfies UserConfig
