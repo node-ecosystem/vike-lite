@@ -34,7 +34,6 @@ type Route = {
 type Manifest = Record<string, { file: string; css?: string[]; imports?: string[] }>
 
 declare module 'virtual:routes' {
-  import type { Component, ParentComponent } from 'solid-js'
   type Imported<Name extends string, T> = () => Promise<
     | ({ [K in Name]: T } & { default?: T })
     | ({ [K in Name]?: T } & { default: T })
@@ -48,18 +47,18 @@ declare module 'virtual:routes' {
     page: string
     hasData: boolean
     hasTitle: boolean
-    Page: Imported<'Page', Component>
-    Head?: Imported<'Head', Component>
-    Layout?: Imported<'Layout', ParentComponent>
+    Page: Imported<'Page', HTMLElement>
+    Head?: Imported<'Head', HTMLElement>
+    Layout?: Imported<'Layout', HTMLElement>
     data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
     title?: Imported<'title', string | ((pageContext: PageContext) => string)>
   }>
   export const errorRoute: {
     path: string
     page: string
-    Page: Imported<'Page', Component>
-    Head?: Imported<'Head', Component>
-    Layout?: Imported<'Layout', ParentComponent>
+    Page: Imported<'Page', HTMLElement>
+    Head?: Imported<'Head', HTMLElement>
+    Layout?: Imported<'Layout', HTMLElement>
   }
 }
 
