@@ -4,6 +4,8 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import type { Plugin, RunnableDevEnvironment, ViteDevServer } from 'vite'
 
+import type { Route } from './index'
+
 import { virtualModuleId, virtualManifestId, virtualAdapterId, virtualEntryClientId, virtualSetupId } from './virtuals'
 
 function generateRoutes(pagesAbsPath: string): { routes: Route[]; errorRoute?: Route } {
