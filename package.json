@@ -6,6 +6,9 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.mts"
+    },
     "./vite": {
       "import": "./dist/vite.mjs",
       "types": "./dist/vite.d.mts"
