@@ -10,20 +10,20 @@
       "types": "./dist/index.d.mts"
     },
     "./vite": {
-      "import": "./dist/vite.mjs",
-      "types": "./dist/vite.d.mts"
+      "types": "./dist/vite.d.mts",
+      "import": "./dist/vite.mjs"
     },
     "./server": {
-      "import": "./dist/server.mjs",
-      "types": "./dist/server.d.mts"
+      "types": "./dist/server.d.mts",
+      "import": "./dist/server.mjs"
     },
     "./__internal/shared": {
-      "import": "./dist/__internal/shared.mjs",
-      "types": "./dist/__internal/shared.d.mts"
+      "types": "./dist/__internal/shared.d.mts",
+      "import": "./dist/__internal/shared.mjs"
     },
     "./__internal/store": {
-      "import": "./dist/__internal/server/store.mjs",
-      "types": "./dist/__internal/server/store.d.mts"
+      "types": "./dist/__internal/server/store.d.mts",
+      "import": "./dist/__internal/server/store.mjs"
     }
   },
   "repository": {
