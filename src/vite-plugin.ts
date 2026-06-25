@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import type { Plugin, RunnableDevEnvironment, ViteDevServer } from 'vite'
+import { normalizePath, type Plugin, type RunnableDevEnvironment, type ViteDevServer } from 'vite'
 
 import type { Route } from './index'
 
@@ -279,11 +279,9 @@ export default function routerPlugin({
       }
 
       if (id === resolvedVirtualEntryServerId) {
-        const resolveServerEntry = path.join(viteConfigRoot, serverEntry)
-        return `
-          import '${virtualSetupId}';
-          export { default } from '${resolveServerEntry}';
-        `
+        const normalizedServerEntry = normalizePath(path.join(viteConfigRoot, serverEntry))
+        const serverEntryContent = fs.readFileSync(normalizedServerEntry, 'utf8')
+        return `import '${virtualSetupId}';\n${serverEntryContent}`
       }
     },
     configureServer(server) {
