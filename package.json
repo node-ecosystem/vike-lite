@@ -22,7 +22,7 @@
       "types": "./dist/shared.d.mts"
     },
     "./__internal/store": {
-      "import": "./dist/server/store.mjs"
+      "import": "./dist/__internal/server/store.mjs"
     }
   },
   "repository": {
