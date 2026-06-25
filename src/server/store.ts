@@ -1,7 +1,9 @@
+import type { RenderContext } from '../shared'
+
 export interface VikeState {
   routes: any[]
   errorRoute: any | null
-  config: { onRenderHtml: () => Promise<any> } | null
+  config: { onRenderHtml: () => Promise<{ default: (ctx: RenderContext) => Promise<string> }> } | null
   manifest: Record<string, any> | undefined
 }
 

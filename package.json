@@ -21,9 +21,9 @@
       "types": "./dist/__internal/shared.d.mts",
       "import": "./dist/__internal/shared.mjs"
     },
-    "./__internal/store": {
-      "types": "./dist/__internal/server/store.d.mts",
-      "import": "./dist/__internal/server/store.mjs"
+    "./__internal/server": {
+      "types": "./dist/__internal/server.d.mts",
+      "import": "./dist/__internal/server.mjs"
     }
   },
   "repository": {
