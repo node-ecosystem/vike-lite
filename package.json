@@ -20,6 +20,9 @@
     "./shared": {
       "import": "./dist/shared.mjs",
       "types": "./dist/shared.d.mts"
+    },
+    "./__internal/store": {
+      "import": "./dist/server/store.mjs"
     }
   },
   "repository": {

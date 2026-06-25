@@ -266,7 +266,7 @@ export default function routerPlugin({
       if (id === resolvedVirtualSetupId) {
         return `
           import { routes, errorRoute, config } from '${virtualModuleId}';
-          import { setVikeState } from 'vike-lite/store';
+          import { setVikeState } from 'vike-lite/__internal/store';
           
           let manifest;
           if (process.env.NODE_ENV === 'production') {
