@@ -131,6 +131,7 @@ export default function routerPlugin({
   let viteConfigRoot: string
   const virtualModuleId = 'virtual:routes'
   const virtualManifestId = 'virtual:client-manifest'
+  // TODO add check for an adapter like vike-lite-solid is installed, otherwise throw an error
   const virtualAdapterId = 'virtual:vike-lite-solid'
   const virtualEntryClientId = 'virtual:entry-client'
   const virtualSetupId = 'virtual:vike-lite/setup'
