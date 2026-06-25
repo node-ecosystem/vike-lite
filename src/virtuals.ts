@@ -1,5 +1,0 @@
-export const virtualModuleId = 'virtual:routes'
-export const virtualManifestId = 'virtual:client-manifest'
-export const virtualAdapterId = 'virtual:vike-lite-adapter'
-export const virtualEntryClientId = 'virtual:entry-client'
-export const virtualSetupId = 'virtual:vike-lite/setup'

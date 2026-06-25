@@ -1,3 +1,4 @@
+import type { PageContext } from '..'
 import matchRoute from '../shared/matchRoute'
 import { AbortRender } from './abort'
 import { store } from './store'
@@ -27,7 +28,7 @@ function getAssets(pageModuleId: string) {
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
-  const manifest = store.manifest // <--- Leggiamo dallo store
+  const manifest = store.manifest
 
   function collectAssets(key: string) {
     const chunk = manifest![key]
@@ -100,7 +101,7 @@ async function renderErrorPage(
   }
 
   try {
-    const { onRenderHtml } = await store.config!.onRenderHtml() // <--- Leggiamo config dallo store
+    const { onRenderHtml } = await store.config!.onRenderHtml()
 
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
       store.errorRoute.Page(),
@@ -134,7 +135,6 @@ async function renderErrorPage(
   }
 }
 
-// L'API RIMANE PULITA: accetta solo la Request!
 export default async function renderPage(req: Request): Promise<Response> {
   const { pathname } = new URL(req.url)
   const isJsonRequest = pathname.endsWith('.pageContext.json')
@@ -157,7 +157,6 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     if (isJsonRequest) return Response.json(pageContext)
 
-    // Otteniamo l'adapter dallo store
     const { onRenderHtml } = await store.config!.onRenderHtml()
 
     const html = await onRenderHtml({
