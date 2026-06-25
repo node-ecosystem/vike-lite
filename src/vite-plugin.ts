@@ -279,9 +279,10 @@ export default function routerPlugin({
       }
 
       if (id === resolvedVirtualEntryServerId) {
+        const resolveServerEntry = path.join(viteConfigRoot, serverEntry)
         return `
           import '${virtualSetupId}';
-          export { default } from '${serverEntry}';
+          export { default } from '${resolveServerEntry}';
         `
       }
     },
