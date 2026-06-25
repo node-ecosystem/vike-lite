@@ -17,12 +17,13 @@
       "import": "./dist/server.mjs",
       "types": "./dist/server.d.mts"
     },
-    "./shared": {
-      "import": "./dist/shared.mjs",
-      "types": "./dist/shared.d.mts"
+    "./__internal/shared": {
+      "import": "./dist/__internal/shared.mjs",
+      "types": "./dist/__internal/shared.d.mts"
     },
     "./__internal/store": {
-      "import": "./dist/__internal/server/store.mjs"
+      "import": "./dist/__internal/server/store.mjs",
+      "types": "./dist/__internal/server/store.d.mts"
     }
   },
   "repository": {
