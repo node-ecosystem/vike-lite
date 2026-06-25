@@ -267,12 +267,10 @@ export default function routerPlugin({
         return `
           import { routes, errorRoute, config } from '${virtualModuleId}';
           import { setVikeState } from 'vike-lite/__internal/server';
-          
           let manifest;
           if (process.env.NODE_ENV === 'production') {
             manifest = (await import('${virtualManifestId}')).default;
           }
-          
           setVikeState({ routes, errorRoute, config, manifest });
         `;
       }
