@@ -2,8 +2,8 @@ export type PageContext<Data = unknown> = {
   routeParams: Record<string, string>
   urlOriginal: string
   urlPathname: string
-  data: Data
-  title: string
+  data?: Data
+  title?: string
   is404?: boolean
   is500?: boolean
   errorMessage?: string
