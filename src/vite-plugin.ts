@@ -135,10 +135,12 @@ export default function routerPlugin({
   const virtualAdapterId = 'virtual:vike-lite-solid'
   const virtualEntryClientId = 'virtual:entry-client'
   const virtualSetupId = 'virtual:vike-lite/setup'
+  const virtualEntryServerId = 'virtual:entry-server'
   const resolvedVirtualModuleId = '\0' + virtualModuleId
   const resolvedVirtualManifestId = '\0' + virtualManifestId
   const resolvedVirtualEntryClientId = '\0' + virtualEntryClientId
   const resolvedVirtualSetupId = '\0' + virtualSetupId
+  const resolvedVirtualEntryServerId = '\0' + virtualEntryServerId
 
   return {
     name: 'vike-lite',
@@ -154,7 +156,7 @@ export default function routerPlugin({
               cssMinify: true,
               manifest: true,
               rolldownOptions: {
-                input: virtualEntryClientId,  // 'virtual:entry-client'
+                input: virtualEntryClientId,
                 output: {
                   format: 'esm',
                   // Entry point virtual:entry-client
@@ -180,7 +182,7 @@ export default function routerPlugin({
               outDir: '../dist/server',
               emptyOutDir: true,
               rolldownOptions: {
-                input: serverEntry,
+                input: virtualEntryServerId,
                 output: {
                   format: 'esm',
                   // Entry point as dist/server/index.mjs
@@ -208,6 +210,7 @@ export default function routerPlugin({
       if (id === virtualManifestId) return resolvedVirtualManifestId
       if (id === virtualEntryClientId) return resolvedVirtualEntryClientId
       if (id === virtualSetupId) return resolvedVirtualSetupId
+      if (id === virtualEntryServerId) return resolvedVirtualEntryServerId
     },
     async load(id, options) {
       // Generate the virtual routes module
@@ -273,6 +276,13 @@ export default function routerPlugin({
           }
           setVikeState({ routes, errorRoute, config, manifest });
         `;
+      }
+
+      if (id === resolvedVirtualEntryServerId) {
+        return `
+          import '${virtualSetupId}';
+          export { default } from '${serverEntry}';
+        `
       }
     },
     configureServer(server) {
