@@ -131,7 +131,7 @@ export default function routerPlugin({
   let viteConfigRoot: string
   const virtualModuleId = 'virtual:routes'
   const virtualManifestId = 'virtual:client-manifest'
-  const virtualAdapterId = 'virtual:vike-lite-adapter'
+  const virtualAdapterId = 'virtual:vike-lite-solid'
   const virtualEntryClientId = 'virtual:entry-client'
   const virtualSetupId = 'virtual:vike-lite/setup'
   const resolvedVirtualModuleId = '\0' + virtualModuleId
