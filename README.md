@@ -17,18 +17,19 @@ Add Vite plugin
 
 ```ts
 // vite.config.ts
+import type { UserConfig } from 'vite'
 import vikeLite from 'vike-lite/vite'
 
 export default {
   plugins: [
     vikeLite()
   ]
-}
+} satisfies UserConfig
 ```
 
-#### Hooks
+### 🪝 Hooks
 
-### renderPage
+#### renderPage
 ```ts
 // /server/index.ts
 import { cors } from 'hono/cors'
