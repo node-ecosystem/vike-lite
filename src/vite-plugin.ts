@@ -273,11 +273,10 @@ export default function routerPlugin({
       // Generate virtual entry client
       if (id === resolvedVirtualEntryClientId) {
         // Import the client rendering function from the bridge virtual module
-        return `
-          import { routes, errorRoute } from '${virtualModuleId}';
+        return `import { routes, errorRoute } from '${virtualModuleId}';
           import { onRenderClient } from '${virtualAdapterId}';
-          onRenderClient().then((module) => { module.default({ routes, errorRoute })});
-        `
+          const { default: render } = await onRenderClient();
+          render({ routes, errorRoute });`
       }
 
       if (id === resolvedVirtualSetupId) {
