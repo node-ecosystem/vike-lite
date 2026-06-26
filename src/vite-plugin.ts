@@ -299,8 +299,7 @@ export default function routerPlugin({
             // needing to know about the virtual module.
             const { routes, errorRoute, config } = await ssrEnv.runner.import(virtualModuleId) as typeof import('virtual:routes')
 
-            const storePath = path.resolve('vike-lite/__internal/server')
-            const { setVikeState } = await ssrEnv.runner.import(storePath) as typeof import('./server/store')
+            const { setVikeState } = await ssrEnv.runner.import('vike-lite/__internal/server') as typeof import('./server/internal')
             setVikeState({ routes, errorRoute, config })
 
             const absoluteServerEntry = path.join(viteConfigRoot, serverEntry)
