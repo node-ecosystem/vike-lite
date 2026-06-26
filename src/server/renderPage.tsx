@@ -16,10 +16,6 @@ const ESCAPE_LOOKUP: Record<string, string> = {
 }
 const ESCAPE_REGEX = /[&><\u{2028}\u{2029}]/gu
 
-function serializeContext(data: unknown): string {
-  return JSON.stringify(data).replaceAll(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match])
-}
-
 function getVirtualEntryClientIdFromManifest(manifest: Manifest) {
   if (cache.virtualEntryClientId) return cache.virtualEntryClientId
   for (const key in manifest) {
@@ -145,6 +141,10 @@ async function renderErrorPage(
     console.error('Error page render failed:', renderError)
     return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
   }
+}
+
+function serializeContext(data: unknown): string {
+  return JSON.stringify(data).replaceAll(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match])
 }
 
 export default async function renderPage(req: Request): Promise<Response> {
