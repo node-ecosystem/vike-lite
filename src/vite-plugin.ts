@@ -95,7 +95,7 @@ async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<st
     try {
       const result = await clientEnv.transformRequest(url)
       if (result?.code) styles.add(result.code)
-    } catch (e) {
+    } catch {
       // Skip interruptions to avoid breaking during dev-typing
     }
   }
@@ -104,11 +104,11 @@ async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<st
   if (styles.size === 0) return html
 
   // Merge all CSS
-  const cssContent = Array.from(styles).join('')
+  const cssContent = [...styles].join('')
   const headEndIndex = html.lastIndexOf('</head>')
 
   // Safety check: if for some reason there's no </head>, don't break anything
-  if (headEndIndex === -1) return html;
+  if (headEndIndex === -1) return html
 
   // Inject the style block before the closing </head>
   return `${html.slice(0, headEndIndex)}<style type="text/css" data-vite-dev-fouc>${cssContent}</style>${html.slice(headEndIndex)}`
@@ -267,7 +267,7 @@ export default function routerPlugin({
             manifest = (await import('${virtualManifestId}')).default;
           }
           setVikeState({ routes, errorRoute, config, manifest });
-        `;
+        `
       }
 
       if (id === resolvedVirtualEntryServerId) {

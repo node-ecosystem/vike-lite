@@ -1,11 +1,9 @@
 import pluginTypescript from 'typescript-eslint'
 import pluginUnicorn from 'eslint-plugin-unicorn'
-import pluginSolid from 'eslint-plugin-solid/configs/typescript'
 
 export default pluginTypescript.config(
   ...pluginTypescript.configs.recommended,
   pluginUnicorn.configs['flat/recommended'],
-  pluginSolid,
   {
     rules: {
       'comma-dangle': [1, 'never'],
