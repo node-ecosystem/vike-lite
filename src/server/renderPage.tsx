@@ -118,7 +118,7 @@ async function renderErrorPage(
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
       store.errorRoute.Page(),
       store.errorRoute.Head?.() ?? null,
-      store.errorRoute.Layout?.() ?? null,
+      store.errorRoute.Layout?.() ?? null
     ])
 
     const pageContext = {
@@ -127,7 +127,7 @@ async function renderErrorPage(
       routeParams: {},
       is404: status === 404,
       is500: status === 500,
-      errorMessage: status === 500 && error instanceof Error ? error.message : undefined,
+      errorMessage: status === 500 && error instanceof Error ? error.message : undefined
     } as PageContext
 
     const html = await onRenderHtml({
@@ -178,7 +178,7 @@ export default async function renderPage(req: Request): Promise<Response> {
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
       pageTitleTag: pageContext.title ? `<title>${pageContext.title}</title>` : '',
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(route.page),
+      assets: getAssets(route.page)
     })
 
     return new Response(html, {
