@@ -1,9 +1,11 @@
-import type { PageContext } from '..'
+import type { Manifest, PageContext } from '..'
 import matchRoute from '../shared/matchRoute'
 import { AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
+
+const cache = {} as { virtualEntryClientId?: string }
 
 const ESCAPE_LOOKUP: Record<string, string> = {
   '&': String.raw`\u0026`,
@@ -18,6 +20,16 @@ function serializeContext(data: unknown): string {
   return JSON.stringify(data).replaceAll(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match])
 }
 
+function getVirtualEntryClientIdFromManifest(manifest: Manifest) {
+  if (cache.virtualEntryClientId) return cache.virtualEntryClientId
+  for (const key in manifest) {
+    if (manifest[key].isEntry) {
+      return cache.virtualEntryClientId = key
+    }
+  }
+  throw new Error('virtual:entry-client not found in manifest')
+}
+
 function getAssets(pageModuleId: string) {
   if (!isProd) return {
     cssLinks: '',
@@ -27,16 +39,7 @@ function getAssets(pageModuleId: string) {
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
-  const manifest = store.manifest
-
-  function getVirtualEntryClientIdFromManifest() {
-    for (const key in manifest) {
-      if (manifest[key].isEntry) {
-        return key
-      }
-    }
-    throw new Error('virtual:entry-client not found in manifest')
-  }
+  const { manifest } = store
 
   function collectAssets(key: string) {
     const chunk = manifest![key]
@@ -46,7 +49,7 @@ function getAssets(pageModuleId: string) {
     if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
   }
 
-  const virtualEntryClientId = getVirtualEntryClientIdFromManifest()
+  const virtualEntryClientId = getVirtualEntryClientIdFromManifest(manifest!)
   collectAssets(virtualEntryClientId)
   collectAssets(pageModuleId.replace('@/', ''))
 
@@ -73,7 +76,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
     route.title?.() ?? null,
     isJsonRequest ? null : route.Page(),
     isJsonRequest ? null : route.Head?.() ?? null,
-    isJsonRequest ? null : route.Layout?.() ?? null,
+    isJsonRequest ? null : route.Layout?.() ?? null
   ])
 
   if (dataMod) {
@@ -105,7 +108,7 @@ async function renderErrorPage(
   originalPathname: string,
   error?: unknown,
 ): Promise<Response> {
-  if (!store.errorRoute) { // <--- Leggiamo errorRoute dallo store
+  if (!store.errorRoute) {
     return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
   }
 
@@ -134,7 +137,7 @@ async function renderErrorPage(
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
       pageTitleTag: `<title>${status === 404 ? 'Page Not Found' : 'Server Error'}</title>`,
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(store.errorRoute.page),
+      assets: getAssets(store.errorRoute.page)
     })
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
@@ -180,7 +183,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     return new Response(html, {
       status: 200,
-      headers: { 'Content-Type': 'text/html' },
+      headers: { 'Content-Type': 'text/html' }
     })
 
   } catch (error) {

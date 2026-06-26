@@ -31,7 +31,7 @@ export type Route = {
   hasTitle?: boolean
 }
 
-type Manifest = Record<string, { file: string; css?: string[]; imports?: string[] }>
+export type Manifest = Record<string, { file: string; css?: string[]; imports?: string[]; isEntry?: boolean }>
 
 declare module 'virtual:routes' {
   type Imported<Name extends string, T> = () => Promise<
