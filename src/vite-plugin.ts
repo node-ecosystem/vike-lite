@@ -254,7 +254,7 @@ export default function routerPlugin({
         // Import the client rendering function from the bridge virtual module
         return `import { routes, errorRoute } from '${virtualModuleId}';
           import { onRenderClient } from '${virtualAdapterId}';
-          const render = await onRenderClient();
+          const { default: render } = await onRenderClient();
           await render({ routes, errorRoute });`
       }
 
