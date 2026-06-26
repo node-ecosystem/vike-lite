@@ -15,18 +15,21 @@ function getAssets(pageModuleId: string) {
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
+  const visitedKeys = new Set()
   const { manifest } = store
 
   function getVirtualEntryClientKey() {
-    for (const key in manifest) {
-      if (manifest[key].isEntry) return key
-    }
+    for (const key in manifest) if (manifest[key].isEntry) return key
     throw new Error('entry-client not found in manifest')
   }
 
   function collectAssets(key: string) {
+    if (visitedKeys.has(key)) return
+    visitedKeys.add(key)
+
     const chunk = manifest![key]
     if (!chunk) throw new Error(`Asset not found in manifest for key: ${key}`)
+
     jsFiles.add(chunk.file)
     if (chunk.css) for (const css of chunk.css) cssFiles.add(css)
     if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
@@ -37,9 +40,9 @@ function getAssets(pageModuleId: string) {
   collectAssets(pageModuleId.replace('@/', ''))
 
   return {
-    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="/${href}">`).join(''),
-    jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="/${href}">`).join(''),
-    entryClient: '/' + manifest![virtualEntryClientKey].file
+    cssLinks: [...cssFiles].map((href) => `<link rel="stylesheet" href="/${href}">`).join(''),
+    jsPreloads: [...jsFiles].map((href) => `<link rel="modulepreload" href="/${href}">`).join(''),
+    entryClient: `/${manifest![virtualEntryClientKey].file}`
   }
 }
 
