@@ -110,7 +110,7 @@ async function renderErrorPage(
   }
 
   try {
-    const { onRenderHtml } = await store.config!.onRenderHtml()
+    const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
       store.errorRoute.Page(),
@@ -166,7 +166,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     if (isJsonRequest) return Response.json(pageContext)
 
-    const { onRenderHtml } = await store.config!.onRenderHtml()
+    const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
     const html = await onRenderHtml({
       pageContext,
