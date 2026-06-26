@@ -57,15 +57,15 @@ function getAssets(pageModuleId: string) {
   }
 }
 
-async function buildPageContext(pathname: string, fullUrl: string, isJsonRequest: boolean) {
-  const matched = matchRoute(pathname, store.routes) // <--- Leggiamo routes dallo store
+async function buildPageContext(urlPathname: string, urlOriginal: string, isJsonRequest: boolean) {
+  const matched = matchRoute(urlPathname, store.routes)
   if (!matched) return null
 
   const { route, routeParams } = matched
   const pageContext = {
     routeParams,
-    urlOriginal: fullUrl,
-    urlPathname: pathname,
+    urlOriginal,
+    urlPathname,
   } as PageContext
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
@@ -81,7 +81,7 @@ async function buildPageContext(pathname: string, fullUrl: string, isJsonRequest
       const dataFn = dataMod.data ?? dataMod.default
       pageContext.data = await dataFn(pageContext)
     } catch (error) {
-      console.error('+data hook failed at:', pathname)
+      console.error('+data hook failed at:', urlPathname)
       throw error
     }
   }
@@ -91,7 +91,7 @@ async function buildPageContext(pathname: string, fullUrl: string, isJsonRequest
       const titleFn = titleMod.title ?? titleMod.default
       pageContext.title = typeof titleFn === 'function' ? titleFn(pageContext) : titleFn
     } catch (error) {
-      console.error('+title hook failed at:', pathname)
+      console.error('+title hook failed at:', urlPathname)
       throw error
     }
   }
