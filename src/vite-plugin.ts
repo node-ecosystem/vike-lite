@@ -280,8 +280,9 @@ export default function routerPlugin({
 
       if (id === resolvedVirtualEntryServerId) {
         const normalizedServerEntry = path.join(viteConfigRoot, serverEntry).replaceAll('\\', '/')
-        const serverEntryContent = fs.readFileSync(normalizedServerEntry, 'utf8')
-        return `import '${virtualSetupId}';\n${serverEntryContent}`
+        return `import '${virtualSetupId}';
+        export * from '${normalizedServerEntry}'
+        export { default } from '${normalizedServerEntry}'`
       }
     },
     configureServer(server) {
