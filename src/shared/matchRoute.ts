@@ -1,4 +1,5 @@
-export default function matchRoute(urlPathname: string, routes: Route[]) {
+// TODO check type of routes
+export default function matchRoute(urlPathname: string, routes: typeof import('virtual:routes').routes) {
   for (const route of routes) {
     const paramNames: string[] = []
     const regexPath = route.path.replaceAll(/:([^/]+)/g, (_, paramName) => {

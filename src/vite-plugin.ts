@@ -292,6 +292,15 @@ export default function routerPlugin({
           // Handle /api, /*.pageContext.json and pages
           try {
             const ssrEnv = server.environments.ssr as RunnableDevEnvironment
+
+            // Dev: populate the store on every request by importing virtual:routes
+            // directly from the Module Runner — this way routes are always up-to-date
+            // after page modifications (HMR-safe), without renderPage
+            // needing to know about the virtual module.
+            const { routes, errorRoute, config } = await ssrEnv.runner.import(virtualModuleId) as typeof import('virtual:routes')
+            const { setVikeState } = await ssrEnv.runner.import('vike-lite/__internal/server') as typeof import('./server/store')
+            setVikeState({ routes, errorRoute, config })
+
             const absoluteServerEntry = path.join(viteConfigRoot, serverEntry)
 
             // Dynamically import the server app to ensure it uses the latest dev code

@@ -1,10 +1,12 @@
 declare module 'virtual:routes' {
+  export const config: import('./shared').Config
+
   type Imported<Name extends string, T> = () => Promise<
     | ({ [K in Name]: T } & { default?: T })
     | ({ [K in Name]?: T } & { default: T })
   >
+
   type PageContext = import('./index').PageContext
-  export const config: import('./index').Config
   export const routes: Array<{
     path: string
     page: string
@@ -16,6 +18,7 @@ declare module 'virtual:routes' {
     data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
     title?: Imported<'title', string | ((pageContext: PageContext) => string)>
   }>
+
   export const errorRoute: {
     path: string
     page: string

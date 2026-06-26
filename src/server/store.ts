@@ -1,10 +1,11 @@
 import type { Config } from '../shared'
+import type { Manifest } from '..'
 
 export interface VikeState {
   routes: any[]
   errorRoute: any | null
   config: Config | null
-  manifest: Record<string, any> | undefined
+  manifest: Manifest | undefined
 }
 
 export const store: VikeState = {

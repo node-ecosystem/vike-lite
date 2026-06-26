@@ -1,4 +1,4 @@
-import type { Manifest, PageContext } from '..'
+import type { PageContext } from '..'
 import matchRoute from '../shared/matchRoute'
 import serializeContext from '../utils/serializeContext'
 import { AbortRender } from './abort'
@@ -6,22 +6,7 @@ import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
-// DEV: read from virtual module (always updated, HMR-safe)
-// PROD: read from the store (populated once by virtual:vike-lite/setup)
-async function getVikeState() {
-  if (isProd) {
-    return {
-      routes: store.routes,
-      errorRoute: store.errorRoute,
-      config: store.config!,
-      manifest: store.manifest
-    }
-  }
-  const { routes, errorRoute, config } = await import('virtual:routes')
-  return { routes, errorRoute, config, manifest: undefined }
-}
-
-function getAssets(pageModuleId: string, manifest: Manifest | undefined) {
+function getAssets(pageModuleId: string) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
@@ -30,6 +15,7 @@ function getAssets(pageModuleId: string, manifest: Manifest | undefined) {
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
+  const { manifest } = store
 
   function getVirtualEntryClientKey() {
     for (const key in manifest) {
@@ -58,15 +44,14 @@ function getAssets(pageModuleId: string, manifest: Manifest | undefined) {
 }
 
 async function buildPageContext(urlPathname: string, urlOriginal: string, isJsonRequest: boolean) {
-  const { routes } = await getVikeState()
-  const matched = matchRoute(urlPathname, routes)
+  const matched = matchRoute(urlPathname, store.routes)
   if (!matched) return null
 
   const { route, routeParams } = matched
   const pageContext = {
     routeParams,
     urlOriginal,
-    urlPathname,
+    urlPathname
   } as PageContext
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
@@ -79,7 +64,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
 
   if (dataMod) {
     try {
-      const dataFn = dataMod.data ?? dataMod.default
+      const dataFn = (dataMod.data ?? dataMod.default)!
       pageContext.data = await dataFn(pageContext)
     } catch (error) {
       console.error('+data hook failed at:', urlPathname)
@@ -106,17 +91,15 @@ async function renderErrorPage(
   originalPathname: string,
   error?: unknown
 ): Promise<Response> {
-  const { errorRoute, config, manifest } = await getVikeState()
-
-  if (!errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
+  if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
 
   try {
-    const { default: onRenderHtml } = await config.onRenderHtml()
+    const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
-      errorRoute.Page(),
-      errorRoute.Head?.() ?? null,
-      errorRoute.Layout?.() ?? null
+      store.errorRoute.Page(),
+      store.errorRoute.Head?.() ?? null,
+      store.errorRoute.Layout?.() ?? null
     ])
 
     const pageContext = {
@@ -135,7 +118,7 @@ async function renderErrorPage(
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
       pageTitleTag: `<title>${status === 404 ? 'Page Not Found' : 'Server Error'}</title>`,
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(errorRoute.page, manifest)
+      assets: getAssets(store.errorRoute.page)
     })
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
@@ -167,8 +150,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     if (isJsonRequest) return Response.json(pageContext)
 
-    const { config, manifest } = await getVikeState()
-    const { default: onRenderHtml } = await config.onRenderHtml()
+    const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
     const html = await onRenderHtml({
       pageContext,
@@ -177,7 +159,7 @@ export default async function renderPage(req: Request): Promise<Response> {
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
       pageTitleTag: pageContext.title ? `<title>${pageContext.title}</title>` : '',
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(route.page, manifest)
+      assets: getAssets(route.page)
     })
 
     return new Response(html, {
