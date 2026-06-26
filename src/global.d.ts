@@ -32,3 +32,8 @@ declare module 'virtual:client-manifest' {
   const manifest: import('./index').Manifest
   export default manifest
 }
+
+export declare global {
+  declare var __PAGE_CONTEXT__: import('./index').PageContext
+  declare var _vike_lite: import('./server/store').VikeState
+}
