@@ -31,38 +31,9 @@ export type Route = {
   hasTitle?: boolean
 }
 
-export type Manifest = Record<string, { file: string; css?: string[]; imports?: string[]; isEntry?: boolean }>
-
-declare module 'virtual:routes' {
-  type Imported<Name extends string, T> = () => Promise<
-    | ({ [K in Name]: T } & { default?: T })
-    | ({ [K in Name]?: T } & { default: T })
-  >
-  export const config: {
-    onRenderClient: () => Promise<{ onRenderClient: () => void }>
-    onRenderHtml: () => Promise<{ onRenderHtml: (pageContext: any) => string }>
-  }
-  export const routes: Array<{
-    path: string
-    page: string
-    hasData: boolean
-    hasTitle: boolean
-    Page: Imported<'Page', HTMLElement>
-    Head?: Imported<'Head', HTMLElement>
-    Layout?: Imported<'Layout', HTMLElement>
-    data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
-    title?: Imported<'title', string | ((pageContext: PageContext) => string)>
-  }>
-  export const errorRoute: {
-    path: string
-    page: string
-    Page: Imported<'Page', HTMLElement>
-    Head?: Imported<'Head', HTMLElement>
-    Layout?: Imported<'Layout', HTMLElement>
-  }
-}
-
-declare module 'virtual:client-manifest' {
-  const manifest: Manifest
-  export default manifest
-}
+export type Manifest = Record<string, {
+  file: string
+  css?: string[]
+  imports?: string[]
+  isEntry?: boolean
+}>

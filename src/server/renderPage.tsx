@@ -6,28 +6,37 @@ import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const cache = {} as { virtualEntryClientId?: string }
-
-function getVirtualEntryClientIdFromManifest(manifest: Manifest) {
-  if (cache.virtualEntryClientId) return cache.virtualEntryClientId
-  for (const key in manifest) {
-    if (manifest[key].isEntry) {
-      return cache.virtualEntryClientId = key
+// DEV: read from virtual module (always updated, HMR-safe)
+// PROD: read from the store (populated once by virtual:vike-lite/setup)
+async function getVikeState() {
+  if (isProd) {
+    return {
+      routes: store.routes,
+      errorRoute: store.errorRoute,
+      config: store.config!,
+      manifest: store.manifest
     }
   }
-  throw new Error('virtual:entry-client not found in manifest')
+  const { routes, errorRoute, config } = await import('virtual:routes')
+  return { routes, errorRoute, config, manifest: undefined }
 }
 
-function getAssets(pageModuleId: string) {
+function getAssets(pageModuleId: string, manifest: Manifest | undefined) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
-    entryClient: '/@id/virtual:entry-client',
+    entryClient: '/@id/virtual:entry-client'
   }
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
-  const { manifest } = store
+
+  function getVirtualEntryClientKey() {
+    for (const key in manifest) {
+      if (manifest[key].isEntry) return key
+    }
+    throw new Error('entry-client not found in manifest')
+  }
 
   function collectAssets(key: string) {
     const chunk = manifest![key]
@@ -37,19 +46,20 @@ function getAssets(pageModuleId: string) {
     if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
   }
 
-  const virtualEntryClientId = getVirtualEntryClientIdFromManifest(manifest!)
-  collectAssets(virtualEntryClientId)
+  const virtualEntryClientKey = getVirtualEntryClientKey()
+  collectAssets(virtualEntryClientKey)
   collectAssets(pageModuleId.replace('@/', ''))
 
   return {
     cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="/${href}">`).join(''),
     jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="/${href}">`).join(''),
-    entryClient: '/' + manifest![virtualEntryClientId].file,
+    entryClient: '/' + manifest![virtualEntryClientKey].file
   }
 }
 
 async function buildPageContext(urlPathname: string, urlOriginal: string, isJsonRequest: boolean) {
-  const matched = matchRoute(urlPathname, store.routes)
+  const { routes } = await getVikeState()
+  const matched = matchRoute(urlPathname, routes)
   if (!matched) return null
 
   const { route, routeParams } = matched
@@ -94,19 +104,19 @@ async function renderErrorPage(
   req: Request,
   status: 404 | 500,
   originalPathname: string,
-  error?: unknown,
+  error?: unknown
 ): Promise<Response> {
-  if (!store.errorRoute) {
-    return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
-  }
+  const { errorRoute, config, manifest } = await getVikeState()
+
+  if (!errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
 
   try {
-    const { default: onRenderHtml } = await store.config!.onRenderHtml()
+    const { default: onRenderHtml } = await config.onRenderHtml()
 
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
-      store.errorRoute.Page(),
-      store.errorRoute.Head?.() ?? null,
-      store.errorRoute.Layout?.() ?? null
+      errorRoute.Page(),
+      errorRoute.Head?.() ?? null,
+      errorRoute.Layout?.() ?? null
     ])
 
     const pageContext = {
@@ -125,7 +135,7 @@ async function renderErrorPage(
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
       pageTitleTag: `<title>${status === 404 ? 'Page Not Found' : 'Server Error'}</title>`,
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(store.errorRoute.page)
+      assets: getAssets(errorRoute.page, manifest)
     })
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
@@ -157,7 +167,8 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     if (isJsonRequest) return Response.json(pageContext)
 
-    const { default: onRenderHtml } = await store.config!.onRenderHtml()
+    const { config, manifest } = await getVikeState()
+    const { default: onRenderHtml } = await config.onRenderHtml()
 
     const html = await onRenderHtml({
       pageContext,
@@ -166,7 +177,7 @@ export default async function renderPage(req: Request): Promise<Response> {
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
       pageTitleTag: pageContext.title ? `<title>${pageContext.title}</title>` : '',
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(route.page)
+      assets: getAssets(route.page, manifest)
     })
 
     return new Response(html, {

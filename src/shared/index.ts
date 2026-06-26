@@ -12,4 +12,9 @@ export interface RenderContext {
   }
 }
 
+export type Config = {
+  onRenderHtml: () => Promise<{ default: (ctx: RenderContext) => Promise<string> }>
+  onRenderClient: () => Promise<{ default: (opts: { routes: any[]; errorRoute: any }) => void }>
+}
+
 export { default as matchRoute } from './matchRoute'
