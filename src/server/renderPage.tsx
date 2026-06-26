@@ -1,20 +1,12 @@
 import type { Manifest, PageContext } from '..'
 import matchRoute from '../shared/matchRoute'
+import serializeContext from '../utils/serializeContext'
 import { AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
 const cache = {} as { virtualEntryClientId?: string }
-
-const ESCAPE_LOOKUP: Record<string, string> = {
-  '&': String.raw`\u0026`,
-  '>': String.raw`\u003e`,
-  '<': String.raw`\u003c`,
-  '\u{2028}': String.raw`\u2028`,
-  '\u{2029}': String.raw`\u2029`
-}
-const ESCAPE_REGEX = /[&><\u{2028}\u{2029}]/gu
 
 function getVirtualEntryClientIdFromManifest(manifest: Manifest) {
   if (cache.virtualEntryClientId) return cache.virtualEntryClientId
@@ -141,10 +133,6 @@ async function renderErrorPage(
     console.error('Error page render failed:', renderError)
     return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
   }
-}
-
-function serializeContext(data: unknown): string {
-  return JSON.stringify(data).replaceAll(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match])
 }
 
 export default async function renderPage(req: Request): Promise<Response> {
