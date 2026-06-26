@@ -4,7 +4,6 @@ import { AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
-const virtualEntryClientId = 'virtual:entry-client'
 
 const ESCAPE_LOOKUP: Record<string, string> = {
   '&': String.raw`\u0026`,
@@ -30,6 +29,15 @@ function getAssets(pageModuleId: string) {
   const jsFiles = new Set<string>()
   const manifest = store.manifest
 
+  function getVirtualEntryClientIdFromManifest() {
+    for (const key in manifest) {
+      if (manifest[key].isEntry) {
+        return key
+      }
+    }
+    throw new Error('virtual:entry-client not found in manifest')
+  }
+
   function collectAssets(key: string) {
     const chunk = manifest![key]
     if (!chunk) throw new Error(`Asset not found in manifest for key: ${key}`)
@@ -38,6 +46,7 @@ function getAssets(pageModuleId: string) {
     if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
   }
 
+  const virtualEntryClientId = getVirtualEntryClientIdFromManifest()
   collectAssets(virtualEntryClientId)
   collectAssets(pageModuleId.replace('@/', ''))
 
