@@ -78,61 +78,40 @@ function generateRoutes(pagesAbsPath: string): { routes: Route[]; errorRoute?: R
   return { routes, errorRoute }
 }
 
-const cssCache = new Map<string, string>()
-
 /**
  * Anti-FOUC: Inspect all known SSR modules, ask the client environment
  * to translate them into plain text (thanks to ?direct) and return them.
  */
-async function injectFOUCStyles(
-  server: ViteDevServer,
-  html: string
-): Promise<string> {
+async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<string> {
+  const styles = new Set<string>()
   const ssrEnv = server.environments.ssr
   const clientEnv = server.environments.client
-  const styles = new Set<string>()
 
   // Instead of navigating the tree (which fails with dynamic import()),
   // we iterate over all known modules in the graph and filter the CSS.
   for (const mod of ssrEnv.moduleGraph.idToModuleMap.values()) {
-    if (mod.file && /\.(css|scss|sass|less|styl|stylus)($|\?)/.test(mod.file)) {
-      let css = cssCache.get(mod.file)
-
-      if (!css) {
-        try {
-          // Ask the CLIENT environment to render the raw CSS code. 
-          // ?direct is essential in Vite to bypass the Javascript wrapping of HMR.
-          const url = mod.url.split('?', 1)[0] + '?direct'
-          const result = await clientEnv.transformRequest(url)
-          css = result?.code ?? ''
-          cssCache.set(mod.file, css)
-        } catch {
-          // Skip interruptions to avoid breaking during dev-typing
-        }
-      }
-
-      if (css) styles.add(css)
+    if (!(mod.file && /\.(css|scss|sass|less|styl|stylus)($|\?)/.test(mod.file))) continue
+    const url = mod.url.split('?', 1)[0] + '?direct'
+    try {
+      const result = await clientEnv.transformRequest(url)
+      if (result?.code) styles.add(result.code)
+    } catch (e) {
+      // Skip interruptions to avoid breaking during dev-typing
     }
   }
 
+  // If there's no CSS, return the HTML as is
   if (styles.size === 0) return html
 
+  // Merge all CSS
+  const cssContent = Array.from(styles).join('')
   const headEndIndex = html.lastIndexOf('</head>')
-  const bodyEndIndex = html.lastIndexOf('</body>')
 
-  let cssContent = ''
-  for (const s of styles) cssContent += s
+  // Safety check: if for some reason there's no </head>, don't break anything
+  if (headEndIndex === -1) return html;
 
-  const inlineCss = `<style type="text/css" data-vite-dev-fouc>${cssContent}</style>`
-  // data-vite-dev-fouc ignores the styles from HMR.
-  // So automatically remove it after its styles are applied during the first rendering.
-  const cleanupScript = `<script type="module" data-vite-dev-fouc-cleanup>requestAnimationFrame(()=>{document.querySelectorAll('[data-vite-dev-fouc]').forEach(el=>el.remove());document.currentScript?.remove();})</script>`
-
-  return html.slice(0, headEndIndex)
-    + inlineCss
-    + html.slice(headEndIndex, bodyEndIndex)
-    + cleanupScript
-    + html.slice(bodyEndIndex)
+  // Inject the style block before the closing </head>
+  return `${html.slice(0, headEndIndex)}<style type="text/css" data-vite-dev-fouc>${cssContent}</style>${html.slice(headEndIndex)}`
 }
 
 export default function routerPlugin({
@@ -363,11 +342,6 @@ export default function routerPlugin({
             next(error)
           }
         })
-      }
-    },
-    handleHotUpdate(ctx) {
-      if (/\.(css|scss|sass|less|styl|stylus)$/.test(ctx.file)) {
-        cssCache.delete(ctx.file)
       }
     }
   }
