@@ -78,27 +78,40 @@ function generateRoutes(pagesAbsPath: string): { routes: Route[]; errorRoute?: R
   return { routes, errorRoute }
 }
 
+const cssCache = new Map<string, string>()
+
 /**
  * Anti-FOUC: Inspect all known SSR modules, ask the client environment
  * to translate them into plain text (thanks to ?direct) and return them.
  */
-async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<string> {
-  const styles = new Set<string>()
+async function injectFOUCStyles(
+  server: ViteDevServer,
+  html: string
+): Promise<string> {
   const ssrEnv = server.environments.ssr
   const clientEnv = server.environments.client
+  const styles = new Set<string>()
 
-  // Watch the entire SSR module map to find the files imported so far.
+  // Instead of navigating the tree (which fails with dynamic import()),
+  // we iterate over all known modules in the graph and filter the CSS.
   for (const mod of ssrEnv.moduleGraph.idToModuleMap.values()) {
-    if (!(mod.file && /\.(css|scss|sass|less|styl|stylus)($|\?)/.test(mod.file))) continue
-    // Clean the module URL to get the original file path (remove query params)
-    const url = mod.url.split('?', 1)[0]
-    try {
-      // Ask the CLIENT environment to render the raw CSS code. 
-      // ?direct is essential in Vite to bypass the Javascript wrapping of HMR.
-      const result = await clientEnv.transformRequest(url + '?direct')
-      if (result?.code) styles.add(result.code)
-    } catch {
-      // Skip interruptions to avoid breaking during dev-typing
+    if (mod.file && /\.(css|scss|sass|less|styl|stylus)($|\?)/.test(mod.file)) {
+      let css = cssCache.get(mod.file)
+
+      if (!css) {
+        try {
+          // Ask the CLIENT environment to render the raw CSS code. 
+          // ?direct is essential in Vite to bypass the Javascript wrapping of HMR.
+          const url = mod.url.split('?', 1)[0] + '?direct'
+          const result = await clientEnv.transformRequest(url)
+          css = result?.code ?? ''
+          cssCache.set(mod.file, css)
+        } catch {
+          // Skip interruptions to avoid breaking during dev-typing
+        }
+      }
+
+      if (css) styles.add(css)
     }
   }
 
@@ -136,6 +149,7 @@ export default function routerPlugin({
   const virtualEntryClientId = 'virtual:entry-client'
   const virtualSetupId = 'virtual:vike-lite/setup'
   const virtualEntryServerId = 'virtual:entry-server'
+
   const resolvedVirtualModuleId = '\0' + virtualModuleId
   const resolvedVirtualManifestId = '\0' + virtualManifestId
   const resolvedVirtualEntryClientId = '\0' + virtualEntryClientId
@@ -281,8 +295,8 @@ export default function routerPlugin({
       if (id === resolvedVirtualEntryServerId) {
         const normalizedServerEntry = path.join(viteConfigRoot, serverEntry).replaceAll('\\', '/')
         return `import '${virtualSetupId}';
-        export * from '${normalizedServerEntry}'
-        export { default } from '${normalizedServerEntry}'`
+          export * from '${normalizedServerEntry}';
+          export { default } from '${normalizedServerEntry}';`
       }
     },
     configureServer(server) {
@@ -293,20 +307,9 @@ export default function routerPlugin({
           try {
             const ssrEnv = server.environments.ssr as RunnableDevEnvironment
 
-            // Dev: populate the store on every request by importing virtual:routes
-            // directly from the Module Runner — this way routes are always up-to-date
-            // after page modifications (HMR-safe), without renderPage
-            // needing to know about the virtual module.
-            const { routes, errorRoute, config } = await ssrEnv.runner.import(virtualModuleId) as typeof import('virtual:routes')
-
-            const { setVikeState } = await ssrEnv.runner.import('vike-lite/__internal/server') as typeof import('./server/internal')
-            setVikeState({ routes, errorRoute, config })
-
-            const absoluteServerEntry = path.join(viteConfigRoot, serverEntry)
-
             // Dynamically import the server app to ensure it uses the latest dev code
             // Migrated from server.ssrLoadModule with the new Environment Module Runner API
-            const { default: app } = await ssrEnv.runner.import(absoluteServerEntry) as { default: { fetch: typeof fetch } }
+            const { default: app } = await ssrEnv.runner.import(resolvedVirtualEntryServerId) as { default: { fetch: typeof fetch } }
 
             const headers = new Headers()
             for (const [key, value] of Object.entries(req.headers)) {
@@ -361,6 +364,11 @@ export default function routerPlugin({
             next(error)
           }
         })
+      }
+    },
+    handleHotUpdate(ctx) {
+      if (/\.(css|scss|sass|less|styl|stylus)$/.test(ctx.file)) {
+        cssCache.delete(ctx.file)
       }
     }
   }
