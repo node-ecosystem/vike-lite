@@ -116,7 +116,7 @@ async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<st
 
 export default function routerPlugin({
   pagesDir = 'pages',
-  serverEntry = 'server/index.ts',
+  serverEntry = 'server/index',
   apiPrefix = '/api'
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
