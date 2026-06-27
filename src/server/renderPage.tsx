@@ -91,7 +91,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
 async function renderErrorPage(
   req: Request,
   status: 404 | 500,
-  originalPathname: string,
+  urlPathname: string,
   error?: unknown
 ): Promise<Response> {
   if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
@@ -107,7 +107,7 @@ async function renderErrorPage(
 
     const pageContext = {
       urlOriginal: req.url,
-      urlPathname: originalPathname,
+      urlPathname,
       routeParams: {},
       is404: status === 404,
       is500: status === 500,
