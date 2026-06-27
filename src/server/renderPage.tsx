@@ -51,11 +51,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
   if (!matched) return null
 
   const { route, routeParams } = matched
-  const pageContext = {
-    routeParams,
-    urlOriginal,
-    urlPathname
-  } as PageContext
+  const pageContext = { routeParams, urlOriginal, urlPathname } as PageContext
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
     route.data?.() ?? null,
