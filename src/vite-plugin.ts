@@ -121,6 +121,7 @@ export default function routerPlugin({
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
+  let outDir: string
   const virtualModuleId = 'virtual:routes'
   const virtualManifestId = 'virtual:client-manifest'
   // TODO add check for an adapter like vike-lite-solid is installed, otherwise throw an error
@@ -137,15 +138,17 @@ export default function routerPlugin({
 
   return {
     name: 'vike-lite',
-    config() {
-      // Fix white page issue: Disable Vite's internal HTML middleware      
+    config(config) {
+      outDir = config.build?.outDir ?? 'dist'
+      const emptyOutDir = config.build?.emptyOutDir
       return {
+        // Fix white page issue: Disable Vite's internal HTML middleware      
         appType: 'custom',
         environments: {
           client: {
             build: {
-              outDir: '../dist/client',
-              emptyOutDir: true,
+              outDir: path.join(outDir, 'client'),
+              emptyOutDir: emptyOutDir ?? true,
               cssMinify: true,
               manifest: true,
               rolldownOptions: {
@@ -172,8 +175,8 @@ export default function routerPlugin({
           ssr: {
             build: {
               target: 'esnext',
-              outDir: '../dist/server',
-              emptyOutDir: true,
+              outDir: path.join(outDir, 'server'),
+              emptyOutDir: emptyOutDir ?? true,
               rolldownOptions: {
                 input: virtualEntryServerId,
                 output: {
@@ -244,7 +247,7 @@ export default function routerPlugin({
       // Generate virtual manifest
       if (id === resolvedVirtualManifestId) {
         if (!isProd || !options?.ssr) return 'export default {}'
-        const manifestPath = path.join(viteConfigRoot, '../dist/client/.vite/manifest.json')
+        const manifestPath = path.join(viteConfigRoot, outDir, 'client/.vite/manifest.json')
         const manifestContent = fs.readFileSync(manifestPath, 'utf8')
         return `export default ${manifestContent}`
       }
