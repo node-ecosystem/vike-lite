@@ -161,10 +161,7 @@ export default async function renderPage(req: Request): Promise<Response> {
       assets: getAssets(route.page)
     })
 
-    return new Response(html, {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    })
+    return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })
 
   } catch (error) {
     if (error instanceof AbortRender) {
