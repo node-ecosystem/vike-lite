@@ -1,21 +1,33 @@
-// TODO check type of routes
-export default function matchRoute(urlPathname: string, routes: typeof import('virtual:routes').routes) {
+const regexCache = new Map<string, { regex: RegExp; paramNames: string[] }>()
+
+export default function matchRoute(
+  urlPathname: string,
+  routes: typeof import('virtual:routes').routes
+) {
   for (const route of routes) {
-    const paramNames: string[] = []
-    const regexPath = route.path.replaceAll(/:([^/]+)/g, (_, paramName) => {
-      paramNames.push(paramName)
-      return '([^/]+)'
-    })
+    if (!route.path.includes(':')) {
+      if (route.path === urlPathname || route.path + '/' === urlPathname) {
+        return { route, routeParams: {} }
+      }
+      continue
+    }
 
-    // Exact match for the route
-    const regex = new RegExp(`^${regexPath}/?$`)
-    const match = urlPathname.match(regex)
+    let compiled = regexCache.get(route.path)
+    if (!compiled) {
+      const paramNames: string[] = []
+      const regexPath = route.path.replace(/:([^/]+)/g, (_, name) => {
+        paramNames.push(name)
+        return '([^/]+)'
+      })
+      compiled = { regex: new RegExp(`^${regexPath}/?$`), paramNames }
+      regexCache.set(route.path, compiled)
+    }
 
+    const match = urlPathname.match(compiled.regex)
     if (match) {
-      let index = 0
       const routeParams: Record<string, string> = {}
-      for (const name of paramNames) {
-        routeParams[name] = match[++index]
+      for (let i = 0; i < compiled.paramNames.length; i++) {
+        routeParams[compiled.paramNames[i]] = match[i + 1]
       }
       return { route, routeParams }
     }
