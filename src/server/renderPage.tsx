@@ -151,7 +151,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
-    const html = await onRenderHtml({
+    const html = onRenderHtml({
       pageContext,
       Page: (PageModule!.Page ?? PageModule!.default)!,
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
