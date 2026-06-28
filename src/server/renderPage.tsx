@@ -110,7 +110,7 @@ async function renderErrorPage(
       errorMessage: status === 500 && error instanceof Error ? error.message : undefined
     } as PageContext
 
-    const html = await onRenderHtml({
+    const html = onRenderHtml({
       pageContext,
       Page: (PageModule.Page ?? PageModule.default)!,
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,

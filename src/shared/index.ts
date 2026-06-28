@@ -13,7 +13,7 @@ export interface RenderContext {
 }
 
 export type Config = {
-  onRenderHtml: () => Promise<{ default: (ctx: RenderContext) => Promise<string> }>
+  onRenderHtml: () => Promise<{ default: (ctx: RenderContext) => string }>
   onRenderClient: () => Promise<{ default: (opts: { routes: any[]; errorRoute: any }) => void }>
 }
 
