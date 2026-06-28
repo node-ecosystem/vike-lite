@@ -10,12 +10,14 @@ declare module 'virtual:routes' {
   export const routes: Array<{
     path: string
     page: string
-    hasData: boolean
-    hasTitle: boolean
     Page: Imported<'Page', HTMLElement>
+    head?: string
     Head?: Imported<'Head', HTMLElement>
+    layout?: string
     Layout?: Imported<'Layout', HTMLElement>
+    hasData: boolean
     data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
+    hasTitle: boolean
     title?: Imported<'title', string | ((pageContext: PageContext) => string)>
   }>
 

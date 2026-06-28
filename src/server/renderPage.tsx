@@ -6,7 +6,7 @@ import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
-function getAssets(pageModuleId: string) {
+function getAssets(route: typeof import('virtual:routes').routes[number]) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
@@ -15,7 +15,7 @@ function getAssets(pageModuleId: string) {
 
   const cssFiles = new Set<string>()
   const jsFiles = new Set<string>()
-  const visitedKeys = new Set()
+  const visitedKeys = new Set<string>()
   const { manifest } = store
 
   function getVirtualEntryClientKey() {
@@ -26,10 +26,7 @@ function getAssets(pageModuleId: string) {
   function collectAssets(key: string) {
     if (visitedKeys.has(key)) return
     visitedKeys.add(key)
-
     const chunk = manifest![key]
-    if (!chunk) throw new Error(`Asset not found in manifest for key: ${key}`)
-
     jsFiles.add(chunk.file)
     if (chunk.css) for (const css of chunk.css) cssFiles.add(css)
     if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
@@ -37,11 +34,15 @@ function getAssets(pageModuleId: string) {
 
   const virtualEntryClientKey = getVirtualEntryClientKey()
   collectAssets(virtualEntryClientKey)
-  collectAssets(pageModuleId.replace('@/', ''))
+
+  const { page, layout, head } = route
+  collectAssets(page.replace('@/', ''))
+  if (head) collectAssets(head.replace('@/', ''))
+  if (layout) collectAssets(layout.replace('@/', ''))
 
   return {
-    cssLinks: [...cssFiles].map((href) => `<link rel="stylesheet" href="/${href}">`).join(''),
-    jsPreloads: [...jsFiles].map((href) => `<link rel="modulepreload" href="/${href}">`).join(''),
+    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="/${href}">`).join(''),
+    jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="/${href}">`).join(''),
     entryClient: `/${manifest![virtualEntryClientKey].file}`
   }
 }
@@ -117,7 +118,7 @@ async function renderErrorPage(
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
       pageTitleTag: `<title>${status === 404 ? 'Page Not Found' : 'Server Error'}</title>`,
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(store.errorRoute.page)
+      assets: getAssets(store.errorRoute)
     })
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
@@ -158,7 +159,7 @@ export default async function renderPage(req: Request): Promise<Response> {
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
       pageTitleTag: pageContext.title ? `<title>${pageContext.title}</title>` : '',
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(route.page)
+      assets: getAssets(route)
     })
 
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })

@@ -220,9 +220,10 @@ export default function routerPlugin({
           + `export const routes = [\n`
 
         for (const r of routes) {
-          code += `{path:'${r.path}',page:'${r.page}',hasData:${r.hasData},hasTitle:${r.hasTitle},Page:()=>import('${r.page}'),`
-          if (r.head) code += `Head:()=>import('${r.head}'),`
-          if (r.layout) code += `Layout:()=>import('${r.layout}'),`
+          code += `{path:'${r.path}',page:'${r.page}',Page:()=>import('${r.page}'),`
+          if (r.head) code += `head:'${r.head}',Head:()=>import('${r.head}'),`
+          if (r.layout) code += `layout:'${r.layout}',Layout:()=>import('${r.layout}'),`
+          code += `hasData:${r.hasData},hasTitle:${r.hasTitle},`
           if (isSSR) {
             if (r.hasData) code += `data:()=>import('${r.page.replace('+Page.tsx', '+data.ts')}'),`
             if (r.hasTitle) code += `title:()=>import('${r.page.replace('+Page.tsx', '+title.ts')}'),`
@@ -234,8 +235,8 @@ export default function routerPlugin({
         if (errorRoute) {
           const e = errorRoute
           code += `export const errorRoute={path:'${e.path}',page:'${e.page}',Page:()=>import('${e.page}'),`
-          if (e.layout) code += `Layout:()=>import('${e.layout}'),`
-          if (e.head) code += `Head:()=>import('${e.head}'),`
+          if (e.layout) code += `layout:'${e.layout}',Layout:()=>import('${e.layout}'),`
+          if (e.head) code += `head:'${e.head}',Head:()=>import('${e.head}'),`
           code += '};\n'
         } else {
           code += 'export const errorRoute=null;\n'
