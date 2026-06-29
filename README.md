@@ -1,5 +1,11 @@
 # vike-lite
 
+Light version of [Vike](https://vike.dev)
+
+### ✨ Features
+❯ **Zero dependencies:**<br> _light_ with less dependencies and essential checks
+❯ **Functionalities:**<br> [See documentation](doc/FUNCTIONALITIES)
+
 ### ⬇️ Clone
 ```sh
 git clone https://github.com/node-ecosystem/vike-lite.git
@@ -22,7 +28,11 @@ import vikeLite from 'vike-lite/vite'
 
 export default {
   plugins: [
-    vikeLite()
+    vikeLite({
+      pagesDir = 'pages', // default
+      serverEntry = 'server/index', // default
+      apiPrefix = '/api'  // default
+    })
   ]
 } satisfies UserConfig
 ```
@@ -46,7 +56,7 @@ if (process.env.NODE_ENV === 'production') {
 
 app.route('/api', apiRoutes)
 
-// Catch-all remaining requests using custom rendering
+// Catch-all remaining requests (pages) using custom rendering
 app.get('*', async (c, next) => {
   const response = await renderPage(c.req.raw)
   return response ?? next()
@@ -59,3 +69,5 @@ app.onError((error, c) => {
 
 export default app
 ```
+
+This project is licensed under the [MIT License](LICENSE).
