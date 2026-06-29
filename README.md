@@ -6,11 +6,6 @@ Light version of [Vike](https://vike.dev)
 ❯ **Zero dependencies:**<br> _light_ with less dependencies and essential checks
 ❯ **Functionalities:**<br> [See documentation](doc/FUNCTIONALITIES)
 
-### ⬇️ Clone
-```sh
-git clone https://github.com/node-ecosystem/vike-lite.git
-```
-
 ### ⚙️ Install
 | Package Manager | Command
 | - | -
@@ -69,5 +64,13 @@ app.onError((error, c) => {
 
 export default app
 ```
+
+### 🫶 Contribution
+Clone
+```sh
+git clone https://github.com/node-ecosystem/vike-lite.git
+```
+
+---
 
 This project is licensed under the [MIT License](LICENSE).
