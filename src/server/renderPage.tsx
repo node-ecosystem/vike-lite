@@ -111,7 +111,7 @@ async function renderErrorPage(
       errorMessage: status === 500 && error instanceof Error ? error.message : undefined
     } as PageContext
 
-    const html = onRenderHtml({
+    const html = await onRenderHtml({
       pageContext,
       Page: (PageModule.Page ?? PageModule.default)!,
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
@@ -152,7 +152,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     const { default: onRenderHtml } = await store.config!.onRenderHtml()
 
-    const html = onRenderHtml({
+    const html = await onRenderHtml({
       pageContext,
       Page: (PageModule!.Page ?? PageModule!.default)!,
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
