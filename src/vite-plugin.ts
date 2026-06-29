@@ -141,6 +141,9 @@ export default function routerPlugin({
     config(config) {
       outDir = config.build?.outDir ?? 'dist'
       const emptyOutDir = config.build?.emptyOutDir
+      const minify = config.build?.minify ?? true
+      const cssMinify = config.build?.cssMinify ?? true
+      const sourcemap = config.build?.sourcemap
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware      
         appType: 'custom',
@@ -149,7 +152,9 @@ export default function routerPlugin({
             build: {
               outDir: path.join(outDir, 'client'),
               emptyOutDir: emptyOutDir ?? true,
-              cssMinify: true,
+              minify,
+              cssMinify,
+              sourcemap,
               manifest: true,
               rolldownOptions: {
                 input: virtualEntryClientId,
@@ -177,6 +182,8 @@ export default function routerPlugin({
               target: 'esnext',
               outDir: path.join(outDir, 'server'),
               emptyOutDir: emptyOutDir ?? true,
+              minify,
+              sourcemap,
               rolldownOptions: {
                 input: virtualEntryServerId,
                 output: {
