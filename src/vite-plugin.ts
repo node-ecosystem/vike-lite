@@ -140,10 +140,7 @@ export default function routerPlugin({
     name: 'vike-lite',
     config(config) {
       outDir = config.build?.outDir ?? 'dist'
-      const emptyOutDir = config.build?.emptyOutDir
-      const minify = config.build?.minify ?? true
-      const cssMinify = config.build?.cssMinify ?? true
-      const sourcemap = config.build?.sourcemap
+      const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware      
         appType: 'custom',
