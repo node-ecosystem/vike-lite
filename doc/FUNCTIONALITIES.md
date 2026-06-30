@@ -17,22 +17,23 @@
 | Hook | [+config](https://vike.dev/config) | ✅ | ⏳
 | Hook | [+data](https://vike.dev/data) | ✅ | ✅
 | Hook | [+onBeforeRoute](https://vike.dev/onBeforeRoute) | ✅ | ⏳
-| | [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` | ✅ | ⏳
-| | [pageContext](https://vike.dev/pageContext) | ✅ | ✅
-| | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
-| | [HTTP Headers](https://vike.dev/headers) in pageContext | ✅ | ❌/⏳(to check)
+| Client/Server | [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` and `modifyUrl()` | ✅ | ⏳
+| Server | [pageContext](https://vike.dev/pageContext) | ✅ | ✅
+| Server | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
+| Server | [HTTP Headers](https://vike.dev/headers) in pageContext | ✅ | ❌/⏳(to check)
 | Hook | [+headersResponse](https://vike.dev/headersResponse) | ✅ | ⏳
 | Hook | [+title Hook](https://vike.dev/title) | ✅ | ✅
 | | [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | Hook | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
-| Util | [renderPage](https://vike.dev/renderPage) | ✅ | ✅
-| Build | [Standalone](https://vike.dev/server#standalone) | ✅ | ✅
+| Util | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅
 | Server | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
 | Server | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
 | Server | [Environment Variables](https://vike.dev/env) | ✅ | ✅/⏳(to check or replace)
 | Dev | [HMR](https://vike.dev/server#hmr) | ✅ | ✅
 | Dev | [Paths Aliases](https://vike.dev/path-aliases) | ✅ | ✅
 | Dev | `vike dev` command | ✅ | use `vite dev`
+| CLI | [CLI as API](https://vike.dev/api) | ✅ | ❌/⏳(to check)
+| Build | [Standalone](https://vike.dev/server#standalone) | ✅ | ✅
 | Build | `vike build` command | ✅ | use `vite build`
 | Required | `vite` version | >=6.3.0 | >=8
 | Required | `Node.js` version | >=20.19.0 | >=20.19.0 || >=22.12.0
