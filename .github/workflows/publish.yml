@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   publish_package:
-    if: startsWith(github.event.head_commit.message, 'release:')
+    if: startsWith(github.event.head_commit.message, 'release(')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,14 +18,27 @@ jobs:
     environment: release
     steps:
       - uses: actions/checkout@v6
+      - name: Extract package name
+        id: extract
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          PACKAGE_NAME=$(echo "$COMMIT_MSG" | sed -n 's/^release(\([^)]*\)):.*/\1/p')
+          if [ -z "$PACKAGE_NAME" ]; then
+            echo "Missing package name. Expected format: \"release(package-name):\""
+            exit 1
+          fi
+          echo "Package: $PACKAGE_NAME"
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
       - name: Install Node
         uses: actions/setup-node@v6
         with:
           node-version: 26
           registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies & build
+        working-directory: ./packages/${{ steps.extract.outputs.package_name }}
         run: yarn install && yarn build
       - name: Create NPM release
+        working-directory: ./packages/${{ steps.extract.outputs.package_name }}
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -34,16 +47,7 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo
-
-            const { data: releases } = await github.rest.repos.listReleases({
-              owner,
-              repo
-            })
-
-            const defaultBranch = context.ref.replace('refs/heads/', '')
-            const version = require('./package.json').version
-            const versionTag = `v${version}`
-
+            const { data: releases } = await github.rest.repos.listReleases({ owner, repo })
             let releaseNotes = ''
             if (releases.length === 0) {
               releaseNotes = 'First release!'
@@ -91,6 +95,11 @@ jobs:
               if (features.length > 0) releaseNotes += '### Features\n' + features.join('\n') + '\n\n'
               if (fixes.length > 0) releaseNotes += '### Bug Fixes\n' + fixes.join('\n') + '\n\n'
             }
+
+            const packageName = `${{ steps.extract.outputs.package_name }}`
+            const version = require(`./packages/${packageName}/package.json`).version
+            const versionTag = `${packageName}@v${version}`
+            const defaultBranch = context.ref.replace('refs/heads/', '')
 
             await github.rest.repos.createRelease({
               owner,

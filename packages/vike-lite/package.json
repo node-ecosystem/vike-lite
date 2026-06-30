@@ -1,0 +1,55 @@
+{
+  "name": "vike-lite",
+  "version": "1.2.2",
+  "license": "MIT",
+  "type": "module",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.mts",
+      "import": "./dist/vite.mjs"
+    },
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "import": "./dist/server.mjs"
+    },
+    "./__internal/shared": {
+      "types": "./dist/__internal/shared.d.mts",
+      "import": "./dist/__internal/shared.mjs"
+    },
+    "./__internal/server": {
+      "types": "./dist/__internal/server.d.mts",
+      "import": "./dist/__internal/server.mjs"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
+  },
+  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
+  "bugs": {
+    "url": "https://github.com/node-ecosystem/vike-lite/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src/**/*.ts",
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "tsdown": "^0.22.3",
+    "vite": "^8.1.0"
+  },
+  "peerDependencies": {
+    "vite": ">=8"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "vike-lite-solid",
+  "version": "1.0.22",
+  "license": "MIT",
+  "type": "module",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "solid": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    },
+    "./vite": {
+      "import": "./dist/vite.mjs",
+      "types": "./dist/vite.d.mts"
+    },
+    "./__internal/integrations/client/onRenderClient": {
+      "solid": "./src/integrations/client/onRenderClient.tsx",
+      "import": "./src/integrations/client/onRenderClient.tsx"
+    },
+    "./__internal/integrations/server/onRenderHtml": {
+      "solid": "./src/integrations/server/onRenderHtml.tsx",
+      "import": "./src/integrations/server/onRenderHtml.tsx"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-ecosystem/vike-lite-solid.git"
+  },
+  "homepage": "https://github.com/node-ecosystem/vike-lite-solid#readme",
+  "bugs": {
+    "url": "https://github.com/node-ecosystem/vike-lite-solid/issues"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "solid-js": "^1.9.13",
+    "tsdown": "^0.22.3",
+    "vike-lite": "workspace:*",
+    "vite": "^8.1.0",
+    "vite-plugin-solid": "^2.11.12"
+  },
+  "peerDependencies": {
+    "solid-js": "*",
+    "vike-lite": "*",
+    "vite": ">=8",
+    "vite-plugin-solid": "*"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

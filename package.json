@@ -1,31 +1,8 @@
 {
-  "name": "vike-lite",
-  "version": "1.2.2",
+  "name": "vike-lite-monorepo",
   "license": "MIT",
   "type": "module",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts"
-    },
-    "./vite": {
-      "types": "./dist/vite.d.mts",
-      "import": "./dist/vite.mjs"
-    },
-    "./server": {
-      "types": "./dist/server.d.mts",
-      "import": "./dist/server.mjs"
-    },
-    "./__internal/shared": {
-      "types": "./dist/__internal/shared.d.mts",
-      "import": "./dist/__internal/shared.mjs"
-    },
-    "./__internal/server": {
-      "types": "./dist/__internal/server.d.mts",
-      "import": "./dist/__internal/server.mjs"
-    }
-  },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/node-ecosystem/vike-lite.git"
@@ -34,29 +11,21 @@
   "bugs": {
     "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "lint": "eslint src/**/*.{ts,tsx} *.ts",
-    "build": "tsdown",
+    "lint": "eslint packages/*/src/**/*.{ts,tsx}",
     "od": "yarn outdated"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
     "@yarnpkg/sdks": "^3.3.0",
     "eslint": "^10.6.0",
+    "eslint-plugin-solid": "^0.14.5",
     "eslint-plugin-unicorn": "^69.0.0",
-    "tsdown": "^0.22.3",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.0",
-    "vite": "^8.1.0"
+    "typescript-eslint": "^8.62.1"
   },
-  "peerDependencies": {
-    "vite": ">=8"
-  },
-  "engines": {
-    "node": "^20.19.0 || >=22.12.0"
-  },
-  "packageManager": "yarn@4.17.0"
+  "packageManager": "yarn@4.17.0",
+  "workspaces": [
+    "packages/*"
+  ]
 }
