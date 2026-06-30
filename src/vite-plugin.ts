@@ -228,7 +228,7 @@ export default function routerPlugin({
           code += `hasData:${r.hasData},hasTitle:${r.hasTitle},`
           if (isSSR) {
             if (r.hasData) code += `data:()=>import('/${r.page.replace('+Page.tsx', '+data.ts')}'),`
-            if (r.hasTitle) code += `title:()=>import('${r.page.replace('+Page.tsx', '+title.ts')}'),`
+            if (r.hasTitle) code += `title:()=>import('/${r.page.replace('+Page.tsx', '+title.ts')}'),`
           }
           code += '},'
         }
