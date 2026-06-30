@@ -15,7 +15,7 @@ export default function matchRoute(
     let compiled = regexCache.get(route.path)
     if (!compiled) {
       const paramNames: string[] = []
-      const regexPath = route.path.replace(/:([^/]+)/g, (_, name) => {
+      const regexPath = route.path.replaceAll(/:([^/]+)/g, (_, name) => {
         paramNames.push(name)
         return '([^/]+)'
       })
