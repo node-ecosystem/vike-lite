@@ -5,6 +5,9 @@
 | Routing | [Routing group](https://vike.dev/routing#groups) | ✅ | ❌/⏳
 | Routing | [Base URL](https://vike.dev/base-url) | ✅ | ✅
 | Routing | [Active Links](https://vike.dev/active-links) | ✅ | ✅
+| Routing | [Route String](https://vike.dev/route-string) | ✅ | ❌/⏳(to check if implement `+route`)
+| Routing | [Route Function](https://vike.dev/route-function) | ✅ | ❌/⏳(to check if implement `+route`)
+| Routing | [Route Precedence](https://vike.dev/routing-precedence) | ✅ | ❌/⏳(to check if implement `+route`)
 | Guide | [Static Directory (_/public_)](https://vike.dev/static-directory) | ✅ | ✅
 | Page | [+Page](https://vike.dev/Page) | ✅ | ✅
 | Page | [+Head](https://vike.dev/Head) | ✅ | ✅
