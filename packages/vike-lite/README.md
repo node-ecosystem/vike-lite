@@ -4,7 +4,7 @@ Light version of [Vike](https://vike.dev)
 
 ### ✨ Features
 ❯ **Zero dependencies:**<br> _light_ with less dependencies and essential checks
-❯ **Functionalities:**<br> [See documentation](doc/FUNCTIONALITIES)
+❯ **Functionalities:**<br> [See documentation](doc/FUNCTIONALITIES.md)
 
 ### ⚙️ Install
 | Package Manager | Command
