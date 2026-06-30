@@ -13,11 +13,17 @@
 | [+guard File](https://vike.dev/guard) | ✅ | ⏳
 | [+config File](https://vike.dev/config) | ✅ | ⏳
 | [+data Hook](https://vike.dev/data) | ✅ | ✅
+| [+onBeforeRoute](https://vike.dev/onBeforeRoute) | ✅ | ⏳
+| [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` | ✅ | ⏳
+| [pageContext](https://vike.dev/pageContext) | ✅ | ✅
 | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
+| [HTTP Headers](https://vike.dev/headers) in pageContext | ✅ | ❌/⏳(to check)
+| [+headersResponse](https://vike.dev/headersResponse) | ✅ | ⏳
 | [+title Hook](https://vike.dev/title) | ✅ | ✅
 | [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
 | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
+| [renderPage](https://vike.dev/renderPage) | ✅ | ✅
 | [Standalone](https://vike.dev/server#standalone) | ✅ | ✅
 | [HMR](https://vike.dev/server#hmr) | ✅ | ✅
 | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
