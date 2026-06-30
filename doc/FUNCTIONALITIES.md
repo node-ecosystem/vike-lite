@@ -5,7 +5,7 @@
 | [Routing group](https://vike.dev/routing#groups) | ✅ | ❌/⏳
 | [Base URL](https://vike.dev/base-url) | ✅ | ✅
 | [Active Links](https://vike.dev/active-links) | ✅ | ✅
-| Static Directory (_/public_) | ✅ | ✅
+| [Static Directory (_/public_)](https://vike.dev/static-directory) | ✅ | ✅
 | [+Page Page](https://vike.dev/Page) | ✅ | ✅
 | [+Head Page](https://vike.dev/Head) | ✅ | ✅
 | [+Layout Page](https://vike.dev/Layout) | ✅ | ✅
@@ -15,11 +15,13 @@
 | [+data Hook](https://vike.dev/data) | ✅ | ✅
 | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
 | [+title Hook](https://vike.dev/title) | ✅ | ✅
+| [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
 | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
 | [Standalone](https://vike.dev/server#standalone) | ✅ | ✅
 | [HMR](https://vike.dev/server#hmr) | ✅ | ✅
 | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
+| [Environment Variables](https://vike.dev/env) | ✅ | ✅/⏳(to check or replace)
 | `vike dev` command | ✅ | use `vite dev`
 | `vike build` command | ✅ | use `vite build`
 | `vite` version | >=6.3.0 | >=8
