@@ -36,9 +36,9 @@ function getAssets(route: typeof import('virtual:routes').routes[number]) {
   collectAssets(virtualEntryClientKey)
 
   const { page, layout, head } = route
-  collectAssets(page.replace('@/', ''))
-  if (head) collectAssets(head.replace('@/', ''))
-  if (layout) collectAssets(layout.replace('@/', ''))
+  collectAssets(page)
+  if (head) collectAssets(head)
+  if (layout) collectAssets(layout)
 
   return {
     cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="/${href}">`).join(''),
