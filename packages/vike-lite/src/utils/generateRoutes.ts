@@ -1,8 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import type { Route } from '../index'
-
 export default function generateRoutes(viteRoot: string, pagesDir: string): { routes: Route[]; errorRoute?: Route } {
   const pagesAbsPath = path.resolve(viteRoot, pagesDir)
   if (!fs.existsSync(pagesAbsPath)) return { routes: [] }

@@ -31,7 +31,7 @@ declare module 'virtual:routes' {
 }
 
 declare module 'virtual:client-manifest' {
-  const manifest: import('./index').Manifest
+  const manifest: Manifest
   export default manifest
 }
 

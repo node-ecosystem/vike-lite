@@ -1,5 +1,4 @@
 import type { Config } from '../shared'
-import type { Manifest } from '..'
 
 const STORE_KEY = '_vike_lite'
 
