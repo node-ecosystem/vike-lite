@@ -183,10 +183,112 @@ export default function routerPlugin({
       }
 
       if (id === resolvedVirtualEntryServerId) {
-        const normalizedServerEntry = path.join(viteConfigRoot, serverEntry).replaceAll('\\', '/')
-        return `import '${virtualSetupId}';
-          export * from '${normalizedServerEntry}';
-          export { default } from '${normalizedServerEntry}';`
+        const extensions = ['.ts', '.js', '.mjs']
+        let hasCustomServer = false
+        let customServerPath = ''
+
+        if (serverEntry) {
+          const basePath = path.resolve(viteConfigRoot, serverEntry)
+          for (const ext of ['', ...extensions]) {
+            if (fs.existsSync(basePath + ext)) {
+              hasCustomServer = true
+              customServerPath = (basePath + ext).replaceAll('\\', '/')
+              break
+            }
+          }
+        }
+
+        if (hasCustomServer) {
+          return `import '${virtualSetupId}';
+            export * from '${customServerPath}';
+            export { default } from '${customServerPath}';`
+        }
+
+        return String.raw`import '${virtualSetupId}';
+import { renderPage } from 'vike-lite/server';
+export default {
+  async fetch(request) {
+    return renderPage(request);
+  }
+};
+if (process.env.NODE_ENV === 'production') {
+  const { createServer } = await import('node:http');
+  const { Readable } = await import('node:stream');
+  const { pipeline } = await import('node:stream/promises');
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const clientDir = path.resolve(__dirname, '../client');
+  const MIME_TYPES = {
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.mjs': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon',
+    '.webmanifest': 'application/manifest+json',
+    '.xml': 'application/xml',
+    '.txt': 'text/plain',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2'
+  };
+  const server = createServer(async (req, res) => {
+    try {
+      const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
+      const pathname = urlObj.pathname;
+      if (pathname !== '/') {
+        const filePath = path.join(clientDir, pathname);
+        if (filePath.startsWith(clientDir) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          const ext = path.extname(filePath).toLowerCase();
+          const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
+          res.setHeader('Content-Type', mimeType);
+          if (pathname.startsWith('/assets/')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+          }
+          fs.createReadStream(filePath).pipe(res);
+          return;
+        }
+      }
+      const headers = new Headers();
+      for (const [key, val] of Object.entries(req.headers)) {
+        if (Array.isArray(val)) val.forEach(v => headers.append(key, v));
+        else if (val) headers.set(key, val);
+      }
+      const { method } = req;
+      const init = { method, headers };
+      if (method !== 'GET' && method !== 'HEAD') {
+        init.body = Readable.toWeb(req);
+        init.duplex = 'half';
+      }
+      const request = new Request(urlObj.href, init);
+      const response = await renderPage(request);
+      res.statusCode = response.status;
+      for (const [key, val] of response.headers) {
+        res.setHeader(key, val);
+      }
+      if (response.body) {
+        await pipeline(Readable.fromWeb(response.body), res);
+      } else {
+        res.end();
+      }
+    } catch (e) {
+      console.error(e);
+      res.statusCode = 500;
+      res.end('Internal Server Error');
+    }
+  });
+  const { PORT } = process.env;
+  const port = PORT ? Number.parseInt(PORT) : 3000;
+  server.listen(port, () => {
+    console.log('\n\x1b[32m🚀 Server is running at http://localhost:' + port + '\x1b[0m\n');
+  });
+}`
       }
     },
     configureServer(server) {

@@ -65,6 +65,12 @@ app.onError((error, c) => {
 export default app
 ```
 
+> Note: if you don't use a custom server (loaded by the `serverEntry` option), a default server is bundled. In PROD the server is started as follow:
+```ts
+// startServer.mjs
+import './dist/server/index.mjs'
+```
+
 ### 🫶 Contribution
 Clone
 ```sh
