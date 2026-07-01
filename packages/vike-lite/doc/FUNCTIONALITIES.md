@@ -39,8 +39,6 @@
 | Required | `Node.js` version | >=20.19.0 | >=20.19.0 || >=22.12.0
 
 #### Legend
-| Symbol | Meaning
-| - | -
-|✅| Implemented
-|❌| Not implemented / Not needed
-|⏳| On going / TODO
+✅: Implemented<br>
+❌: Not implemented / Not needed<br>
+⏳: On going / TODO
