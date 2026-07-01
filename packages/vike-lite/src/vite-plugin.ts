@@ -17,8 +17,7 @@ export default function routerPlugin({
   let outDir: string
   const virtualModuleId = 'virtual:routes'
   const virtualManifestId = 'virtual:client-manifest'
-  // TODO add check for an adapter like vike-lite-solid is installed, otherwise throw an error
-  const virtualAdapterId = 'virtual:vike-lite-solid'
+  const virtualRendererId = 'virtual:vike-lite/renderer'
   const virtualEntryClientId = 'virtual:entry-client'
   const virtualSetupId = 'virtual:vike-lite/setup'
   const virtualEntryServerId = 'virtual:entry-server'
@@ -112,7 +111,7 @@ export default function routerPlugin({
         const isSSR = options!.ssr
 
         // Import the server rendering function from the bridge virtual module
-        let code = `import { onRenderHtml } from '${virtualAdapterId}';\n`
+        let code = `import { onRenderHtml } from '${virtualRendererId}';\n`
           + `export const config = { onRenderHtml };\n`
           + `export const routes = [\n`
 
@@ -154,7 +153,7 @@ export default function routerPlugin({
       if (id === resolvedVirtualEntryClientId) {
         // Import the client rendering function from the bridge virtual module
         return `import { routes, errorRoute } from '${virtualModuleId}';
-          import { onRenderClient } from '${virtualAdapterId}';
+          import { onRenderClient } from '${virtualRendererId}';
           const { default: render } = await onRenderClient();
           await render({ routes, errorRoute });`
       }

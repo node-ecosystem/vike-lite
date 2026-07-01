@@ -1,8 +1,8 @@
 import type { Plugin } from 'vite'
 
 export default function vikeLiteSolid(): Plugin {
-  const virtualId = 'virtual:vike-lite-solid'
-  const resolvedVirtualId = '\0' + virtualId
+  const virtualRendererId = 'virtual:vike-lite/renderer'
+  const resolvedVirtualRendererId = '\0' + virtualRendererId
   return {
     name: 'vike-lite-solid',
     // Execute this before vike-lite so the virtual module is ready
@@ -27,10 +27,10 @@ export default function vikeLiteSolid(): Plugin {
     },
     // Provide a virtual module that vike-lite will read to discover the renderers
     resolveId(id) {
-      if (id === virtualId) return resolvedVirtualId
+      if (id === virtualRendererId) return resolvedVirtualRendererId
     },
     load(id) {
-      if (id === resolvedVirtualId) {
+      if (id === resolvedVirtualRendererId) {
         // We use dynamic imports here. This is crucial because it allows Vite
         // to code-split the Node.js server logic from the Browser client logic!
         return `
