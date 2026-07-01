@@ -1,11 +1,14 @@
+import { defineConfig } from 'eslint/config'
 import pluginTypescript from 'typescript-eslint'
 import pluginUnicorn from 'eslint-plugin-unicorn'
 import pluginSolid from 'eslint-plugin-solid/configs/typescript'
 
-export default pluginTypescript.config(
-  ...pluginTypescript.configs.recommended,
-  pluginUnicorn.configs['flat/recommended'],
+export default defineConfig(
   {
+    extends: [
+      pluginTypescript.configs.recommended,
+      pluginUnicorn.configs.recommended
+    ],
     rules: {
       'comma-dangle': [1, 'never'],
       'semi': [1, 'never'],
@@ -24,9 +27,7 @@ export default pluginTypescript.config(
     }
   },
   {
-    files: [
-      'packages/vike-lite-solid/**/*.{ts,tsx}'
-    ],
-    ...pluginSolid
+    files: ['packages/vike-lite-solid/**/*.{ts,tsx}'],
+    extends: [pluginSolid]
   }
 )
