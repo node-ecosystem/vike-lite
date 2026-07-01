@@ -12,7 +12,8 @@
     "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
   "scripts": {
-    "lint": "eslint packages/*/src/**/*.{ts,tsx}",
+    "lint": "eslint packages/vike-lite/**/*.ts",
+    "lint:solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
     "od": "yarn outdated"
   },
   "devDependencies": {

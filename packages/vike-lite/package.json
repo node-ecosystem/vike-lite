@@ -38,7 +38,6 @@
     "dist"
   ],
   "scripts": {
-    "lint": "eslint src/**/*.ts",
     "build": "tsdown"
   },
   "devDependencies": {
