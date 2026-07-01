@@ -42,6 +42,10 @@ export default function routerPlugin({
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware      
         appType: 'custom',
+        ssr: {
+          // Solution to https://github.com/vikejs/vike/issues/3070
+          noExternal: [/^vike-lite(?:$|-)/]
+        },
         environments: {
           client: {
             build: {
