@@ -1,10 +1,5 @@
 # vike-lite-solid
 
-### ⬇️ Clone
-```sh
-git clone https://github.com/node-ecosystem/vike-lite-solid.git
-```
-
 ### ⚙️ Install
 | Package Manager | Command
 | - | -
@@ -84,3 +79,7 @@ export Page
 | - | - | - | - 
 | `Page` component | ❌ | `Dynamic` | Abstraction of AST (Abstract Syntax Tree) compiler is reduced, as a result DOM is lighter
 | page reactivity | _Separation of Concerns_ as 2 seprated states (`pageContextStore` and `view`) using the [batch](https://docs.solidjs.com/reference/reactive-utilities/batch) | _Single Source of Truth_ as `pageContext` where components are serialized
+
+---
+
+This project is licensed under the [MIT License](LICENSE).
