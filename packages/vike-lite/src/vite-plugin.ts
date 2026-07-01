@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import type { Plugin, RunnableDevEnvironment } from 'vite'
+import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 
 import generateRoutes from './utils/generateRoutes'
 import injectFOUCStyles from './utils/injectFOUCStyles'
@@ -31,7 +31,12 @@ export default function routerPlugin({
 
   return {
     name: 'vike-lite',
-    config(config) {
+    config(config, { mode }) {
+      // Inject environment variables from .env files in process.env
+      const envDir = config.envDir || process.cwd()
+      const envVariables = loadEnv(mode, envDir)
+      for (const key in envVariables) if (process.env[key] === undefined) process.env[key] = envVariables[key]
+
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       return {
