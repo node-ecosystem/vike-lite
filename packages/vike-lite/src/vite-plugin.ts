@@ -6,6 +6,7 @@ import type { Plugin, RunnableDevEnvironment } from 'vite'
 
 import generateRoutes from './utils/generateRoutes'
 import injectFOUCStyles from './utils/injectFOUCStyles'
+import { SUPPORTED_RENDERERS } from './config'
 
 export default function routerPlugin({
   pagesDir = 'pages',
@@ -96,6 +97,12 @@ export default function routerPlugin({
     },
     configResolved(config) {
       viteConfigRoot = config.root
+      const hasUIRenderer = config.plugins.some(
+        plugin => plugin.name?.startsWith('vike-lite-') && SUPPORTED_RENDERERS.includes(plugin.name.replace('vike-lite-', '') as any)
+      )
+      if (!hasUIRenderer) {
+        throw new Error(`No UI renderer plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
+      }
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
