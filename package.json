@@ -1,6 +1,5 @@
 {
   "name": "vike-lite-monorepo",
-  "license": "MIT",
   "type": "module",
   "private": true,
   "repository": {

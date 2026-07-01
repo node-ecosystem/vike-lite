@@ -12,6 +12,6 @@ Vike Lite (pronounced _/vaɪk laɪt/_) is a _light_ web framework inspired by [V
 | [vike-lite](packages/vike-lite) | Core, inspired by [vike](https://github.com/vikejs/vike)
 | [vike-lite-solid](packages/vike-lite-solid) | UI adapter for SolidJS, inspired by [vike-solid](https://github.com/vikejs/vike-solid)
 
----
+### 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT](LICENSE)
