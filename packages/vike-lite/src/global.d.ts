@@ -31,8 +31,7 @@ declare module 'virtual:routes' {
 }
 
 declare module 'virtual:client-manifest' {
-  const manifest: Manifest
-  export default manifest
+  export default Manifest
 }
 
 declare global {
