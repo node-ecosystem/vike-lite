@@ -3121,7 +3121,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vike-lite-monorepo@workspace:."
   dependencies:
-    "@types/node": "npm:^26.0.1"
     "@yarnpkg/sdks": "npm:^3.3.0"
     eslint: "npm:^10.6.0"
     eslint-plugin-solid: "npm:^0.14.5"

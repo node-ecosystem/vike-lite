@@ -16,7 +16,6 @@
     "od": "yarn outdated"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
     "@yarnpkg/sdks": "^3.3.0",
     "eslint": "^10.6.0",
     "eslint-plugin-solid": "^0.14.5",
