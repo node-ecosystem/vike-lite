@@ -1,5 +1,5 @@
 import type { PageContext } from '..'
-import matchRoute from '../shared/matchRoute'
+import matchRoute from '../__internal/shared/matchRoute'
 import serializeContext from '../utils/serializeContext'
 import { AbortRender } from './abort'
 import { store } from './store'

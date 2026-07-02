@@ -1,4 +1,4 @@
-import type { Config } from '../shared'
+import type { Config } from '../__internal/shared'
 
 const STORE_KEY = '_vike_lite'
 

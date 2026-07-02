@@ -1,5 +1,5 @@
 declare module 'virtual:routes' {
-  export const config: import('./shared').Config
+  export const config: import('./__internal/shared').Config
 
   type Imported<Name extends string, T> = () => Promise<
     | ({ [K in Name]: T } & { default?: T })
