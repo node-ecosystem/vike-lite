@@ -3,8 +3,6 @@ type Route = {
   page: string
   layout?: string
   head?: string
-  data?: string
-  title?: string
   // Public flag: visible to both client and server.
   // The client uses "hasData" and "hasTitle" to decide whether to fetch the .pageContext.json
   // Catch-22:
