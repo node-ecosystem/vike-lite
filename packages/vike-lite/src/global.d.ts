@@ -1,3 +1,5 @@
+/* eslint-disable no-var */
+
 declare module 'virtual:routes' {
   export const config: import('./__internal/shared').Config
 
@@ -34,7 +36,5 @@ declare module 'virtual:client-manifest' {
   export default Manifest
 }
 
-declare global {
-  declare var __PAGE_CONTEXT__: import('./index').PageContext
-  declare var _vike_lite: import('./server/store').VikeState
-}
+declare var __PAGE_CONTEXT__: import('./index').PageContext
+declare var _vike_lite: import('./server/store').VikeState

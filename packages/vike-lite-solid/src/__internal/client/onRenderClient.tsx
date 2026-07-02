@@ -4,10 +4,6 @@ import { matchRoute } from 'vike-lite/__internal/shared'
 
 import RouterApp, { type ViewComponents, type RouterProps } from '../RouterApp'
 
-declare global {
-  var __PAGE_CONTEXT__: any | undefined
-}
-
 export default async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'>) {
   const container = document.querySelector('#root') as HTMLDivElement
 
