@@ -242,11 +242,11 @@ if (process.env.NODE_ENV === 'production') {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const clientDir = path.resolve(__dirname, '../client');
   const MIME_TYPES = {
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.mjs': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.mjs': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -255,23 +255,30 @@ if (process.env.NODE_ENV === 'production') {
     '.ico': 'image/x-icon',
     '.webmanifest': 'application/manifest+json',
     '.xml': 'application/xml',
-    '.txt': 'text/plain',
+    '.txt': 'text/plain; charset=utf-8',
     '.woff': 'font/woff',
-    '.woff2': 'font/woff2'
+    '.woff2': 'font/woff2',
+    '.wasm': 'application/wasm'
   };
+  const base = import.meta.env.BASE_URL;
   const server = createServer(async (req, res) => {
     try {
       const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
       const pathname = urlObj.pathname;
-      if (pathname !== '/') {
-        const filePath = path.join(clientDir, pathname);
+      let fileUrl = pathname;
+      if (base !== '/' && pathname.startsWith(base)) fileUrl = '/' + pathname.slice(base.length);
+      if (fileUrl !== '/') {
+        const filePath = path.resolve(clientDir, '.' + fileUrl)
+        if (!filePath.startsWith(clientDir + path.sep)) {
+          res.statusCode = 403
+          res.end('Forbidden')
+          return
+        }
         if (filePath.startsWith(clientDir) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           const ext = path.extname(filePath).toLowerCase();
           const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
           res.setHeader('Content-Type', mimeType);
-          if (pathname.startsWith('/assets/')) {
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-          }
+          res.setHeader('Cache-Control', fileUrl.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate')
           fs.createReadStream(filePath).pipe(res);
           return;
         }
@@ -283,6 +290,10 @@ if (process.env.NODE_ENV === 'production') {
       }
       const { method } = req;
       const init = { method, headers };
+      if (req.method === 'HEAD') {
+        res.end()
+        return
+      }
       if (method !== 'GET' && method !== 'HEAD') {
         init.body = Readable.toWeb(req);
         init.duplex = 'half';
@@ -293,11 +304,8 @@ if (process.env.NODE_ENV === 'production') {
       for (const [key, val] of response.headers) {
         res.setHeader(key, val);
       }
-      if (response.body) {
-        await pipeline(Readable.fromWeb(response.body), res);
-      } else {
-        res.end();
-      }
+      if (response.body) await pipeline(Readable.fromWeb(response.body), res);
+      else res.end();
     } catch (e) {
       console.error(e);
       res.statusCode = 500;
