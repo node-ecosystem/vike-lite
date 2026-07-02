@@ -316,6 +316,7 @@ if (process.env.NODE_ENV === 'production') {
       // Return a callback to run this middleware as last
       return () => {
         const pagesPath = path.resolve(viteConfigRoot, pagesDir)
+        // DEV server watcher to invalidate the virtual module and trigger a full reload when pages are added or removed
         server.watcher.on('all', (event, file) => {
           if (!((event === 'add' || event === 'unlink') && file.startsWith(pagesPath))) return
           for (const env of Object.values(server.environments)) {
@@ -324,8 +325,8 @@ if (process.env.NODE_ENV === 'production') {
           }
           server.ws.send({ type: 'full-reload' })
         })
+        // DEV server middleware to handle /api, /*.pageContext.json and pages
         server.middlewares.use(async (req, res, next) => {
-          // Handle /api, /*.pageContext.json and pages
           try {
             const ssrEnv = server.environments.ssr as RunnableDevEnvironment
 
