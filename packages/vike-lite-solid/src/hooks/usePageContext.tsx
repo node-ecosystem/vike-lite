@@ -9,6 +9,6 @@ import globalContext from './globalContext'
  * fine-grained reactivity ensures that components only update
  * if they access properties that have actually changed.
  */
-export default function usePageContext(): PageContext {
+export default function usePageContext<Data = undefined>(): PageContext<Data> {
   return useContext(globalContext.solidContext)!.state
 }
