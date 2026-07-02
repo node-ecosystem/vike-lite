@@ -61,8 +61,8 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
   const pageContext = { routeParams, urlOriginal, urlPathname } as PageContext
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
-    route.data?.() ?? null,
-    route.title?.() ?? null,
+    route.Data?.() ?? null,
+    route.Title?.() ?? null,
     isJsonRequest ? null : route.Page(),
     isJsonRequest ? null : route.Head?.() ?? null,
     isJsonRequest ? null : route.Layout?.() ?? null
