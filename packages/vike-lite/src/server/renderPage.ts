@@ -135,8 +135,7 @@ async function renderErrorPage(
 }
 
 export default async function renderPage(req: Request): Promise<Response> {
-  const url = new URL(req.url)
-  let pathname = url.pathname
+  let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname
   if (BASE_URL !== '/') {
