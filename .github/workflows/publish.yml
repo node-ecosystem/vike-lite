@@ -48,40 +48,62 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            const packageName = `${{ steps.extract.outputs.package_name }}`
             const { owner, repo } = context.repo
+            // Find last release of this specific package
             const { data: releases } = await github.rest.repos.listReleases({ owner, repo })
+            const lastRelease = releases.find(r => r.tag_name.startsWith(`${packageName}@`))
             let releaseNotes = ''
-            if (releases.length === 0) {
+            if (!lastRelease) {
               releaseNotes = 'First release!'
             } else {
               const { data: comparison } = await github.rest.repos.compareCommits({
                 owner,
                 repo,
-                base: releases[0].tag_name,
+                base: lastRelease.tag_name,
                 head: context.sha
               })
               const features = []
               const fixes = []
               const breaking = []
+              // Regular expression to parse Conventional Commit
+              // Group 1: type (feat, fix)
+              // Group 2: optional scope (vike-lite-solid)
+              // Group 3: optional ! (breaking change)
+              // Group 4: description
+              const commitRegex = /^([a-zA-Z]+)(?:\(([^)]+)\))?(!?):\s*(.*)/
+              // E.g. Commits:
+              //   1. fix(vike-lite-solid): A
+              //   2. fix: B
+              //   3. fix(vike-lite): C
+              //   4. fix(vike-lite, vike-lite-solid): D
+              // Output: A, B, D
               for (const { commit, sha } of comparison.commits) {
                 const firstLine = commit.message.split('\n')[0].trim()
-                const cleanedMessage = firstLine.replace(/^[a-zA-Z]+(?:\([^)]+\))?!?:\s*/, '')
+                const match = firstLine.match(commitRegex)
+                if (!match) continue // Skip commits that don't follow the standard
+                const type = match[1]
+                const scope = match[2]
+                const isBreaking = match[3] === '!'
+                const description = match[4]
+                // If there's a scope, AND this scope does not include the name of our package,
+                // it means it's a change for another package. We ignore it!
+                if (scope && !scope.includes(packageName)) continue
                 const shortSha = sha.substring(0, 7)
-                const entry = `- ${cleanedMessage} (${shortSha})`
-                // Breaking Changes "!" before the colon, e.g. "feat!:"
-                if (/^[a-zA-Z]+(?:\([^)]+\))?!:/.test(firstLine)) breaking.push(entry)
-                // Features with prefix "feat:" or "feat(scope):"
-                else if (/^feat(?:\([^)]+\))?:/.test(firstLine)) features.push(entry)
-                // Bug Fixes with prefix "fix:" or "fix(scope):"
-                else if (/^fix(?:\([^)]+\))?:/.test(firstLine)) fixes.push(entry)
+                // We use the clean description directly without resorting to replace
+                const entry = `- ${description} (${shortSha})`
+                if (isBreaking) breaking.push(entry)
+                else if (type === 'feat') features.push(entry)
+                else if (type === 'fix') fixes.push(entry)
               }
               if (breaking.length > 0) releaseNotes += '### ⚠️ Breaking Changes\n' + breaking.join('\n') + '\n\n'
               if (features.length > 0) releaseNotes += '### 🚀 Features\n' + features.join('\n') + '\n\n'
               if (fixes.length > 0) releaseNotes += '### 🐛 Bug Fixes\n' + fixes.join('\n') + '\n\n'
+              if (!releaseNotes.trim()) releaseNotes = '*Miscellaneous internal updates.*'
             }
-            const packageName = `${{ steps.extract.outputs.package_name }}`
-            const { version } = require(`./packages/${packageName}/package.json`)
-            const versionTag = `${packageName}@v${version}`
+            const fs = await import('fs')
+            const pkgJson = JSON.parse(fs.readFileSync(`./packages/${packageName}/package.json`, 'utf8'))
+            const versionTag = `${packageName}@v${pkgJson.version}`
             const defaultBranch = context.ref.replace('refs/heads/', '')
             await github.rest.repos.createRelease({
               owner,
