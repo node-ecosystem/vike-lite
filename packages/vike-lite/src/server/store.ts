@@ -13,8 +13,8 @@ if (!Object.hasOwn(globalThis, STORE_KEY)) {
 }
 
 export interface VikeState {
-  routes: typeof import('virtual:routes')['routes']
-  errorRoute: typeof import('virtual:routes')['errorRoute'] | null
+  routes: any[]
+  errorRoute: any | null
   config: Config | null
   manifest: Manifest | undefined
 }

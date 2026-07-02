@@ -3,7 +3,6 @@ import { createStore, reconcile } from 'solid-js/store'
 import { isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import type { VikeState } from 'vike-lite/__internal/server'
 
 import PageContextProvider from './PageContextProvider'
 import stripBase, { BASE_URL } from './stripBase'
@@ -15,8 +14,8 @@ export interface ViewComponents {
 }
 
 export interface RouterProps {
-  routes: VikeState['routes']
-  errorRoute: VikeState['errorRoute']
+  routes: any[]
+  errorRoute: any | null
   initialView: ViewComponents
   initialContext: PageContext
   initialUrl: string
@@ -91,7 +90,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             route.Layout?.() ?? null,
             route.Head?.() ?? null,
             // eslint-disable-next-line unicorn/prefer-await
-            route.data || route.title ? fetch(jsonUrl, { signal }).then(r => r.json() as Promise<PageContext>) : null
+            route.hasData || route.hasTitle ? fetch(jsonUrl, { signal }).then(r => r.json() as Promise<PageContext>) : null
           ])
 
           if (signal.aborted) return

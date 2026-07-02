@@ -30,15 +30,16 @@ export default function generateRoutes(viteRoot: string, pagesDir: string): { ro
 
     const pageFile = findFile(files, '+Page', pageExtensionsX)
     if (pageFile) {
+      const dataFile = findFile(files, '+data', pageExtensions)
+      const titleFile = findFile(files, '+title', pageExtensions)
       const route: Route = {
         path: routePath || '/',
-        page: `${importPath}/${pageFile}`
+        page: `${importPath}/${pageFile}`,
+        hasData: dataFile !== undefined,
+        hasTitle: titleFile !== undefined
       }
-      const dataFile = findFile(files, '+data', pageExtensions)
       if (dataFile) route.data = `${importPath}/${dataFile}`
-      const titleFile = findFile(files, '+title', pageExtensions)
       if (titleFile) route.title = `${importPath}/${titleFile}`
-
       if (currentLayout) route.layout = currentLayout
       if (currentHead) route.head = currentHead
       routes.push(route)
