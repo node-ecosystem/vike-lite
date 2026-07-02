@@ -15,13 +15,13 @@
       "import": "./dist/vite.mjs",
       "types": "./dist/vite.d.mts"
     },
-    "./__internal/integrations/client/onRenderClient": {
-      "solid": "./src/integrations/client/onRenderClient.tsx",
-      "import": "./src/integrations/client/onRenderClient.tsx"
+    "./__internal/client/onRenderClient": {
+      "solid": "./src/__internal/client/onRenderClient.tsx",
+      "import": "./src/__internal/client/onRenderClient.tsx"
     },
-    "./__internal/integrations/server/onRenderHtml": {
-      "solid": "./src/integrations/server/onRenderHtml.tsx",
-      "import": "./src/integrations/server/onRenderHtml.tsx"
+    "./__internal/server/onRenderHtml": {
+      "solid": "./src/__internal/server/onRenderHtml.tsx",
+      "import": "./src/__internal/server/onRenderHtml.tsx"
     }
   },
   "repository": {

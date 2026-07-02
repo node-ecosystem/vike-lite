@@ -33,8 +33,8 @@ export default function vikeLiteSolid(): Plugin {
       if (id === resolvedVirtualRendererId) {
         // We use dynamic imports here. This is crucial because it allows Vite
         // to code-split the Node.js server logic from the Browser client logic!
-        return `export const onRenderHtml=()=>import('vike-lite-solid/__internal/integrations/server/onRenderHtml');
-          export const onRenderClient=()=>import('vike-lite-solid/__internal/integrations/client/onRenderClient');`
+        return `export const onRenderHtml=()=>import('vike-lite-solid/__internal/server/onRenderHtml');
+          export const onRenderClient=()=>import('vike-lite-solid/__internal/client/onRenderClient');`
       }
     }
   }
