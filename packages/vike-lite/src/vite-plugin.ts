@@ -298,6 +298,15 @@ if (process.env.NODE_ENV === 'production') {
     configureServer(server) {
       // Return a callback to run this middleware as last
       return () => {
+        const pagesPath = path.resolve(viteConfigRoot, pagesDir)
+        server.watcher.on('all', (event, file) => {
+          if (!((event === 'add' || event === 'unlink') && file.startsWith(pagesPath))) return
+          for (const env of Object.values(server.environments)) {
+            const mod = env.moduleGraph.getModuleById(resolvedVirtualModuleId)
+            if (mod) env.moduleGraph.invalidateModule(mod)
+          }
+          server.ws.send({ type: 'full-reload' })
+        })
         server.middlewares.use(async (req, res, next) => {
           // Handle /api, /*.pageContext.json and pages
           try {
