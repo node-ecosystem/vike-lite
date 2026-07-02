@@ -156,8 +156,8 @@ export default function routerPlugin({
           if (r.layout) code += `layout:'${r.layout}',Layout:()=>import('/${r.layout}'),`
           code += `hasData:${r.hasData},hasTitle:${r.hasTitle},`
           if (isSSR) {
-            if (r.hasData) code += `data:()=>import('/${r.page.replace('+Page.tsx', '+data.ts')}'),`
-            if (r.hasTitle) code += `title:()=>import('/${r.page.replace('+Page.tsx', '+title.ts')}'),`
+            if (r.hasData) code += `data:()=>import('/${r.data}'),`
+            if (r.hasTitle) code += `title:()=>import('/${r.title}'),`
           }
           code += '},'
         }
