@@ -1,5 +1,9 @@
 const regexCache = new Map<string, { regex: RegExp; paramNames: string[] }>()
 
+function escapeRegex(str: string) {
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
+}
+
 export default function matchRoute(
   urlPathname: string,
   routes: typeof import('virtual:routes').routes
@@ -15,10 +19,16 @@ export default function matchRoute(
     let compiled = regexCache.get(route.path)
     if (!compiled) {
       const paramNames: string[] = []
-      const regexPath = route.path.replaceAll(/:([^/]+)/g, (_, name) => {
-        paramNames.push(name)
-        return '([^/]+)'
-      })
+      const regexPath = route.path
+        .split('/')
+        .map(segment => {
+          if (segment.startsWith(':')) {
+            paramNames.push(segment.slice(1))
+            return '([^/]+)'
+          }
+          return escapeRegex(segment)
+        })
+        .join('/')
       compiled = { regex: new RegExp(`^${regexPath}/?$`), paramNames }
       regexCache.set(route.path, compiled)
     }
@@ -27,7 +37,7 @@ export default function matchRoute(
     if (match) {
       const routeParams: Record<string, string> = {}
       for (let i = 0; i < compiled.paramNames.length; i++) {
-        routeParams[compiled.paramNames[i]] = match[i + 1]
+        routeParams[compiled.paramNames[i]] = decodeURIComponent(match[i + 1])
       }
       return { route, routeParams }
     }
