@@ -11,7 +11,7 @@ export interface VikeLiteSolidOptions {
 
 export default function vikeLiteSolid({
   hydration = true
-}: VikeLiteSolidOptions): Plugin {
+}: VikeLiteSolidOptions = {}): Plugin {
   const virtualRendererId = 'virtual:vike-lite/renderer'
   const virtualConfigId = 'virtual:vike-lite-solid/config'
   const resolvedVirtualRendererId = '\0' + virtualRendererId
