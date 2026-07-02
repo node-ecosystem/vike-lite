@@ -204,13 +204,13 @@ export default function routerPlugin({
       }
 
       if (id === resolvedVirtualEntryServerId) {
-        const extensions = ['.ts', '.js', '.mjs']
         let hasCustomServer = false
         let customServerPath = ''
 
         if (serverEntry) {
           const basePath = path.resolve(viteConfigRoot, serverEntry)
-          for (const ext of ['', ...extensions]) {
+          const extensions = ['.ts', '.js', '.mjs']
+          for (const ext of extensions) {
             if (fs.existsSync(basePath + ext)) {
               hasCustomServer = true
               customServerPath = (basePath + ext).replaceAll('\\', '/')
