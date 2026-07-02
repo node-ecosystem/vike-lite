@@ -1,17 +1,15 @@
 import type { Plugin } from 'vite'
 
-export interface VikeLiteSolidOptions {
+export default function vikeLiteSolid({
+  hydration = true
+}: {
   /** 
    * true: use hydration of SolidJS (better UX)
    * false: destroys the SSR DOM and recreates the app (Client Takeover, no hydration mismatch)
    * @default true
    */
   hydration?: boolean
-}
-
-export default function vikeLiteSolid({
-  hydration = true
-}: VikeLiteSolidOptions = {}): Plugin {
+} = {}): Plugin {
   const virtualRendererId = 'virtual:vike-lite/renderer'
   const virtualConfigId = 'virtual:vike-lite-solid/config'
   const resolvedVirtualRendererId = '\0' + virtualRendererId
