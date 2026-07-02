@@ -12,6 +12,25 @@ export default function routerPlugin({
   pagesDir = 'pages',
   serverEntry = 'server/index',
   apiPrefix = '/api'
+}: {
+  /**
+   * The directory where your page components are located.
+   * This is where the plugin will look for your page files to generate routes.
+   * @default 'pages'
+   */
+  pagesDir?: string
+  /**
+   * The entry point for your server application code.
+   * This is where you can define custom server logic, such as API routes or middleware.
+   * The build will produce dist/server/index.mjs, which is the entry point for your server application.
+   * @default 'server/index'
+   */
+  serverEntry?: string
+  /**
+   * The prefix for your API routes.
+   * @default '/api'
+   */
+  apiPrefix?: string
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
