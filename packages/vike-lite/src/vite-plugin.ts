@@ -154,10 +154,11 @@ export default function routerPlugin({
           code += `{path:'${r.path}',page:'${r.page}',Page:()=>import('/${r.page}'),`
           if (r.head) code += `head:'${r.head}',Head:()=>import('/${r.head}'),`
           if (r.layout) code += `layout:'${r.layout}',Layout:()=>import('/${r.layout}'),`
-          code += `hasData:${r.hasData},hasTitle:${r.hasTitle},`
+          if (r.data) code += `data:'${r.data}',`
+          if (r.title) code += `title:'${r.title}',`
           if (isSSR) {
-            if (r.hasData) code += `data:()=>import('/${r.data}'),`
-            if (r.hasTitle) code += `title:()=>import('/${r.title}'),`
+            if (r.data) code += `Data:()=>import('/${r.data}'),`
+            if (r.title) code += `Title:()=>import('/${r.title}'),`
           }
           code += '},'
         }

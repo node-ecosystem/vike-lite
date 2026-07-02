@@ -17,17 +17,19 @@ declare module 'virtual:routes' {
     Head?: Imported<'Head', HTMLElement>
     layout?: string
     Layout?: Imported<'Layout', HTMLElement>
-    hasData: boolean
-    data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
-    hasTitle: boolean
-    title?: Imported<'title', string | ((pageContext: PageContext) => string)>
+    data?: string
+    Data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
+    title?: string
+    Title?: Imported<'title', string | ((pageContext: PageContext) => string)>
   }>
 
   export const errorRoute: {
     path: string
     page: string
     Page: Imported<'Page', HTMLElement>
+    head?: string
     Head?: Imported<'Head', HTMLElement>
+    layout?: string
     Layout?: Imported<'Layout', HTMLElement>
   }
 }

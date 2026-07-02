@@ -3,19 +3,17 @@ type Route = {
   page: string
   layout?: string
   head?: string
-  data?: string
-  title?: string
   // Public flag: visible to both client and server.
-  // The client uses "hasData" and "hasTitle" to decide whether to fetch the .pageContext.json
+  // The client uses "data" and "title" paths to decide whether to fetch the .pageContext.json
   // Catch-22:
   // - exclude import "data" from the client bundle
   //   but import it in the server bundle to include it in the server bundle
   //   (it will be available for SSR "data" fetching)
-  // - "hasData" flag indicates if "data" can be fetched by the client
-  // - "hasTitle" flag indicates if "title" can be fetched by the client
+  // - "data" path indicates if "data" can be fetched by the client
+  // - "title" path indicates if "title" can be fetched by the client
   // - Flags are present only if errorRoute isn't undefined
-  hasData?: boolean
-  hasTitle?: boolean
+  data?: string
+  title?: string
 }
 
 type Manifest = Record<string, {
