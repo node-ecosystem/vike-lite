@@ -21,7 +21,9 @@ export default {
   plugins: [
     solidPlugin({ ssr: true }),
     vikeLite(),
-    vikeLiteSolid()
+    vikeLiteSolid({
+      hydration: true // default
+    })
   ]
 } satisfies UserConfig
 ```

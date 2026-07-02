@@ -1,8 +1,21 @@
 import type { Plugin } from 'vite'
 
-export default function vikeLiteSolid(): Plugin {
+export interface VikeLiteSolidOptions {
+  /** 
+   * true: use hydration of SolidJS (better UX)
+   * false: destroys the SSR DOM and recreates the app (Client Takeover, no hydration mismatch)
+   * @default true
+   */
+  hydration?: boolean
+}
+
+export default function vikeLiteSolid({
+  hydration = true
+}: VikeLiteSolidOptions): Plugin {
   const virtualRendererId = 'virtual:vike-lite/renderer'
+  const virtualConfigId = 'virtual:vike-lite-solid/config'
   const resolvedVirtualRendererId = '\0' + virtualRendererId
+  const resolvedVirtualConfigId = '\0' + virtualConfigId
   return {
     name: 'vike-lite-solid',
     // Execute this before vike-lite so the virtual module is ready
@@ -28,8 +41,12 @@ export default function vikeLiteSolid(): Plugin {
     // Provide a virtual module that vike-lite will read to discover the renderers
     resolveId(id) {
       if (id === virtualRendererId) return resolvedVirtualRendererId
+      if (id === virtualConfigId) return resolvedVirtualConfigId
     },
     load(id) {
+      if (id === resolvedVirtualConfigId) {
+        return `export const hydration=${hydration};`
+      }
       if (id === resolvedVirtualRendererId) {
         // We use dynamic imports here. This is crucial because it allows Vite
         // to code-split the Node.js server logic from the Browser client logic!

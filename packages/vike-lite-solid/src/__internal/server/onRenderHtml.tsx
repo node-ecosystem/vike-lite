@@ -1,3 +1,4 @@
+import { hydration } from 'virtual:vike-lite-solid/config'
 import { renderToStringAsync, NoHydration, generateHydrationScript, renderToString } from 'solid-js/web'
 import type { Component, ParentComponent } from 'solid-js'
 import type { RenderContext } from 'vike-lite/__internal/shared'
@@ -24,6 +25,8 @@ export default async function onRenderHtml({
     </NoHydration>
   )) : ''
 
+  const hydrationScript = hydration ? generateHydrationScript() : ''
+
   const appHtml = await renderToStringAsync(() => (
     <RouterApp
       routes={[]}
@@ -43,7 +46,7 @@ ${pageTitleTag}
 ${cssLinks}
 ${jsPreloads}
 ${headHtml}
-${generateHydrationScript()}
+${hydrationScript}
 <script>window.__PAGE_CONTEXT__=${serializedContext}</script>
 </head>
 <body>

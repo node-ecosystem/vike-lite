@@ -1,3 +1,4 @@
+import { hydration } from 'virtual:vike-lite-solid/config'
 import { hydrate, render } from 'solid-js/web'
 import { matchRoute } from 'vike-lite/__internal/shared'
 
@@ -38,7 +39,7 @@ export default async function onRenderClient(clientOptions: Omit<RouterProps, 'i
     />
   )
 
-  if (globalThis.__PAGE_CONTEXT__ && globalThis._$HY) {
+  if (hydration && globalThis.__PAGE_CONTEXT__ && globalThis._$HY) {
     hydrate(App, container)
   } else {
     container.replaceChildren()
