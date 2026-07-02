@@ -1,6 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+const pageExtensions = ['.ts', '.js']
+const pageExtensionsX = ['.tsx', '.jsx']
+
+function findFile(files: string[], basename: string, extensions: string[]): string | undefined {
+  return files.find(file =>
+    extensions.some(ext => file === `${basename}${ext}`)
+  )
+}
+
 export default function generateRoutes(viteRoot: string, pagesDir: string): { routes: Route[]; errorRoute?: Route } {
   const pagesAbsPath = path.resolve(viteRoot, pagesDir)
   if (!fs.existsSync(pagesAbsPath)) return { routes: [] }
@@ -14,16 +23,23 @@ export default function generateRoutes(viteRoot: string, pagesDir: string): { ro
     const importPath = path.relative(viteRoot, dir).replaceAll('\\', '/')
 
     // Layout and Head: override locale if present, otherwise inherit from parent
-    const currentLayout = files.includes('+Layout.tsx') ? `${importPath}/+Layout.tsx` : parentLayout
-    const currentHead = files.includes('+Head.tsx') ? `${importPath}/+Head.tsx` : parentHead
+    const layoutFile = findFile(files, '+Layout', pageExtensionsX)
+    const currentLayout = layoutFile ? `${importPath}/${layoutFile}` : parentLayout
+    const headFile = findFile(files, '+Head', pageExtensionsX)
+    const currentHead = headFile ? `${importPath}/${headFile}` : parentHead
 
-    if (files.includes('+Page.tsx')) {
+    const pageFile = findFile(files, '+Page', pageExtensionsX)
+    if (pageFile) {
+      const dataFile = findFile(files, '+data', pageExtensions)
+      const titleFile = findFile(files, '+title', pageExtensions)
       const route: Route = {
         path: routePath || '/',
-        page: `${importPath}/+Page.tsx`,
-        hasData: files.includes('+data.ts'),
-        hasTitle: files.includes('+title.ts')
+        page: `${importPath}/${pageFile}`,
+        hasData: dataFile !== undefined,
+        hasTitle: titleFile !== undefined
       }
+      if (dataFile) route.data = `${importPath}/${dataFile}`
+      if (titleFile) route.title = `${importPath}/${titleFile}`
       if (currentLayout) route.layout = currentLayout
       if (currentHead) route.head = currentHead
       routes.push(route)
@@ -37,10 +53,11 @@ export default function generateRoutes(viteRoot: string, pagesDir: string): { ro
       // _error is reserved: register it separately and do not add it to the normal routes
       if (file === '_error') {
         const errorFiles = fs.readdirSync(fullPath)
-        if (errorFiles.includes('+Page.tsx')) {
+        const errorPageFile = findFile(errorFiles, '+Page', pageExtensionsX)
+        if (errorPageFile) {
           errorRoute = {
             path: '_error',
-            page: `${importPath}/_error/+Page.tsx`,
+            page: `${importPath}/_error/${errorPageFile}`,
             layout: currentLayout,
             head: currentHead
           }
