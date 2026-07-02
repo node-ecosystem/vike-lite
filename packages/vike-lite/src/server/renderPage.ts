@@ -6,11 +6,17 @@ import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
+const { BASE_URL } = import.meta.env
+
+function withBase(file: string): `/${string}` | `${string}/${string}` {
+  return `${BASE_URL.replace(/\/$/, '')}/${file.replace(/^\//, '')}`
+}
+
 function getAssets(route: typeof import('virtual:routes').routes[number]) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
-    entryClient: '/@id/virtual:entry-client'
+    entryClient: withBase('@id/virtual:entry-client')
   }
 
   const cssFiles = new Set<string>()
@@ -41,9 +47,9 @@ function getAssets(route: typeof import('virtual:routes').routes[number]) {
   if (layout) collectAssets(layout)
 
   return {
-    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="/${href}">`).join(''),
-    jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="/${href}">`).join(''),
-    entryClient: `/${manifest![virtualEntryClientKey].file}`
+    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="${withBase(href)}">`).join(''),
+    jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="${withBase(href)}">`).join(''),
+    entryClient: withBase(manifest![virtualEntryClientKey].file)
   }
 }
 
@@ -129,7 +135,22 @@ async function renderErrorPage(
 }
 
 export default async function renderPage(req: Request): Promise<Response> {
-  const { pathname } = new URL(req.url)
+  const url = new URL(req.url)
+  let pathname = url.pathname
+
+  // If we have a base path different from '/', we need to remove it from the pathname
+  if (BASE_URL !== '/') {
+    const baseSlashed = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/'
+    const baseNoSlash = baseSlashed.slice(0, -1)
+
+    pathname = (pathname === baseNoSlash)
+      // The user visits exactly '/my-app' (without trailing slash)
+      ? '/'
+      // The user visits '/my-app/about' and '/my-app/' became '/about' and '/'
+      : pathname.slice(baseSlashed.length - 1)
+  }
+
+  // "pathname" is clean (e.g. "/about")
   const isJsonRequest = pathname.endsWith('.pageContext.json')
 
   let targetPathname = pathname

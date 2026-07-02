@@ -5,6 +5,7 @@ import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 
 import PageContextProvider from './PageContextProvider'
+import stripBase, { BASE_URL } from './stripBase'
 
 export interface ViewComponents {
   Page: any | null
@@ -40,13 +41,15 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         globalThis.history.pushState(null, '', url.href)
         startTransition(() => {
           setCurrentUrl(url.href)
-          setCurrentPathname(url.pathname)
+          // Click on a link, we need to remove the base from the pathname
+          setCurrentPathname(stripBase(url.pathname))
         })
       }
       const handlePopState = () => {
         startTransition(() => {
           setCurrentUrl(globalThis.location.href)
-          setCurrentPathname(globalThis.location.pathname)
+          // Remove the base from the pathname when using the back button
+          setCurrentPathname(stripBase(globalThis.location.pathname))
         })
       }
       document.addEventListener('click', handleLinkClick)
@@ -60,7 +63,6 @@ export default function RouterApp(props: RouterProps): JSX.Element {
     createEffect(() => {
       const pathname = currentPathname()
 
-      // Salta il fetch se i dati sono già quelli del server
       if (globalThis.__PAGE_CONTEXT__ && globalThis.__PAGE_CONTEXT__.urlPathname === pathname) {
         globalThis.__PAGE_CONTEXT__.urlPathname = undefined
         return
@@ -76,7 +78,12 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         const { route, routeParams } = matched
         try {
           const urlObj = new URL(urlFull)
-          const jsonUrl = `${pathname === '/' ? '/index' : pathname}.pageContext.json${urlObj.search}`
+
+          // Get the URL for the fetch by adding the base
+          const jsonTarget = pathname === '/' ? '/index' : pathname
+          const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
+          const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`
+          // e.g. base "/my-app/" and path "/about" → fetch "/my-app/about.pageContext.json"
 
           const [PageMod, LayoutMod, HeadMod, ctx] = await Promise.all([
             route.Page(),
