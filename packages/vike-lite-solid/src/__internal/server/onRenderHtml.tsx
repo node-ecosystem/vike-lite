@@ -3,8 +3,8 @@ import { renderToStringAsync, NoHydration, generateHydrationScript, renderToStri
 import type { Component, ParentComponent } from 'solid-js'
 import type { RenderContext } from 'vike-lite/__internal/shared'
 
-import PageContextProvider from '../PageContextProvider'
-import RouterApp from '../RouterApp'
+import PageContextProvider from '../shared/PageContextProvider'
+import RouterApp from '../shared/RouterApp'
 
 export interface SolidRenderContext extends RenderContext {
   Page: Component

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import type { SetStoreFunction, Store } from 'solid-js/store'
 import type { PageContext } from 'vike-lite'
 
-import globalContext from '../hooks/globalContext'
+import globalContext from '../../hooks/globalContext'
 
 export default function PageContextProvider(props: {
   children: JSX.Element
