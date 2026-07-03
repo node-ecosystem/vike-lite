@@ -13,6 +13,7 @@
 | Page | [+Head](https://vike.dev/Head) | ✅ | ✅
 | Page | [+Layout](https://vike.dev/Layout) | ✅ | ✅
 | Page | [Error Page](https://vike.dev/error-page) | ✅ | ✅
+| Hook | [+prerender](https://vike.dev/prerender) | ✅ | ✅ ([see](./PRERENDER.md))
 | Hook | [+guard](https://vike.dev/guard) | ✅ | ⏳
 | Hook | [+config](https://vike.dev/config) | ✅ | ⏳
 | Hook | [+data](https://vike.dev/data) | ✅ | ✅

@@ -35,9 +35,12 @@ export default function generateRoutes(viteRoot: string, pagesDir: string): { ro
         page: `${importPath}/${pageFile}`
       }
       const dataFile = findFile(files, '+data', pageExtensions)
-      if (dataFile) route.data = `${importPath}/${dataFile}`
       const titleFile = findFile(files, '+title', pageExtensions)
+      const prerenderFile = findFile(files, '+prerender', pageExtensions)
+
+      if (dataFile) route.data = `${importPath}/${dataFile}`
       if (titleFile) route.title = `${importPath}/${titleFile}`
+      if (prerenderFile) route.prerender = `${importPath}/${prerenderFile}`
 
       if (currentLayout) route.layout = currentLayout
       if (currentHead) route.head = currentHead

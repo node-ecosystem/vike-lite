@@ -14,6 +14,7 @@ type Route = {
   // - Flags are present only if errorRoute isn't undefined
   data?: string
   title?: string
+  prerender?: string
 }
 
 type Manifest = Record<string, {

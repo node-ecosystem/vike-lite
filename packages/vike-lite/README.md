@@ -20,7 +20,8 @@ export default {
     vikeLite({
       pagesDir = 'pages', // default
       serverEntry = 'server/index', // default
-      apiPrefix = '/api'  // default
+      apiPrefix = '/api',  // default
+      prerender = false // default
     })
   ]
 } satisfies UserConfig

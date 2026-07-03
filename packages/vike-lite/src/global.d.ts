@@ -9,28 +9,20 @@ declare module 'virtual:routes' {
   >
 
   type PageContext = import('./index').PageContext
-  export const routes: Array<{
-    path: string
-    page: string
+  export const routes: Array<Route & {
     Page: Imported<'Page', HTMLElement>
-    head?: string
     Head?: Imported<'Head', HTMLElement>
-    layout?: string
     Layout?: Imported<'Layout', HTMLElement>
-    data?: string
     Data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
-    title?: string
     Title?: Imported<'title', string | ((pageContext: PageContext) => string)>
+    Prerender?: Imported<'prerender', boolean>
   }>
 
-  export const errorRoute: {
-    path: string
-    page: string
+  export const errorRoute: Route & {
     Page: Imported<'Page', HTMLElement>
-    head?: string
     Head?: Imported<'Head', HTMLElement>
-    layout?: string
     Layout?: Imported<'Layout', HTMLElement>
+    Prerender?: Imported<'prerender', boolean>
   }
 }
 
