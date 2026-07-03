@@ -204,7 +204,12 @@ export default async function renderPage(req: Request): Promise<Response> {
       if (isJsonRequest) {
         // If the user is navigating in SPA mode and the +data.ts does "throw render(404)"
         return Response.json(
-          { is404: error.statusCode === 404, isError: true, reason: error.reason },
+          {
+            is404: error.statusCode === 404,
+            is500: error.statusCode >= 500,
+            isError: true,
+            reason: error.reason
+          },
           { status: error.statusCode }
         )
       }

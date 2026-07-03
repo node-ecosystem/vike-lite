@@ -74,7 +74,25 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       const matched = matchedRoute()
 
       const loadRoute = async (signal: AbortSignal) => {
-        if (!matched) return
+        if (!matched) {
+          //  Native 404 fallback if the route does not exist on the client
+          if (!props.errorRoute) return
+          const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
+            props.errorRoute.Page(),
+            props.errorRoute.Layout?.() ?? null,
+            props.errorRoute.Head?.() ?? null
+          ])
+          if (signal.aborted) return
+          batch(() => {
+            setPageContextStore(reconcile({ urlOriginal: urlFull, urlPathname: pathname, routeParams: {}, is404: true } as PageContext))
+            setView({
+              Page: ErrorPageMod.Page ?? ErrorPageMod.default,
+              Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
+              Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
+            })
+          })
+          return
+        }
 
         const { route, routeParams } = matched
         try {
@@ -83,30 +101,70 @@ export default function RouterApp(props: RouterProps): JSX.Element {
           // Get the URL for the fetch by adding the base
           const jsonTarget = pathname === '/' ? '/index' : pathname
           const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
-          const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`
           // e.g. base "/my-app/" and path "/about" → fetch "/my-app/about.pageContext.json"
+          const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`
 
-          const [PageMod, LayoutMod, HeadMod, ctx] = await Promise.all([
-            route.Page(),
-            route.Layout?.() ?? null,
-            route.Head?.() ?? null,
-            // eslint-disable-next-line unicorn/prefer-await
-            route.data || route.title ? fetch(jsonUrl, { signal }).then(r => r.json() as Promise<PageContext>) : null
-          ])
+          // Fetch only the JSON data
+          let ctx: any = null
+          if (route.data || route.title) {
+            const res = await fetch(jsonUrl, { signal })
+            ctx = await res.json()
+          }
 
           if (signal.aborted) return
 
+          // Check if there is a redirect (e.g. throw redirect('/login'))
           if (ctx?._redirect) {
             // Update the URL manually and perform the Solid transition
             globalThis.history.pushState(null, '', ctx._redirect)
             const urlObjRedirect = new URL(ctx._redirect, globalThis.location.origin)
-
             startTransition(() => {
               setCurrentUrl(urlObjRedirect.href)
               setCurrentPathname(stripBase(urlObjRedirect.pathname))
             })
-            return // Stops loading this route
+            return // Stops loading of this route
           }
+
+          // 3. Check if there is an error (e.g. throw render(404))
+          if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
+            if (!props.errorRoute) throw new Error(ctx.reason || 'Server Error')
+
+            // Fetch the error page components instead of the normal ones
+            const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
+              props.errorRoute.Page(),
+              props.errorRoute.Layout?.() ?? null,
+              props.errorRoute.Head?.() ?? null
+            ])
+
+            if (signal.aborted) return
+
+            batch(() => {
+              setPageContextStore(reconcile({
+                urlOriginal: urlObj.href,
+                urlPathname: pathname,
+                routeParams: {},
+                is404: ctx.is404,
+                is500: ctx.is500,
+                errorMessage: ctx.reason
+              } as PageContext))
+              setView({
+                Page: ErrorPageMod.Page ?? ErrorPageMod.default,
+                Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
+                Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
+              })
+            })
+            document.title = ctx.is404 ? 'Not Found' : 'Server Error'
+            return // Interrupt the normal loading
+          }
+
+          // 4. If everything is fine, fetch the normal components
+          const [PageMod, LayoutMod, HeadMod] = await Promise.all([
+            route.Page(),
+            route.Layout?.() ?? null,
+            route.Head?.() ?? null
+          ])
+
+          if (signal.aborted) return
 
           batch(() => {
             setPageContextStore(reconcile({
@@ -123,8 +181,9 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             })
           })
           if (ctx?.title) document.title = ctx.title
-
-        } catch { }
+        } catch (error) {
+          console.error('Router Error:', error)
+        }
       }
 
       loadRoute(controller.signal)
