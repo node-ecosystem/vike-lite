@@ -128,6 +128,6 @@ jobs:
               tag_name: versionTag,
               name: versionTag,
               body: releaseNotes.trim(),
-              make_latest: packageName === 'vike-lite'
+              make_latest: packageName === 'vike-lite' ? 'true' : 'false'
             })
             console.log(`Release ${versionTag} created!`)
