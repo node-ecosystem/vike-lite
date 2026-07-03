@@ -93,7 +93,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
 
 async function renderErrorPage(
   req: Request,
-  status: 404 | 500,
+  status: number,
   urlPathname: string,
   error?: unknown
 ): Promise<Response> {
@@ -186,7 +186,15 @@ export default async function renderPage(req: Request): Promise<Response> {
 
   } catch (error) {
     if (error instanceof AbortRender) {
-      return new Response(error.reason || 'Not Found', { status: error.statusCode })
+      if (isJsonRequest) {
+        // If the user is navigating in SPA mode and the +data.ts does "throw render(404)"
+        return Response.json(
+          { is404: error.statusCode === 404, isError: true, reason: error.reason },
+          { status: error.statusCode }
+        )
+      }
+      // First load, render the error UI (with layout and styles)
+      return renderErrorPage(req, error.statusCode, targetPathname, error.reason)
     }
     console.error('Render Error:', error)
     if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })

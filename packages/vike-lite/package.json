@@ -17,6 +17,10 @@
       "types": "./dist/server.d.mts",
       "import": "./dist/server.mjs"
     },
+    "./server/abort": {
+      "import": "./dist/server/abort.mjs",
+      "types": "./dist/server/abort.d.mts"
+    },
     "./__internal/shared": {
       "types": "./dist/__internal/shared.d.mts",
       "import": "./dist/__internal/shared.mjs"
