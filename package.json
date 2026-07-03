@@ -11,15 +11,16 @@
     "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
   "scripts": {
-    "lint": "eslint packages/vike-lite/**/*.ts",
-    "lint:solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
+    "lint": "eslint packages/**/*.ts",
+    "lint:vike": "eslint packages/vike-lite/**/*.ts",
+    "lint:vike-solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
     "od": "yarn outdated"
   },
   "devDependencies": {
     "@yarnpkg/sdks": "^3.3.0",
     "eslint": "^10.6.0",
     "eslint-plugin-solid": "^0.14.5",
-    "eslint-plugin-unicorn": "^69.0.0",
+    "eslint-plugin-unicorn": "^70.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1"
   },
