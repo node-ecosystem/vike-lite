@@ -13,16 +13,22 @@ Add Vite plugin
 ```ts
 // vite.config.ts
 import type { UserConfig } from 'vite'
-import solidPlugin from 'vite-plugin-solid'
 import vikeLite from 'vike-lite/vite'
 import vikeLiteSolid from 'vike-lite-solid/vite'
 
 export default {
   plugins: [
-    solidPlugin({ ssr: true }),
     vikeLite(),
     vikeLiteSolid({
-      hydration: true // Default
+      hydration: true, // Default
+      // Advanced: pass options directly to the underlying vite-plugin-solid
+      solid: {
+        babel: {
+          plugins: [
+            // e.g. add custom babel plugins
+          ]
+        }
+      }
     })
   ]
 } satisfies UserConfig

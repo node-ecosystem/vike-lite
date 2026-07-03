@@ -1,7 +1,9 @@
-import type { Plugin } from 'vite'
+import { mergeConfig, type Plugin, type PluginOption } from 'vite'
+import solidPlugin, { type Options as SolidOptions } from 'vite-plugin-solid'
 
 export default function vikeLiteSolid({
-  hydration = true
+  hydration = true,
+  solid: solidUserOptions = {}
 }: {
   /** 
    * true: use hydration of SolidJS (better UX)
@@ -9,12 +11,17 @@ export default function vikeLiteSolid({
    * @default true
    */
   hydration?: boolean
-} = {}): Plugin {
+  /** 
+   * Advanced options passed directly to vite-plugin-solid 
+   */
+  solid?: Partial<SolidOptions>
+} = {}): PluginOption[] {
   const virtualRendererId = 'virtual:vike-lite/renderer'
   const virtualConfigId = 'virtual:vike-lite-solid/config'
   const resolvedVirtualRendererId = '\0' + virtualRendererId
   const resolvedVirtualConfigId = '\0' + virtualConfigId
-  return {
+
+  const vikeLiteSolidPlugin = {
     name: 'vike-lite-solid',
     // Execute this before vike-lite so the virtual module is ready
     enforce: 'pre',
@@ -52,5 +59,17 @@ export default function vikeLiteSolid({
           export const onRenderClient=()=>import('vike-lite-solid/__internal/client/onRenderClient');`
       }
     }
-  }
+  } satisfies Plugin
+
+  return [
+    solidPlugin(mergeConfig(
+      {
+        ssr: true,
+        typescript: { onlyRemoveTypeImports: true },
+        solid: { hydratable: true }
+      },
+      solidUserOptions
+    )),
+    vikeLiteSolidPlugin
+  ]
 }
