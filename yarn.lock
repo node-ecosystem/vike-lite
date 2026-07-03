@@ -751,12 +751,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^26.0.1":
-  version: 26.0.1
-  resolution: "@types/node@npm:26.0.1"
+"@types/node@npm:*, @types/node@npm:^26.1.0":
+  version: 26.1.0
+  resolution: "@types/node@npm:26.1.0"
   dependencies:
     undici-types: "npm:~8.3.0"
-  checksum: 10c0/31d204333c70124da6bcac7d1f27d8980149fe3f95a8419bfcd19c3e5823705c0e370d71ac34399352e1263b2d5fc41c87af964ec81e5a05a32224d65d8d224e
+  checksum: 10c0/61c22ad1ef215e24138cb8b7368fb68bab9de4c123b3f23d411749b015ba1b7d22f878ad54add26a0b69068d7e07c04af665069d8571b6c6c3b9b2fb73b7bd91
   languageName: node
   linkType: hard
 
@@ -2783,7 +2783,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"seroval-plugins@npm:~1.5.0":
+"seroval-plugins@npm:~1.5.4":
   version: 1.5.4
   resolution: "seroval-plugins@npm:1.5.4"
   peerDependencies:
@@ -2792,7 +2792,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"seroval@npm:~1.5.0":
+"seroval@npm:~1.5.4":
   version: 1.5.4
   resolution: "seroval@npm:1.5.4"
   checksum: 10c0/6191e27f21000f7693ab923fde69c47a3ce5fbb86e585e5a8fc072d70db52ebc3c4dab83c3b2ab67311ec646b2064df089a3a155c49b21846438aaf510d4b964
@@ -2815,14 +2815,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solid-js@npm:^1.9.13":
-  version: 1.9.13
-  resolution: "solid-js@npm:1.9.13"
+"solid-js@npm:^1.9.14":
+  version: 1.9.14
+  resolution: "solid-js@npm:1.9.14"
   dependencies:
     csstype: "npm:^3.1.0"
-    seroval: "npm:~1.5.0"
-    seroval-plugins: "npm:~1.5.0"
-  checksum: 10c0/1c407da820435771ec6fd65e605fd804fc1faf74ee84af2d3dce2bc5c223563017a9e15746eb86d27237e6d0d6ac8660685c560eb1f1decdc6f3c7b913927928
+    seroval: "npm:~1.5.4"
+    seroval-plugins: "npm:~1.5.4"
+  checksum: 10c0/8427451e12860b3422259b0dafd1bdf68061640a10cb6239770636a20a9d8d6c4fcd013c9c64c93fe2f7522c1f8734ebaf00b71a1cf91b74b808ebbbf0dbda22
   languageName: node
   linkType: hard
 
@@ -3134,11 +3134,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vike-lite-solid@workspace:packages/vike-lite-solid"
   dependencies:
-    "@types/node": "npm:^26.0.1"
-    solid-js: "npm:^1.9.13"
+    "@types/node": "npm:^26.1.0"
+    solid-js: "npm:^1.9.14"
     tsdown: "npm:^0.22.3"
     vike-lite: "workspace:*"
-    vite: "npm:^8.1.0"
+    vite: "npm:^8.1.3"
     vite-plugin-solid: "npm:^2.11.12"
   peerDependencies:
     solid-js: "*"
@@ -3152,9 +3152,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vike-lite@workspace:packages/vike-lite"
   dependencies:
-    "@types/node": "npm:^26.0.1"
+    "@types/node": "npm:^26.1.0"
     tsdown: "npm:^0.22.3"
-    vite: "npm:^8.1.0"
+    vite: "npm:^8.1.3"
   peerDependencies:
     vite: ">=8"
   languageName: unknown
@@ -3181,9 +3181,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^8.1.0":
-  version: 8.1.2
-  resolution: "vite@npm:8.1.2"
+"vite@npm:^8.1.3":
+  version: 8.1.3
+  resolution: "vite@npm:8.1.3"
   dependencies:
     fsevents: "npm:~2.3.3"
     lightningcss: "npm:^1.32.0"
@@ -3234,7 +3234,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/b39731dc31250b267ae5ddae81d737deafe2163bd0e1aa04849fb5f7c66b7ff7bcffa50883480b5f9fb47b1596b772021a8f9f671986e57b88d98300710ded77
+  checksum: 10c0/e3c95e95f9c19b36be3c9d1c4de7f57d24d5af71613a221cfa22f1fd1568adebdb640e30ef9a7f2361fbb15478883955c9d8932e4fa5566280dd7a16bffa64f9
   languageName: node
   linkType: hard
 
