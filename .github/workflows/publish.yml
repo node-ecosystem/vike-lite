@@ -104,13 +104,30 @@ jobs:
             const fs = await import('fs')
             const pkgJson = JSON.parse(fs.readFileSync(`./packages/${packageName}/package.json`, 'utf8'))
             const versionTag = `${packageName}@v${pkgJson.version}`
-            const defaultBranch = context.ref.replace('refs/heads/', '')
+            try {
+              const tagResponse = await github.rest.git.createTag({
+                owner,
+                repo,
+                tag: versionTag,
+                message: `Release ${versionTag}`,
+                object: context.sha,
+                type: 'commit'
+              })
+              await github.rest.git.createRef({
+                owner,
+                repo,
+                ref: `refs/tags/${versionTag}`,
+                sha: tagResponse.data.sha
+              })
+            } catch (error) {
+              console.log(`Tag ${versionTag} already exists`)
+            }
             await github.rest.repos.createRelease({
               owner,
               repo,
               tag_name: versionTag,
-              target_commitish: defaultBranch,
               name: versionTag,
-              body: releaseNotes.trim()
+              body: releaseNotes.trim(),
+              make_latest: packageName === 'vike-lite'
             })
             console.log(`Release ${versionTag} created!`)
