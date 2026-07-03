@@ -96,6 +96,18 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
           if (signal.aborted) return
 
+          if (ctx?._redirect) {
+            // Update the URL manually and perform the Solid transition
+            globalThis.history.pushState(null, '', ctx._redirect)
+            const urlObjRedirect = new URL(ctx._redirect, globalThis.location.origin)
+
+            startTransition(() => {
+              setCurrentUrl(urlObjRedirect.href)
+              setCurrentPathname(stripBase(urlObjRedirect.pathname))
+            })
+            return // Stops loading this route
+          }
+
           batch(() => {
             setPageContextStore(reconcile({
               routeParams,

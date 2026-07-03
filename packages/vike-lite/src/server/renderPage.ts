@@ -1,12 +1,11 @@
 import type { PageContext } from '..'
 import matchRoute from '../__internal/shared/matchRoute'
+import { BASE_URL } from '../shared'
 import serializeContext from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
-
-const { BASE_URL } = import.meta.env
 
 function withBase(file: string): `/${string}` | `${string}/${string}` {
   return `${BASE_URL.replace(/\/$/, '')}/${file.replace(/^\//, '')}`

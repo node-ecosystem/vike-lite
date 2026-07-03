@@ -271,13 +271,13 @@ if (process.env.NODE_ENV === 'production') {
     '.woff2': 'font/woff2',
     '.wasm': 'application/wasm'
   };
-  const base = import.meta.env.BASE_URL;
+  const { BASE_URL } = import.meta.env;
   const server = createServer(async (req, res) => {
     try {
       const urlObj = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));
       const pathname = urlObj.pathname;
       let fileUrl = pathname;
-      if (base !== '/' && pathname.startsWith(base)) fileUrl = '/' + pathname.slice(base.length);
+      if (BASE_URL !== '/' && pathname.startsWith(BASE_URL)) fileUrl = '/' + pathname.slice(BASE_URL.length);
       if (fileUrl !== '/') {
         const filePath = path.resolve(clientDir, '.' + fileUrl)
         if (!filePath.startsWith(clientDir + path.sep)) {
@@ -381,8 +381,8 @@ if (process.env.NODE_ENV === 'production') {
 
       console.log('\n\u{1B}[36m📦 Starting Static Site Generation (SSG)...\u{1B}[0m')
 
-      const base = process.env.BASE_URL || '/'
-      const baseNoSlash = base.endsWith('/') ? base.slice(0, -1) : base
+      const { BASE_URL } = import.meta.env
+      const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
       let generatedCount = 0
 
       const clientDir = path.resolve(viteConfigRoot, outDir, 'client')

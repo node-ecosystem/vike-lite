@@ -13,6 +13,10 @@
       "types": "./dist/vite.d.mts",
       "import": "./dist/vite.mjs"
     },
+    "./client/router": {
+      "import": "./dist/client/router.mjs",
+      "types": "./dist/client/router.d.mts"
+    },
     "./server": {
       "types": "./dist/server.d.mts",
       "import": "./dist/server.mjs"
