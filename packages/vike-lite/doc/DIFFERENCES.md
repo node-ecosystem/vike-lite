@@ -26,7 +26,11 @@
 | Hook | [+title Hook](https://vike.dev/title) | ✅ | ✅
 | | [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | Hook | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
-| Util | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅
+| Server | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅
+| Client/Server | [abort](https://vike.dev/abort) | ✅ | ✅
+| Server | [redirect()](https://vike.dev/redirect) | ✅ | ✅
+| Server | [render()](https://vike.dev/render) | ✅ | ✅
+| Client | [navigate()](https://vike.dev/navigate) | ✅ | ✅
 | Server | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
 | Server | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
 | Server | [Environment Variables](https://vike.dev/env) | ✅ | ✅
