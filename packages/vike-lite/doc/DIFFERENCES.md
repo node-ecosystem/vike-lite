@@ -28,7 +28,7 @@
 | Util | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅
 | Server | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
 | Server | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
-| Server | [Environment Variables](https://vike.dev/env) | ✅ | ✅/⏳(to check or replace)
+| Server | [Environment Variables](https://vike.dev/env) | ✅ | ✅
 | Dev | [HMR](https://vike.dev/server#hmr) | ✅ | ✅
 | Dev | [Paths Aliases](https://vike.dev/path-aliases) | ✅ | ✅
 | Dev | `vike dev` command | ✅ | use `vite dev`
