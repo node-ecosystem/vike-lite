@@ -191,7 +191,27 @@ export default function RouterApp(props: RouterProps): JSX.Element {
           })
           if (ctx?.title) document.title = ctx.title
         } catch (error) {
+          if ((error as Error).name === 'AbortError') return
           console.error('Router Error:', error)
+          if (props.errorRoute) {
+            const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
+              props.errorRoute.Page(),
+              props.errorRoute.Layout?.() ?? null,
+              props.errorRoute.Head?.() ?? null
+            ])
+            if (signal.aborted) return
+            batch(() => {
+              setPageContextStore(reconcile({
+                urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
+                is500: true, errorMessage: (error as Error).message
+              } as PageContext))
+              setView({
+                Page: ErrorPageMod.Page ?? ErrorPageMod.default,
+                Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
+                Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
+              })
+            })
+          }
         }
       }
 
