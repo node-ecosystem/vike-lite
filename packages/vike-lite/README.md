@@ -18,10 +18,10 @@ import vikeLite from 'vike-lite/vite'
 export default {
   plugins: [
     vikeLite({
-      pagesDir = 'pages', // default
-      serverEntry = 'server/index', // default
-      apiPrefix = '/api',  // default
-      prerender = false // default
+      pagesDir = 'pages', // Default
+      serverEntry = 'server/index', // Default
+      apiPrefix = '/api',  // Default
+      prerender = false // Default
     })
   ]
 } satisfies UserConfig
