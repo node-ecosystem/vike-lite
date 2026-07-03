@@ -1,7 +1,7 @@
 import type { PageContext } from '..'
 import matchRoute from '../__internal/shared/matchRoute'
 import serializeContext from '../utils/serializeContext'
-import { AbortRender } from './abort'
+import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
@@ -185,6 +185,22 @@ export default async function renderPage(req: Request): Promise<Response> {
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })
 
   } catch (error) {
+    if (error instanceof AbortRedirect) {
+      // Add the base path if the URL is internal
+      let redirectUrl = error.url
+      if (redirectUrl.startsWith('/')) {
+        const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
+        redirectUrl = baseNoSlash + (redirectUrl === '/' ? '' : redirectUrl)
+      }
+
+      // If the user is navigating in SPA mode, tell the Solid router to redirect
+      if (isJsonRequest) {
+        return Response.json({ _redirect: redirectUrl }, { status: 200 })
+      }
+
+      // If it's the first load or SSR, use the native HTTP redirect
+      return new Response(null, { status: error.statusCode, headers: { Location: redirectUrl } })
+    }
     if (error instanceof AbortRender) {
       if (isJsonRequest) {
         // If the user is navigating in SPA mode and the +data.ts does "throw render(404)"

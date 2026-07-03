@@ -1,3 +1,26 @@
+export class AbortRedirect extends Error {
+  public url: string
+  public statusCode: number
+
+  constructor(url: string, statusCode: number = 302) {
+    super(`Redirecting to ${url}`)
+    this.url = url
+    this.statusCode = statusCode
+    Object.setPrototypeOf(this, AbortRedirect.prototype)
+  }
+}
+
+/**
+ * Interrupt the current rendering and redirect the user to a new URL.
+ * Use with 'throw' inside +data.ts or in middleware.
+ * @param url The URL to redirect to
+ * @param statusCode Optional: the HTTP status code for the redirect (default is 302)
+ * @example throw redirect('/login')
+ */
+export function redirect(url: string, statusCode: number = 302): AbortRedirect {
+  return new AbortRedirect(url, statusCode)
+}
+
 export class AbortRender extends Error {
   public statusCode: number
   public reason?: unknown
