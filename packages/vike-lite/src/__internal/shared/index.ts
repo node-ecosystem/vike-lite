@@ -10,6 +10,7 @@ export interface RenderContext {
     jsPreloads: string
     entryClient: string
   }
+  nonce?: string
 }
 
 export type Config = {

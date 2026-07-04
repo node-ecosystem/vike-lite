@@ -13,7 +13,7 @@ export interface SolidRenderContext extends RenderContext {
 }
 
 export default async function onRenderHtml({
-  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets
+  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets,
 }: SolidRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
 
@@ -26,6 +26,8 @@ export default async function onRenderHtml({
   )) : ''
 
   const hydrationScript = hydration ? generateHydrationScript() : ''
+
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
 
   const appHtml = await renderToStringAsync(() => (
     <RouterApp
@@ -47,7 +49,7 @@ ${cssLinks}
 ${jsPreloads}
 ${headHtml}
 ${hydrationScript}
-<script>window.__PAGE_CONTEXT__=${serializedContext}</script>
+<script${nonceAttr}>window.__PAGE_CONTEXT__=${serializedContext}</script>
 </head>
 <body>
 <div id="root" tabindex="-1">${appHtml}</div>

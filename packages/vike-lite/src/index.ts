@@ -4,6 +4,7 @@ export type PageContext<Data = unknown> = {
   urlPathname: string
   data?: Data
   title?: string
+  nonce?: string
   is404?: boolean
   is500?: boolean
   errorMessage?: string

@@ -11,7 +11,7 @@ function withBase(file: string): `/${string}` | `${string}/${string}` {
   return `${BASE_URL.replace(/\/$/, '')}/${file.replace(/^\//, '')}`
 }
 
-function getAssets(route: typeof import('virtual:routes').routes[number]) {
+function getAssets(route: typeof import('virtual:routes').routes[number], nonce?: string) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
@@ -62,11 +62,13 @@ function getAssets(route: typeof import('virtual:routes').routes[number]) {
     (isCritical ? criticalJs : sharedJs).push(file)
   }
 
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
+
   return {
-    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="${withBase(href)}">`).join(''),
+    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="${withBase(href)}"${nonceAttr}>`).join(''),
     jsPreloads: [
-      ...criticalJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin fetchpriority="high">`),
-      ...sharedJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin>`)
+      ...criticalJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin fetchpriority="high"${nonceAttr}>`),
+      ...sharedJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin${nonceAttr}>`)
     ].join(''),
     entryClient: withBase(manifest![virtualEntryClientKey].file)
   }
@@ -114,7 +116,8 @@ async function renderErrorPage(
   req: Request,
   status: number,
   urlPathname: string,
-  error?: unknown
+  error?: unknown,
+  nonce?: string
 ): Promise<Response> {
   if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
 
@@ -143,7 +146,8 @@ async function renderErrorPage(
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,
       pageTitleTag: `<title>${status === 404 ? 'Page Not Found' : 'Server Error'}</title>`,
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(store.errorRoute)
+      assets: getAssets(store.errorRoute, nonce),
+      nonce
     })
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
@@ -153,7 +157,7 @@ async function renderErrorPage(
   }
 }
 
-export default async function renderPage(req: Request): Promise<Response> {
+export default async function renderPage(req: Request, { nonce }: { nonce?: string }): Promise<Response> {
   let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname
@@ -182,7 +186,7 @@ export default async function renderPage(req: Request): Promise<Response> {
 
     if (!resolved) {
       if (isJsonRequest) return Response.json({ is404: true }, { status: 404 })
-      return renderErrorPage(req, 404, targetPathname)
+      return renderErrorPage(req, 404, targetPathname, nonce)
     }
 
     const { pageContext, route, PageModule, HeadModule, LayoutModule } = resolved
@@ -198,7 +202,8 @@ export default async function renderPage(req: Request): Promise<Response> {
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
       pageTitleTag: pageContext.title ? `<title>${pageContext.title}</title>` : '',
       serializedContext: serializeContext(pageContext),
-      assets: getAssets(route)
+      assets: getAssets(route, nonce),
+      nonce
     })
 
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })
@@ -234,10 +239,10 @@ export default async function renderPage(req: Request): Promise<Response> {
         )
       }
       // First load, render the error UI (with layout and styles)
-      return renderErrorPage(req, error.statusCode, targetPathname, error.reason)
+      return renderErrorPage(req, error.statusCode, targetPathname, error.reason, nonce)
     }
     console.error('Render Error:', error)
     if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })
-    return renderErrorPage(req, 500, targetPathname, error)
+    return renderErrorPage(req, 500, targetPathname, error, nonce)
   }
 }
