@@ -14,6 +14,7 @@
     "lint": "eslint packages/**/*.ts",
     "lint:vike": "eslint packages/vike-lite/**/*.ts",
     "lint:vike-solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
+    "release": "node scripts/release.mjs",
     "od": "yarn outdated"
   },
   "devDependencies": {
