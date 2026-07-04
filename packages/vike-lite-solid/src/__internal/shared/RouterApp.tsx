@@ -59,6 +59,44 @@ export default function RouterApp(props: RouterProps): JSX.Element {
           setCurrentPathname(stripBase(url.pathname))
         })
       }
+
+      const prefetchedModules = new Set<string>()
+
+      function prefetchRoute(route: VikeState['routes'][number]) {
+        const modules: Array<[string | undefined, (() => Promise<any>) | undefined]> = [
+          [route.page, route.Page],
+          [route.layout, route.Layout],
+          [route.head, route.Head]
+        ]
+
+        for (const [key, loader] of modules) {
+          if (!key || !loader || prefetchedModules.has(key)) continue
+          prefetchedModules.add(key)
+          void loader().catch(() => { prefetchedModules.delete(key) })
+        }
+      }
+
+      const handleLinkPrefetch = (e: Event) => {
+        const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('a')
+        if (!target?.href) return
+        if (target.target && target.target !== '_self') return
+        if (target.hasAttribute('download')) return
+
+        const url = new URL(target.href)
+        if (url.origin !== globalThis.location.origin) return
+
+        const isSamePage =
+          url.pathname === globalThis.location.pathname &&
+          url.search === globalThis.location.search
+        if (isSamePage) return
+
+        const pathname = stripBase(url.pathname)
+        const matched = matchRoute(pathname, props.routes)
+        if (!matched) return
+
+        prefetchRoute(matched.route)
+      }
+
       const handlePopState = () => {
         startTransition(() => {
           setCurrentUrl(globalThis.location.href)
@@ -83,11 +121,15 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       }
 
       document.addEventListener('click', handleLinkClick)
+      document.addEventListener('pointerenter', handleLinkPrefetch, { capture: true })
+      document.addEventListener('focusin', handleLinkPrefetch)
       globalThis.addEventListener('popstate', handlePopState)
       globalThis.addEventListener('vike-navigate', handleProgrammaticNavigate)
 
       onCleanup(() => {
         document.removeEventListener('click', handleLinkClick)
+        document.removeEventListener('pointerenter', handleLinkPrefetch, { capture: true })
+        document.removeEventListener('focusin', handleLinkPrefetch)
         globalThis.removeEventListener('popstate', handlePopState)
         globalThis.removeEventListener('vike-navigate', handleProgrammaticNavigate)
       })
