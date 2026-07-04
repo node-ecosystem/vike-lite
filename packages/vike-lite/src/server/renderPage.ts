@@ -157,7 +157,7 @@ async function renderErrorPage(
   }
 }
 
-export default async function renderPage(req: Request, { nonce }: { nonce?: string }): Promise<Response> {
+export default async function renderPage(req: Request, { nonce }: { nonce?: string } = {}): Promise<Response> {
   let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname

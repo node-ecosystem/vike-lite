@@ -13,7 +13,7 @@ export interface SolidRenderContext extends RenderContext {
 }
 
 export default async function onRenderHtml({
-  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets,
+  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets, nonce
 }: SolidRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
 
