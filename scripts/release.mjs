@@ -118,8 +118,8 @@ async function main() {
   }
 
   log('📦 Packages to update:', colors.magenta)
-  for (const info of bumpsInfo) {
-    log(`  - ${info.pkgName}: ${info.currentVersion} ➔  ${colors.green}${info.newVersion}${colors.reset}`)
+  for (const { pkgName, currentVersion, newVersion } of bumpsInfo) {
+    log(`  - ${pkgName}: ${currentVersion} ➔  ${colors.green}${newVersion}${colors.reset}`)
   }
 
   // Ask for confirmation before proceeding
@@ -133,13 +133,14 @@ async function main() {
 
   // Write the new package.json files
   for (let i = 0, _len = bumpsInfo.length; i < _len; i++) {
-    info.pkgJson.version = info.newVersion
-    fs.writeFileSync(info.pkgPath, JSON.stringify(info.pkgJson, null, 2) + '\n')
+    const { pkgJson, pkgPath, newVersion } = bumpsInfo[i]
+    pkgJson.version = newVersion
+    fs.writeFileSync(pkgPath, JSON.stringify(pkgJson, null, 2) + '\n')
 
-    run(`git add "${info.pkgPath}"`)
-    run(`git commit -m "release(${info.pkgName}): v${info.newVersion}"`)
+    run(`git add "${pkgPath}"`)
+    run(`git commit -m "release(${pkgJson.name}): v${newVersion}"`)
     run('git push')
-    log(`⬆️  ${info.pkgName}@v${info.newVersion} released`, colors.cyan)
+    log(`⬆️  ${pkgJson.name}@v${newVersion} released`, colors.cyan)
 
     if (i < bumpsInfo.length - 1) await setTimeout(3000)
   }
