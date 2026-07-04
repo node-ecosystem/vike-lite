@@ -157,8 +157,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             // If there's a hash in the URL, wait for the new DOM to be physically on screen
             // and try to scroll to the element
             requestAnimationFrame(() => {
-              const el = document.querySelector<HTMLElement>(globalThis.location.hash)
-              if (el) el.scrollIntoView()
+              try { document.querySelector<HTMLElement>(decodeURIComponent(globalThis.location.hash))?.scrollIntoView() } catch { }
             })
           }
         }
