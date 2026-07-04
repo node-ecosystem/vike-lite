@@ -107,7 +107,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
       const loadRoute = async (signal: AbortSignal) => {
         // Scroll only when the content is ready
-        const finalizeNavigation = () => {
+        function finalizeNavigation() {
           if (shouldScrollToTop) {
             globalThis.scrollTo(0, 0)
             shouldScrollToTop = false
@@ -115,7 +115,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             // If there's a hash in the URL, wait for the new DOM to be physically on screen
             // and try to scroll to the element
             requestAnimationFrame(() => {
-              const el = document.getElementById(globalThis.location.hash.slice(1))
+              const el = document.querySelector<HTMLElement>(globalThis.location.hash)
               if (el) el.scrollIntoView()
             })
           }
