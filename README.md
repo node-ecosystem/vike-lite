@@ -4,7 +4,7 @@ Vike Lite (pronounced _/vaɪk laɪt/_) is a _light_ web framework inspired by [V
 
 ### ✨ Features
 ~ 🪶 **Light** ~ Zero dependencies and only essential validations<br>
-~ ⚖️ **Functionalities** ~ [See differences](packages/vike-lite/doc/DIFFERENCES.md)<br>
+~ ⚖️ **Functionalities** ~ [See differences](packages/vike-lite/doc/differences/INDEX.md)<br>
 
 ### 📦 Packages
 | Package | Description
