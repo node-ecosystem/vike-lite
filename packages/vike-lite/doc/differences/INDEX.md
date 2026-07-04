@@ -13,12 +13,12 @@
 | Page | [+Head](https://vike.dev/Head) | ✅ | ✅
 | Page | [+Layout](https://vike.dev/Layout) | ✅ | ✅
 | Page | [Error Page](https://vike.dev/error-page) | ✅ | ✅
-| Client/Server | Pre-rendering (SSG) | [+prerender](https://vike.dev/prerender) | [See](./PRERENDER.md))
+| Client/Server | Pre-rendering (SSG) | [+prerender](https://vike.dev/prerender) | [Prerender](./PRERENDER.md)
 | Hook | [+guard](https://vike.dev/guard) | ✅ | ⏳
 | Hook | [+config](https://vike.dev/config) | ✅ | ⏳
 | Hook | [+data](https://vike.dev/data) | ✅ | ✅
 | Hook | [+onBeforeRoute](https://vike.dev/onBeforeRoute) | ✅ | ⏳
-| Client/Server | CSP | [+csp](https://vike.dev/csp) | ([See](./CSP.md))
+| Client/Server | CSP | [+csp](https://vike.dev/csp) | [CSP](./CSP.md)
 | Client/Server | [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` and `modifyUrl()` | ✅ | ⏳
 | Server | [pageContext](https://vike.dev/pageContext) | ✅ | ✅
 | Server | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
