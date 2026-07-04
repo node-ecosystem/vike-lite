@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { execSync } from 'node:child_process'
 import { createInterface } from 'node:readline/promises'
+import { setTimeout } from 'node:timers/promises'
 
 const colors = { reset: '\u{1B}[0m', cyan: '\u{1B}[36m', green: '\u{1B}[32m', yellow: '\u{1B}[33m', red: '\u{1B}[31m', magenta: '\u{1B}[35m' }
 const log = (msg, color = colors.reset) => console.log(`${color}${msg}${colors.reset}`)
@@ -90,7 +91,7 @@ async function main() {
 
   // Ask for confirmation before proceeding
   const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const answer = await rl.question(`Do you want to proceed with the bump, commit, tag, and push? (y/N) `)
+  const answer = await rl.question(`Do you want to proceed with the bump, commit, and push? (y/N) `)
   rl.close()
 
   if (answer.toLowerCase() !== 'y') {
@@ -104,26 +105,15 @@ async function main() {
   for (const info of bumpsInfo) {
     info.pkgJson.version = info.newVersion
     fs.writeFileSync(info.pkgPath, JSON.stringify(info.pkgJson, null, 2) + '\n')
+
+    run(`git add "${info.pkgPath}"`)
+    run(`git commit -m "release(${info.pkgName}): v${info.newVersion}"`)
+    run('git push')
+    log(`⬆️  ${info.pkgName}@v${info.newVersion} released`, colors.cyan)
+
+    if (i < bumpsInfo.length - 1) await setTimeout(3000)
   }
-
-  // Git Add & Commit
-  const pathsToAdd = bumpsInfo.map(info => `"${info.pkgPath}"`).join(' ')
-  run(`git add ${pathsToAdd}`)
-  run(`git commit -m "chore: release packages" -- ${pathsToAdd}`)
-  log(`✅ Updated package.json and created commit`, colors.green)
-
-  // Create Git Tags
-  for (const info of bumpsInfo) {
-    const tagName = `${info.pkgName}@v${info.newVersion}`
-    run(`git tag -a ${tagName} -m "Release ${tagName}"`)
-    log(`✅ Created tag ${tagName}`, colors.green)
-  }
-
-  // Push
-  log('⬆️  Pushing to origin…', colors.cyan)
-  run('git push origin HEAD')
-  run('git push origin --tags')
-  log('🎉 Release completed successfully!', colors.green)
+  log('🎉 Release script completed', colors.green)
 }
 
 try {
