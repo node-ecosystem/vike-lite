@@ -6,7 +6,7 @@ import RouterApp, { type ViewComponents, type RouterProps } from '../shared/Rout
 import stripBase from '../shared/stripBase'
 
 export default async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'>) {
-  const container = document.querySelector('#root') as HTMLDivElement
+  const container = document.querySelector<HTMLDivElement>('#root')!
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
 
