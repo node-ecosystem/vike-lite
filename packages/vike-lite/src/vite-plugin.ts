@@ -84,6 +84,8 @@ export default function routerPlugin({
                 input: virtualEntryClientId,
                 output: {
                   format: 'esm',
+                  // Prevents the entry chunk from bloating with all transitive imports
+                  hoistTransitiveImports: false,
                   // Entry point virtual:entry-client
                   entryFileNames: 'assets/[name].[hash].js',
                   // Pages and shared chunks
@@ -96,7 +98,44 @@ export default function routerPlugin({
                     return 'assets/chunks/[name].[hash].js'
                   },
                   // Static (File CSS, images, font, svg etc.)
-                  assetFileNames: 'assets/static/[name].[hash][extname]'
+                  assetFileNames: 'assets/static/[name].[hash][extname]',
+                  codeSplitting: {
+                    groups: [
+                      // Framework: vike-lite + solid-js — changes rarely, very long cache
+                      {
+                        name: 'framework',
+                        test: /[\\/](vike-lite(-\w+)?|solid-js|@solidjs)[\\/]/,
+                        priority: 30
+                      },
+                      // Vendor: rest of the dependencies — separate from the framework
+                      // minSize prevents micro-chunks for tiny dependencies
+                      {
+                        name: 'vendor',
+                        test: /[\\/]node_modules[\\/]/,
+                        priority: 20,
+                        minSize: 20_000
+                      },
+                      // A page = a dedicated chunk, consistent with vike-lite lazy-loading
+                      {
+                        name(moduleId) {
+                          const match = moduleId.match(new RegExp(String.raw`[\\/]${pagesDir}[\\/]([^\\/]+)[\\/]`))
+                          return match ? `page-${match[1]}` : 'shared'
+                        },
+                        test: new RegExp(String.raw`[\\/]${pagesDir}[\\/]`),
+                        priority: 10
+                      },
+                      // CSS: a dedicated chunk per page/module, instead of grouping it
+                      // with the JS — prevents a style change from invalidating unrelated JS chunks
+                      {
+                        name(moduleId) {
+                          const match = moduleId.match(new RegExp(String.raw`[\\/]${pagesDir}[\\/]([^\\/]+)[\\/]`))
+                          return match ? `css-${match[1]}` : 'css-shared'
+                        },
+                        test: /\.css$/,
+                        priority: 5
+                      }
+                    ]
+                  }
                 }
               }
             }

@@ -19,8 +19,8 @@ function getAssets(route: typeof import('virtual:routes').routes[number]) {
   }
 
   const cssFiles = new Set<string>()
-  const jsFiles = new Set<string>()
-  const visitedKeys = new Set<string>()
+  // Map file -> isCritical. Allows upgrading shared→critical, but not the other way around.
+  const jsFiles = new Map<string, boolean>()
   const { manifest } = store
 
   function getVirtualEntryClientKey() {
@@ -28,26 +28,46 @@ function getAssets(route: typeof import('virtual:routes').routes[number]) {
     throw new Error('entry-client not found in manifest')
   }
 
-  function collectAssets(key: string) {
-    if (visitedKeys.has(key)) return
-    visitedKeys.add(key)
+  function collectAssets(key: string, isCritical: boolean) {
     const chunk = manifest![key]
-    jsFiles.add(chunk.file)
+    if (!chunk) return
+
+    const current = jsFiles.get(chunk.file)
+
+    // Skip cases
+    if (current === true) return  // Already critical: no upgrade needed
+    if (current === false && !isCritical) return  // Already shared AND new call is also shared: no change
+
+    // Otherwise: either first time seeing this file, OR upgrading shared→critical
+    jsFiles.set(chunk.file, isCritical)
     if (chunk.css) for (const css of chunk.css) cssFiles.add(css)
-    if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp)
+
+    // Transitive imports are always shared (they are cross-cutting dependencies)
+    // (vendor/framework/other pages), likely already in cache after
+    // the first navigation. No dependency on chunk names.
+    if (chunk.imports) for (const imp of chunk.imports) collectAssets(imp, false)
   }
 
   const virtualEntryClientKey = getVirtualEntryClientKey()
-  collectAssets(virtualEntryClientKey)
+  collectAssets(virtualEntryClientKey, true)
 
   const { page, layout, head } = route
-  collectAssets(page)
-  if (head) collectAssets(head)
-  if (layout) collectAssets(layout)
+  collectAssets(page, true)
+  if (head) collectAssets(head, true)
+  if (layout) collectAssets(layout, true)
+
+  const criticalJs: string[] = []
+  const sharedJs: string[] = []
+  for (const [file, isCritical] of jsFiles) {
+    (isCritical ? criticalJs : sharedJs).push(file)
+  }
 
   return {
     cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="${withBase(href)}">`).join(''),
-    jsPreloads: [...jsFiles].map(href => `<link rel="modulepreload" href="${withBase(href)}">`).join(''),
+    jsPreloads: [
+      ...criticalJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin fetchpriority="high">`),
+      ...sharedJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin>`)
+    ].join(''),
     entryClient: withBase(manifest![virtualEntryClientKey].file)
   }
 }
