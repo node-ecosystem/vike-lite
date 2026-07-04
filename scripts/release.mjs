@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { execSync } from 'node:child_process'
-import { createInterface } from 'node:readline/promises'
 import { setTimeout } from 'node:timers/promises'
 
 const colors = { reset: '\u{1B}[0m', cyan: '\u{1B}[36m', green: '\u{1B}[32m', yellow: '\u{1B}[33m', red: '\u{1B}[31m', magenta: '\u{1B}[35m' }
@@ -14,6 +13,40 @@ const run = (cmd, ignoreError = false) => {
     if (ignoreError) return ''
     throw new Error(`❌ Command failed: ${cmd}${error.stderr?.toString() ?? error.message}`)
   }
+}
+
+async function askConfirmation(question) {
+  return new Promise((resolve) => {
+    process.stdout.write(question)
+
+    // Activate raw mode to read individual keys
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(true)
+    }
+    process.stdin.resume()
+    process.stdin.setEncoding('utf8')
+
+    const onData = (key) => {
+      // Clear the listener and disable raw mode
+      process.stdin.removeListener('data', onData)
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(false)
+      }
+      process.stdin.pause()
+
+      // Handle Ctrl+C
+      // In raw mode, Ctrl+C does not automatically kill the process, you have to do it manually
+      if (key === '\u{3}') {
+        process.stdout.write('\n')
+        process.exit(1)
+      }
+
+      // Print the pressed key and move to a new line (in raw mode it is not automatically printed to the screen)
+      process.stdout.write(`${key}\n`)
+      resolve(key)
+    }
+    process.stdin.on('data', onData)
+  })
 }
 
 const PACKAGES_DIR = 'packages'
@@ -90,10 +123,7 @@ async function main() {
   }
 
   // Ask for confirmation before proceeding
-  const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const answer = await rl.question(`Do you want to proceed with the bump, commit, and push? (y/N) `)
-  rl.close()
-
+  const answer = await askConfirmation(`Do you want to proceed with the bump, commit, and push? (y/N) `)
   if (answer.toLowerCase() !== 'y') {
     log('Operation cancelled', colors.red)
     return
