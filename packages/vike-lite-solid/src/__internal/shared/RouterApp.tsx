@@ -31,15 +31,28 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
   const matchedRoute = createMemo(() => matchRoute(currentPathname(), props.routes))
 
+  // Track if we need to scroll to the top after the next load
+  let shouldScrollToTop = false
+
   if (!isServer) {
     createEffect(() => {
       const handleLinkClick = (e: MouseEvent) => {
         const target = (e.target as HTMLElement).closest('a')
         if (!target?.href || target.target === '_blank' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return
+
         const url = new URL(target.href)
         if (url.origin !== globalThis.location.origin) return
+
+        // If it's a link to the SAME exact page (only the hash changes)
+        // Let the browser handle it natively! (It will jump to the correct ID by itself)
+        const isSamePage = url.pathname === globalThis.location.pathname && url.search === globalThis.location.search
+        if (isSamePage) return
+
         e.preventDefault()
         globalThis.history.pushState(null, '', url.href)
+
+        if (!url.hash) shouldScrollToTop = true
+
         startTransition(() => {
           setCurrentUrl(url.href)
           // Click on a link, we need to remove the base from the pathname
@@ -53,11 +66,30 @@ export default function RouterApp(props: RouterProps): JSX.Element {
           setCurrentPathname(stripBase(globalThis.location.pathname))
         })
       }
+
+      const handleProgrammaticNavigate = (e: Event) => {
+        const customEvent = e as CustomEvent<{ keepScrollPosition?: boolean }>
+        const detail = customEvent.detail || {}
+
+        // Set the scroll flag only if the user hasn't requested to keep it
+        if (!detail.keepScrollPosition) {
+          shouldScrollToTop = true
+        }
+
+        startTransition(() => {
+          setCurrentUrl(globalThis.location.href)
+          setCurrentPathname(stripBase(globalThis.location.pathname))
+        })
+      }
+
       document.addEventListener('click', handleLinkClick)
       globalThis.addEventListener('popstate', handlePopState)
+      globalThis.addEventListener('vike-navigate', handleProgrammaticNavigate)
+
       onCleanup(() => {
         document.removeEventListener('click', handleLinkClick)
         globalThis.removeEventListener('popstate', handlePopState)
+        globalThis.removeEventListener('vike-navigate', handleProgrammaticNavigate)
       })
     })
 
@@ -74,6 +106,20 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       const matched = matchedRoute()
 
       const loadRoute = async (signal: AbortSignal) => {
+        // Scroll only when the content is ready
+        const finalizeNavigation = () => {
+          if (shouldScrollToTop) {
+            globalThis.scrollTo(0, 0)
+            shouldScrollToTop = false
+          } else if (globalThis.location.hash) {
+            // If there's a hash in the URL, wait for the new DOM to be physically on screen
+            // and try to scroll to the element
+            requestAnimationFrame(() => {
+              const el = document.getElementById(globalThis.location.hash.slice(1))
+              if (el) el.scrollIntoView()
+            })
+          }
+        }
         const renderErrorPage = async (is404: boolean, message?: string) => {
           if (!props.errorRoute) return
           // Fetch the error page components instead of the normal ones
@@ -95,6 +141,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             })
           })
           document.title = is404 ? 'Not Found' : 'Server Error'
+          finalizeNavigation()
         }
 
         //  Native 404 fallback if the route doesn't exist on the Client
@@ -127,9 +174,16 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
           // Handle Redirect: check if there is a redirect (e.g. throw redirect('/login'))
           if (ctx?._redirect) {
+            const urlObjRedirect = new URL(ctx._redirect, globalThis.location.origin)
+            // If the redirect is to another domain, exit the app
+            if (urlObjRedirect.origin !== globalThis.location.origin) {
+              globalThis.location.assign(ctx._redirect)
+              return
+            }
+
             // Update the URL manually and perform the Solid transition
             globalThis.history.pushState(null, '', ctx._redirect)
-            const urlObjRedirect = new URL(ctx._redirect, globalThis.location.origin)
+            shouldScrollToTop = true
             startTransition(() => {
               setCurrentUrl(urlObjRedirect.href)
               setCurrentPathname(stripBase(urlObjRedirect.pathname))
@@ -166,6 +220,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             })
           })
           if (ctx?.title) document.title = ctx.title
+          finalizeNavigation()
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return

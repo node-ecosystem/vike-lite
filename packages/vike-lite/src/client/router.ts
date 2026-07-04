@@ -19,11 +19,9 @@ export function navigate(url: string, options?: { keepScrollPosition?: boolean }
   // Change the URL in the address bar
   globalThis.history.pushState(null, '', finalUrl)
 
-  // Notify the vike-lite router to update
-  globalThis.dispatchEvent(new Event('popstate'))
-
-  // Reset scroll as if it were a normal page load
-  if (!options?.keepScrollPosition) {
-    globalThis.scrollTo(0, 0)
-  }
+  // Notify the vike-lite router to update:
+  // dispatch a custom event instead of popstate, passing the options
+  globalThis.dispatchEvent(new CustomEvent('vike-navigate', {
+    detail: { keepScrollPosition: options?.keepScrollPosition }
+  }))
 }
