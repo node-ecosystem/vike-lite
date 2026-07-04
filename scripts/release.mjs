@@ -102,7 +102,7 @@ async function main() {
   log('🚀 Starting release process…', colors.cyan)
 
   // Write the new package.json files
-  for (const info of bumpsInfo) {
+  for (let i = 0, _len = bumpsInfo.length; i < _len; i++) {
     info.pkgJson.version = info.newVersion
     fs.writeFileSync(info.pkgPath, JSON.stringify(info.pkgJson, null, 2) + '\n')
 
