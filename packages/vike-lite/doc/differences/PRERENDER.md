@@ -20,7 +20,7 @@ import vikeLite from 'vike-lite/vite'
 export default {
   plugins: [
     vikeLite({
-      prerender = true  // Enable pre-rendering
+      prerender: true  // Enable pre-rendering
     })
   ]
 } satisfies UserConfig
