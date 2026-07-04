@@ -220,6 +220,15 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             })
           })
           if (ctx?.title) document.title = ctx.title
+
+          // Accessibility: after a client-side navigation,
+          // the keyboard focus remains on the clicked <a> element,
+          // and screen readers are not notified of the page change.
+          requestAnimationFrame(() => {
+            if (globalThis.location.hash) return
+            document.querySelector<HTMLDivElement>('#root')!.focus({ preventScroll: true })
+          })
+
           finalizeNavigation()
         } catch (error) {
           // Handle Network or Import Errors

@@ -94,6 +94,7 @@ Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here a
 | - | - | - | - 
 | `Page` wrapper component | [Dynamic](https://docs.solidjs.com/concepts/control-flow/dynamic) | Direct Render | `vike-lite` reduces AST abstraction overhead. Pages are rendered directly without heavy wrappers, resulting in a **lighter DOM tree**.
 | **Reactivity Architecture** | _Separation of Concerns_ | _Single Source of Truth_ | `vike-lite` separates the reactive state into 2 distinct entities (`pageContextStore` and `view`), taking advantage of Solid's [batch](https://docs.solidjs.com/reference/reactive-utilities/batch) for blazing-fast atomic updates. `vike-solid` serializes everything into a single massive `pageContext`.
+| Remove client navigation focus when `<a>` is clicked | _Not_ handled  | Automatic handled | After client-side navigation, `vike-lite-solid` moves focus away from the clicked `<a>` by focusing `#root`, improving keyboard, screen-reader UX and accessibility. |
 
 ---
 

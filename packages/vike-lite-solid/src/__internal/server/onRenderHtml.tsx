@@ -50,7 +50,7 @@ ${hydrationScript}
 <script>window.__PAGE_CONTEXT__=${serializedContext}</script>
 </head>
 <body>
-<div id="root">${appHtml}</div>
+<div id="root" tabindex="-1">${appHtml}</div>
 <script type="module" src="${entryClient}"></script>
 </body>
 </html>`
