@@ -102,9 +102,12 @@ export default function routerPlugin({
                   codeSplitting: {
                     groups: [
                       // Framework: vike-lite + solid-js — changes rarely, very long cache
+                      // The 3rd alternative also matches vike-lite's own virtual modules (e.g. \0virtual:vike-lite/setup,
+                      // \0virtual:vike-lite/renderer, \0virtual:vike-lite-solid/config), which are prefixed with \0
+                      // by Vite/Rollup and wouldn't otherwise be bounded by path separators like real file paths.
                       {
                         name: 'framework',
-                        test: /[\\/](vike-lite(-\w+)?|solid-js|@solidjs)[\\/]/,
+                        test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|@solidjs)[\\/]|^\0virtual:vike-lite/,
                         priority: 30
                       },
                       // Vendor: rest of the dependencies — separate from the framework
