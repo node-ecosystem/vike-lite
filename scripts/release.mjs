@@ -80,7 +80,7 @@ async function main() {
   }
 
   if (bumpsInfo.length === 0) {
-    log('No new features or fixes detected in the packages. No release necessary.', colors.green)
+    log('No new features or fixes detected in the packages. No release necessary', colors.green)
     return
   }
 
@@ -95,7 +95,7 @@ async function main() {
   rl.close()
 
   if (answer.toLowerCase() !== 'y') {
-    log('Operation cancelled.', colors.red)
+    log('Operation cancelled', colors.red)
     return
   }
 
