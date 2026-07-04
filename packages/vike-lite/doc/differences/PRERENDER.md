@@ -39,7 +39,7 @@ For example, given the route `pages/post/@slug/+Page.tsx` (URL: `/post/:slug`), 
 ```ts
 // pages/post/@slug/+prerender.ts
 export default async function prerender() {
-  const posts = await fetch('https://api.my-db.com/top-posts').then(r => r.json())
+  const posts = await fetch('https://api.my-db.com/top-posts').then(r => r.json()) as { slug: string }[]
 
   // Return the array of routes to generate
   return posts.map(post => `/post/${post.slug}`)
