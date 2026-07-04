@@ -109,9 +109,13 @@ export default function routerPlugin({
                       },
                       // Vendor: rest of the dependencies — separate from the framework
                       // minSize prevents micro-chunks for tiny dependencies
+                      // Also matches Yarn PnP storage locations (.yarn/cache, .yarn/unplugged, .yarn/__virtual__),
+                      // since those dependencies still resolve through a virtual `node_modules` segment
+                      // (e.g. .yarn/cache/solid-js-npm-1.2.3-<hash>.zip/node_modules/solid-js/...), but this
+                      // keeps detection working even for workspace/portal-linked packages that don't go through it.
                       {
                         name: 'vendor',
-                        test: /[\\/]node_modules[\\/]/,
+                        test: /[\\/](node_modules|\.yarn[\\/](?:cache|unplugged|__virtual__))[\\/]/,
                         priority: 20,
                         minSize: 20_000
                       },
