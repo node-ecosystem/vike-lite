@@ -18,6 +18,7 @@ export default defineConfig(
 
       'unicorn/empty-brace-spaces': 0,
       'unicorn/consistent-boolean-name': 0,
+      'unicorn/consistent-function-scoping': 0,
       'unicorn/filename-case': 0,
       'unicorn/name-replacements': 0,
       'unicorn/no-empty-file': 0,
