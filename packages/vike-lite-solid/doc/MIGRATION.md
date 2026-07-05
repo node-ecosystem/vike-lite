@@ -41,7 +41,7 @@ import { createSignal } from 'solid-js'
 export const Page: Component = () => {
 -  const [myQueryParam, setMyQueryParam] = createSignal(pageContext.urlParsed.search.myQueryParam)
 +  const url = useUrl()
-+  const [myQueryParam, setMyQueryParam] = createSignal(url.searchParams.get('myQueryParam'))
++  const [myQueryParam, setMyQueryParam] = createSignal(url().searchParams.get('myQueryParam'))
 }
 ```
 
@@ -58,6 +58,6 @@ export const Page: Component = () => {
   const pageContext = usePageContext()
 -  const [myQueryParam, setMyQueryParam] = createSignal(pageContext.urlParsed.search.myQueryParam)
 +  const url = createMemo(() => new URL(pageContext.urlOriginal, 'http://localhost'))
-+  const [myQueryParam, setMyQueryParam] = createSignal(url.searchParams.get('myQueryParam'))
++  const [myQueryParam, setMyQueryParam] = createSignal(url().searchParams.get('myQueryParam'))
 }
 ```
