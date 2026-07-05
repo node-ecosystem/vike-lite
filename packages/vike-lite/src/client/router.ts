@@ -25,3 +25,11 @@ export function navigate(url: string, options?: { keepScrollPosition?: boolean }
     detail: { keepScrollPosition: options?.keepScrollPosition }
   }))
 }
+
+export const reload = (): Promise<void> => {
+  return new Promise((resolve) => {
+    globalThis.dispatchEvent(
+      new CustomEvent('vike-reload', { detail: { resolve } })
+    )
+  })
+}

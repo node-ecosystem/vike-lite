@@ -29,6 +29,9 @@ export default function RouterApp(props: RouterProps): JSX.Element {
   const [currentUrl, setCurrentUrl] = createSignal(props.initialUrl)
   const [currentPathname, setCurrentPathname] = createSignal(props.initialContext.urlPathname)
 
+  const [reloadTick, setReloadTick] = createSignal(0)
+  let reloadResolvers: Array<() => void> = []
+
   const matchedRoute = createMemo(() => matchRoute(currentPathname(), props.routes))
 
   // Track if we need to scroll to the top after the next load
@@ -120,11 +123,24 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         })
       }
 
+      const handleProgrammaticReload = (e: Event) => {
+        const customEvent = e as CustomEvent<{ resolve?: () => void }>
+        if (customEvent.detail?.resolve) {
+          reloadResolvers.push(customEvent.detail.resolve)
+        }
+
+        // Usiamo startTransition per far sapere a Solid che è un update non bloccante
+        startTransition(() => {
+          setReloadTick(t => t + 1)
+        })
+      }
+
       document.addEventListener('click', handleLinkClick)
       document.addEventListener('pointerenter', handleLinkPrefetch, { capture: true })
       document.addEventListener('focusin', handleLinkPrefetch)
       globalThis.addEventListener('popstate', handlePopState)
       globalThis.addEventListener('vike-navigate', handleProgrammaticNavigate)
+      globalThis.addEventListener('vike-reload', handleProgrammaticReload)
 
       onCleanup(() => {
         document.removeEventListener('click', handleLinkClick)
@@ -132,13 +148,16 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         document.removeEventListener('focusin', handleLinkPrefetch)
         globalThis.removeEventListener('popstate', handlePopState)
         globalThis.removeEventListener('vike-navigate', handleProgrammaticNavigate)
+        globalThis.removeEventListener('vike-reload', handleProgrammaticReload)
       })
     })
 
     createEffect(() => {
       const pathname = currentPathname()
+      // Makes the effect reactive to reload
+      const isReload = reloadTick() > 0
 
-      if (globalThis.__PAGE_CONTEXT__ && globalThis.__PAGE_CONTEXT__.urlPathname === pathname) {
+      if (!isReload && globalThis.__PAGE_CONTEXT__ && globalThis.__PAGE_CONTEXT__.urlPathname === pathname) {
         globalThis.__PAGE_CONTEXT__.urlPathname = undefined
         return
       }
@@ -202,7 +221,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
           // Fetch JSON data
           let ctx: any = null
           if (route.data || route.title) {
-            const res = await fetch(jsonUrl, { signal })
+            const res = await fetch(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
             const contentType = res.headers.get('content-type') ?? ''
             if (!contentType.includes('application/json')) {
               // A proxy/CDN intercepted the response (e.g. custom 404 page from hosting)
@@ -297,6 +316,11 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
           console.error('Router Error:', error)
           renderErrorPage(false, message)
+        } finally {
+          if (!signal.aborted) {
+            for (const resolve of reloadResolvers) resolve()
+            reloadResolvers = []
+          }
         }
       }
 
