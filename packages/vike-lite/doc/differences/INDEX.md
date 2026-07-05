@@ -20,14 +20,14 @@
 | Hook | [+onBeforeRoute](https://vike.dev/onBeforeRoute) | ✅ | ⏳
 | Client/Server | CSP | [+csp](https://vike.dev/csp) | [CSP](./CSP.md)
 | Client/Server | [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` and `modifyUrl()` | ✅ | ⏳
-| Server | [pageContext](https://vike.dev/pageContext) | ✅ | ✅
+| Client/Server | pageContext | [pageContext](https://vike.dev/pageContext) | [pageContext](./PAGE_CONTEXT.md)
 | Server | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
 | Server | [HTTP Headers](https://vike.dev/headers) in pageContext | ✅ | ❌/⏳(to check)
 | Hook | [+headersResponse](https://vike.dev/headersResponse) | ✅ | ⏳
 | Hook | [+title Hook](https://vike.dev/title) | ✅ | ✅
 | | [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | Hook | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
-| Server Integration | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#renderPage)
+| Server Integration | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#renderpage)
 | Client/Server Abort | [abort](https://vike.dev/abort) | ✅ | ✅
 | Server Abort | [redirect()](https://vike.dev/redirect) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#redirect)
 | Server Abort | [render()](https://vike.dev/render) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#render)

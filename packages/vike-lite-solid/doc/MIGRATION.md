@@ -18,7 +18,7 @@ export default {
 
 ### 🪝 Hooks
 
-#### useData
+#### `useData`
 ```diff
 -import { useData } from 'vike-solid/useData'
 
@@ -29,9 +29,17 @@ export default {
 +const [data, setData] = useData<DataType>()
 ```
 
-#### usePageContext
+#### `usePageContext` ~ Search in `Page`
+`pageContext.urlParsed` isn't implemente in `vike-lite` and in `vike-lite-solid`. You have to use the `URL`
 ```diff
 -import { usePageContext } from 'vike-solid/usePageContext'
-
 +import { usePageContext } from 'vike-lite-solid'
+
+export const Page: Component = () => {
+  const pageContext = usePageContext()
+-  const { search } = pageContext.urlParsed
+-  const { page } = search
++  const { searchParams } = new URL(pageContext.urlOriginal)
++  const page = searchParams.get('page')
+}
 ```
