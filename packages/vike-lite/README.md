@@ -16,7 +16,7 @@ yarn add -D vike-lite
 ```
 
 ### 📖 Usage
-Add the `vike-lite` plugin to your `vite.config.ts`.
+Add the `vike-lite` plugin to your `vite.config`.
 
 ```ts
 // vite.config.ts
