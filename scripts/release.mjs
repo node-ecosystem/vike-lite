@@ -38,7 +38,7 @@ async function askConfirmation(question) {
       // In raw mode, Ctrl+C does not automatically kill the process, you have to do it manually
       if (key === '\u{3}') {
         process.stdout.write('\n')
-        process.exit(1)
+        resolve('N')
       }
 
       // Print the pressed key and move to a new line (in raw mode it is not automatically printed to the screen)
@@ -58,6 +58,8 @@ const getBumpWeight = (type) => ({ major: 3, minor: 2, patch: 1, none: 0 }[type]
 async function main() {
   const packages = fs.readdirSync(PACKAGES_DIR).filter(p => fs.statSync(path.join(PACKAGES_DIR, p)).isDirectory())
   const bumpsInfo = []
+
+  run('git fetch --tags origin')
 
   log(`🔍 Analyzing packages in the monorepo…`, colors.cyan)
 
