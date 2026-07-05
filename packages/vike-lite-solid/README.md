@@ -98,6 +98,27 @@ export default Page
 ### useHydrated
 > 🚧 **TODO:** Implement a `useHydrated()` hook (similar to [vike-solid's implementation](https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useHydrated.tsx)) to easily detect the hydration state and avoid SSR mismatch errors.
 
+### `useUrl`
+```tsx
+// /pages/+Page.tsx
+import type { Component } from 'solid-js'
+import { useUrl } from 'vike-lite-solid'
+
+const Page: Component = () => {
+  const url = useUrl()
+
+  return (
+    <div>
+      <p>Current Query Parameter "myQueryParam": <strong>{url.searchParams.get('myQueryParam')}</strong></p>
+    </div>
+  )
+}
+
+export default Page
+```
+
+> 💡 **Note:** Unlike `vike-solid` (which currently use `pageContext.urlParsed`), `vike-lite-solid` uses the `useUrl` hook that is granular and is the result of `new URL()`.
+
 ### Differences: `vike-solid` vs `vike-lite-solid`
 Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here are the main architectural differences regarding the SolidJS integration:
 
