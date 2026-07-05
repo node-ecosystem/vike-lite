@@ -12,13 +12,15 @@ export default {
 } satisfies UserConfig
 ```
 
-### 🪝 Hooks
+### 🖥️ Server Integration
 
 #### renderPage
 ```diff
 -import { renderPage } from 'vike/server'
 +import { renderPage } from 'vike-lite/server'
 ```
+
+### 🖥️ Client Router
 
 #### navigate
 ```diff
@@ -31,6 +33,8 @@ export default {
 -import { reload } from 'vike/client/router'
 +import { reload } from 'vike-lite/client/router'
 ```
+
+### 🖥️ Server Abort
 
 #### redirect
 ```diff

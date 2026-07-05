@@ -1,5 +1,5 @@
 ### Differences
-| Category | Functionality | `vike` | `vike-lite`
+| Category | Functionality | `vike` | `vike-lite` | Migration
 | - | - | - | -
 | Routing | [Filesystem Routing](https://vike.dev/routing) | ✅ | ✅
 | Routing | [Routing group](https://vike.dev/routing#groups) | ✅ | ❌/⏳
@@ -27,12 +27,12 @@
 | Hook | [+title Hook](https://vike.dev/title) | ✅ | ✅
 | | [File Environment (.server.js, .client.js, …)](https://vike.dev/file-env) | ✅ | ❌/⏳(to check)
 | Hook | [+server](https://vike.dev/server) | ✅ | ❌ ~ use `serverEntry` option
-| Server | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅
-| Client/Server | [abort](https://vike.dev/abort) | ✅ | ✅
-| Server | [redirect()](https://vike.dev/redirect) | ✅ | ✅
-| Server | [render()](https://vike.dev/render) | ✅ | ✅
-| Client | [reload()](https://vike.dev/reload) | ✅ | ✅
-| Client | [navigate()](https://vike.dev/navigate) | ✅ | ✅
+| Server Integration | [renderPage()](https://vike.dev/renderPage) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#renderPage)
+| Client/Server Abort | [abort](https://vike.dev/abort) | ✅ | ✅
+| Server Abort | [redirect()](https://vike.dev/redirect) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#redirect)
+| Server Abort | [render()](https://vike.dev/render) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#render)
+| Client Router | [navigate()](https://vike.dev/navigate) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#navigate)
+| Client Router | [reload()](https://vike.dev/reload) | ✅ | ✅ | [Migration from `vike`](../MIGRATION.md#reload)
 | Server | Custom server entry and named exports ([see](https://github.com/orgs/vikejs/discussions/3334)) | ❌ | use `serverEntry` option
 | Server | [Compression](https://vike.dev/server#compression) | ✅ | ✅/⏳(to check or replace)
 | Server | [Environment Variables](https://vike.dev/env) | ✅ | ✅
