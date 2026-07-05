@@ -27,6 +27,9 @@ export default {
 ```diff
 -import { navigate } from 'vike/client/router'
 +import { navigate } from 'vike-lite/client/router'
+
+-await navigate()
++navigate()
 ```
 
 #### `reload`
