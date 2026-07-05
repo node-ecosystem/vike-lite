@@ -3,7 +3,6 @@ import type { Config } from '../__internal/shared'
 const STORE_KEY = '_vike_lite'
 
 if (!Object.hasOwn(globalThis, STORE_KEY)) {
-  // eslint-disable-next-line unicorn/no-global-object-property-assignment
   globalThis[STORE_KEY] = {
     routes: [],
     errorRoute: null,

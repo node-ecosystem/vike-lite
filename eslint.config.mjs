@@ -22,6 +22,7 @@ export default defineConfig(
       'unicorn/filename-case': 0,
       'unicorn/name-replacements': 0,
       'unicorn/no-empty-file': 0,
+      'unicorn/no-global-object-property-assignment': 0,
       'unicorn/no-keyword-prefix': 0,
       'unicorn/no-null': 0,
       'unicorn/numeric-separators-style': 0,

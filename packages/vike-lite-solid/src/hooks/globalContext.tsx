@@ -9,7 +9,6 @@ function getGlobalObject<T extends object = never>(
   defaultValue: T
 ): T {
   // @ts-expect-error Property '_vike_lite_solid' does not exist on type 'typeof globalThis'
-  // eslint-disable-next-line unicorn/no-global-object-property-assignment
   const globalObjectsAll = globalThis[projectKey] ||= {}
   return globalObjectsAll[key] ||= defaultValue
 }
