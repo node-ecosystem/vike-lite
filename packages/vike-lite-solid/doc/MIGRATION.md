@@ -15,3 +15,23 @@ export default {
   ]
 } satisfies UserConfig
 ```
+
+### 🪝 Hooks
+
+#### useData
+```diff
+-import { useData } from 'vike-solid/useData'
+
+-const data = useData<DataType>()
+
++import { useData } from 'vike-lite-solid'
+
++const [data, setData] = useData<DataType>()
+```
+
+#### usePageContext
+```diff
+-import { usePageContext } from 'vike-solid/usePageContext'
+
++import { usePageContext } from 'vike-lite-solid'
+```
