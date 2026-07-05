@@ -46,12 +46,12 @@ export default {
 
 ### 🪝 Hooks
 
-#### useData
+#### `useData`
 Access the data fetched by your `+data` functions directly inside your Solid components.
 ```tsx
 // /pages/+Page.tsx
-import { useData } from 'vike-lite-solid'
 import type { Component } from 'solid-js'
+import { useData } from 'vike-lite-solid'
 
 type MyData = {
   title: string
@@ -75,12 +75,12 @@ export default Page
 
 > 💡 **Note:** Unlike `vike-solid` (which currently only returns a getter), the `useData` hook in `vike-lite-solid` returns a tuple `[data, setData]`. This allows you to easily mutate the data locally. (`vike-solid` is currently waiting on the [PR](https://github.com/vikejs/vike-solid/pull/217) for this feature).
 
-#### usePageContext
+#### `usePageContext`
 Access the current page context, including URL parameters, original pathname, and route information.
 ```tsx
 // /pages/+Page.tsx
-import { usePageContext } from 'vike-lite-solid'
 import type { Component } from 'solid-js'
+import { usePageContext } from 'vike-lite-solid'
 
 const Page: Component = () => {
   const pageContext = usePageContext()
@@ -95,7 +95,7 @@ const Page: Component = () => {
 export default Page
 ```
 
-### useHydrated
+### `useHydrated`
 > 🚧 **TODO:** Implement a `useHydrated()` hook (similar to [vike-solid's implementation](https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useHydrated.tsx)) to easily detect the hydration state and avoid SSR mismatch errors.
 
 ### `useUrl`
