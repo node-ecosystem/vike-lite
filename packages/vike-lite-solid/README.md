@@ -1,14 +1,19 @@
 # vike-lite-solid
 
-The official SolidJS integration for `vike-lite`. It provides seamless Server-Side Rendering (SSR), Static Site Generation (SSG), and client hydration out of the box.
+The official SolidJS integration for `vike-lite`. It provides seamless Server-Side Rendering (SSR), Static Site Generation (SSG), and client hydration out of the box, with a focus on minimalism and performance.
 
 ### ⚙️ Install
-You only need to install `vike-lite-solid` and `vite-plugin-solid` (it's automatically included and configured).
-| Package Manager | Command
-| - | -
-| **npm** | `npm install -D vike-lite-solid vite-plugin-solid`
-| **yarn** | `yarn add -D vike-lite-solid vite-plugin-solid`
-| **pnpm** | `pnpm add -D vike-lite-solid vite-plugin-solid`
+You need to install both `vike-lite-solid` and the official Vite plugin for SolidJS (`vite-plugin-solid`).
+```sh
+# npm
+npm install -D vike-lite-solid vite-plugin-solid
+
+# pnpm
+pnpm add -D vike-lite-solid vite-plugin-solid
+
+# yarn
+yarn add -D vike-lite-solid vite-plugin-solid
+```
 
 ### 📖 Usage
 Add the plugin to your `vite.config`.
@@ -23,7 +28,8 @@ export default {
   plugins: [
     vikeLite(),
     vikeLiteSolid({
-      // Default: true (SolidJS Hydration), false (Client Takeover)
+      // Default is `true` that enables SolidJS Hydration
+      // Set to `false` for Client Takeover (SPA mode)
       hydration: true,
       // Advanced: pass options directly to the underlying vite-plugin-solid
       solid: {
@@ -42,38 +48,43 @@ export default {
 
 #### useData
 Access the data fetched by your `+data` functions directly inside your Solid components.
-```ts
+```tsx
 // /pages/+Page.tsx
 import { useData } from 'vike-lite-solid'
 import type { Component } from 'solid-js'
 
 type MyData = {
-  myKey: 'myValue'
+  title: string
 }
 
-const Page: Component = (props) => {
+const Page: Component = () => {
   const [data, setData] = useData<MyData>()
+
   return (
     <div>
-      {data.myKey}
-
-      {props.children}
+      <h1>{data.title}</h1>
+      <button onClick={() => setData('title', 'Updated Title!')}>
+        Update Data
+      </button>
     </div>
   )
 }
 
-export Page
+export default Page
 ```
+
+> 💡 **Note:** Unlike `vike-solid` (which currently only returns a getter), the `useData` hook in `vike-lite-solid` returns a tuple `[data, setData]`. This allows you to easily mutate the data locally. (`vike-solid` is currently waiting on the [PR](https://github.com/vikejs/vike-solid/pull/217) for this feature).
 
 #### usePageContext
 Access the current page context, including URL parameters, original pathname, and route information.
-```ts
+```tsx
 // /pages/+Page.tsx
 import { usePageContext } from 'vike-lite-solid'
 import type { Component } from 'solid-js'
 
 const Page: Component = () => {
   const pageContext = usePageContext()
+
   return (
     <div>
       <p>Current Path: <strong>{pageContext.urlPathname}</strong></p>
@@ -85,16 +96,16 @@ export default Page
 ```
 
 ### useHydrated
-_TODO:_ Implement [useHydrated](https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useHydrated.tsx) to detect hydration state
+> 🚧 **TODO:** Implement a `useHydrated()` hook (similar to [vike-solid's implementation](https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useHydrated.tsx)) to easily detect the hydration state and avoid SSR mismatch errors.
 
-### Differences
-Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here are the architectural differences:
+### Differences: `vike-solid` vs `vike-lite-solid`
+Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here are the main architectural differences regarding the SolidJS integration:
 
-| | `vike-solid` | `vike-lite-solid` | Note
+| **Feature** | `vike-solid` | `vike-lite-solid` | **Why it matters**
 | - | - | - | - 
-| `Page` wrapper component | [Dynamic](https://docs.solidjs.com/concepts/control-flow/dynamic) | Direct Render | `vike-lite` reduces AST abstraction overhead. Pages are rendered directly without heavy wrappers, resulting in a **lighter DOM tree**.
-| **Reactivity Architecture** | _Separation of Concerns_ | _Single Source of Truth_ | `vike-lite` separates the reactive state into 2 distinct entities (`pageContextStore` and `view`), taking advantage of Solid's [batch](https://docs.solidjs.com/reference/reactive-utilities/batch) for blazing-fast atomic updates. `vike-solid` serializes everything into a single massive `pageContext`.
-| Reset focus of `<a>` after client navigation | _Not_ handled  | Automatic handled | After client-side navigation, `vike-lite-solid` moves focus away from the clicked `<a>` by focusing `#root`, improving keyboard, screen-reader UX and accessibility. |
+| **Reactivity Architecture** | _Single Source of Truth_ | _Separation of Concerns_ | `vike-solid` serializes everything into a single massive `pageContext`. `vike-lite` separates the reactive state into 2 distinct entities (`pageContextStore` and `view`), taking advantage of Solid's [batch()](https://docs.solidjs.com/reference/reactive-utilities/batch) for blazing-fast atomic updates.
+| **Accessibility (A11y)** | _Not_ handled by default | _Automatic_ handled | After a client-side navigation, `vike-lite-solid` moves the focus away from the clicked `<a>` tag by focusing `#root`. This significantly improves UX for keyboard navigation and screen readers.
+| `useData()` **Hook** | `getter` only | `[getter, setter]` | `vike-lite-solid` allows you to mutate the route data locally without needing other state managers.
 
 ---
 

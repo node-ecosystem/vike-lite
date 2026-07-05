@@ -65,4 +65,4 @@ app.all('*', async (c, next) => {
 })
 ```
 
-> 💡 Note: Unlike Vike, which uses a dedicated [+csp](https://vike.dev/csp) file-based hook, `vike-lite` handles CSP directly at the HTTP layer. This keeps the framework minimal (no extra virtual modules or magic files) and gives you complete freedom over your security policy — including headers for images, fonts, and third-party resources.
+> 💡 **Note:** Unlike Vike, which uses a dedicated [+csp](https://vike.dev/csp) file-based hook, `vike-lite` handles CSP directly at the HTTP layer. This keeps the framework minimal (no extra virtual modules or magic files) and gives you complete freedom over your security policy — including headers for images, fonts, and third-party resources.
