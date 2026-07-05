@@ -149,6 +149,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
       const loadRoute = async (signal: AbortSignal) => {
         // Scroll only when the content is ready
+        // eslint-disable-next-line unicorn/consistent-function-scoping
         function finalizeNavigation() {
           if (shouldScrollToTop) {
             globalThis.scrollTo(0, 0)
