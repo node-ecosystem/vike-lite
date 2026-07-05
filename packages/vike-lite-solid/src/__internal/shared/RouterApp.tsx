@@ -274,8 +274,28 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return
+
+          const message = (error as Error).message || ''
+          // The DEV server has been restarted or a new build has been deployed in PROD:
+          // the browser's module graph no longer matches the server.
+          // No SPA navigation can resolve this state — a full reload is required.
+          // Anti-loop guard: if the reload doesn't resolve (e.g. the page really doesn't exist),
+          // we don't reload indefinitely.
+          const isStaleModuleGraph = /dynamically imported module|importing a module script failed/i.test(message)
+          if (isStaleModuleGraph) {
+            const GUARD_KEY = 'vike-lite:reload-guard'
+            const last = Number(sessionStorage.getItem(GUARD_KEY) ?? 0)
+            if (Date.now() - last > 10_000) {
+              sessionStorage.setItem(GUARD_KEY, String(Date.now()))
+              console.warn('App update detected, forcing reload…')
+              // Ignore the client router and force a standard browser navigation
+              globalThis.location.assign(urlFull)
+              return
+            }
+          }
+
           console.error('Router Error:', error)
-          renderErrorPage(false, (error as Error).message)
+          renderErrorPage(false, message)
         }
       }
 
