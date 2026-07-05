@@ -1,6 +1,6 @@
 import { type JSX, createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, batch, createMemo } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
-import { isServer } from 'solid-js/web'
+import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
@@ -333,7 +333,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       <PageContextProvider pageContext={pageContextStore} setPageContext={setPageContextStore}>
         {(() => {
           const { Page, Layout } = view()
-          return <>{Layout ? <Layout><Page /></Layout> : <Page />}</>
+          return <>{Layout ? <Layout><Dynamic component={Page} /></Layout> : <Dynamic component={Page} />}</>
         })()}
       </PageContextProvider>
     </ErrorBoundary>
