@@ -20,8 +20,8 @@ Add the `vike-lite` plugin to your `vite.config`.
 
 ```ts
 // vite.config.ts
-import type { UserConfig } from 'vite'
 import vikeLite from 'vike-lite/vite'
+import type { UserConfig } from 'vite'
 
 export default {
   plugins: [
