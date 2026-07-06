@@ -24,7 +24,3 @@ export type PageContextClient = PageContextBase & {
   isClientSide: true
   isHydration?: boolean
 }
-
-export type DataAsync<Data = unknown> = (pageContext: PageContextServer<Data>) => Promise<Data>
-
-export type DataSync<Data = unknown> = (pageContext: PageContextServer<Data>) => Data
