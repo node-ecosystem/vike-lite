@@ -333,7 +333,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       <PageContextProvider pageContext={pageContextStore} setPageContext={setPageContextStore}>
         {(() => {
           const { Page, Layout } = view()
-          return <>{Layout ? <Layout><Dynamic component={Page} /></Layout> : <Dynamic component={Page} />}</>
+          return <>{Layout ? <Dynamic component={Layout}><Dynamic component={Page} /></Dynamic> : <Dynamic component={Page} />}</>
         })()}
       </PageContextProvider>
     </ErrorBoundary>
