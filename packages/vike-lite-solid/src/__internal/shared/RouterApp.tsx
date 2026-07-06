@@ -37,6 +37,8 @@ export default function RouterApp(props: RouterProps): JSX.Element {
   // Track if we need to scroll to the top after the next load
   let shouldScrollToTop = false
 
+  let pendingContextOverride: Partial<PageContext> | null = null
+
   if (!isServer) {
     createEffect(() => {
       const handleLinkClick = (e: MouseEvent) => {
@@ -109,13 +111,16 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       }
 
       const handleProgrammaticNavigate = (e: Event) => {
-        const customEvent = e as CustomEvent<{ keepScrollPosition?: boolean }>
+        const customEvent = e as CustomEvent<{
+          keepScrollPosition?: boolean
+          pageContext?: Partial<PageContext>
+        }>
         const detail = customEvent.detail || {}
 
         // Set the scroll flag only if the user hasn't requested to keep it
-        if (!detail.keepScrollPosition) {
-          shouldScrollToTop = true
-        }
+        if (!detail.keepScrollPosition) shouldScrollToTop = true
+
+        if (detail.pageContext) pendingContextOverride = detail.pageContext
 
         startTransition(() => {
           setCurrentUrl(globalThis.location.href)
@@ -167,6 +172,9 @@ export default function RouterApp(props: RouterProps): JSX.Element {
       const matched = matchedRoute()
 
       const loadRoute = async (signal: AbortSignal) => {
+        const contextOverride = pendingContextOverride
+        pendingContextOverride = null
+
         // Scroll only when the content is ready
         function finalizeNavigation() {
           if (shouldScrollToTop) {
@@ -270,8 +278,10 @@ export default function RouterApp(props: RouterProps): JSX.Element {
               routeParams,
               urlOriginal: urlObj.href,
               urlPathname: pathname,
+              search: urlObj.search,
               ...(ctx?.data && { data: ctx.data }),
-              ...(ctx?.title && { title: ctx.title })
+              ...(ctx?.title && { title: ctx.title }),
+              ...contextOverride
             }))
             setView({
               Page: PageMod.Page ?? PageMod.default,

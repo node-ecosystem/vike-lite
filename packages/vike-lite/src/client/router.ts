@@ -1,3 +1,4 @@
+import type { PageContext } from '..'
 import { BASE_URL } from '../shared'
 
 /**
@@ -5,7 +6,13 @@ import { BASE_URL } from '../shared'
  * 
  * @example navigate('/dashboard')
  */
-export function navigate(url: string, options?: { keepScrollPosition?: boolean }) {
+export function navigate(
+  url: string,
+  options?: {
+    keepScrollPosition?: boolean,
+    pageContext?: Partial<PageContext>
+  }
+) {
   if (typeof globalThis === 'undefined') {
     throw new Error('navigate() can only be called on the client side.')
   }
@@ -22,7 +29,10 @@ export function navigate(url: string, options?: { keepScrollPosition?: boolean }
   // Notify the vike-lite router to update:
   // dispatch a custom event instead of popstate, passing the options
   globalThis.dispatchEvent(new CustomEvent('vike-navigate', {
-    detail: { keepScrollPosition: options?.keepScrollPosition }
+    detail: {
+      keepScrollPosition: options?.keepScrollPosition,
+      pageContext: options?.pageContext
+    }
   }))
 }
 
