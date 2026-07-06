@@ -52,7 +52,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
         if (isSamePage) return
 
         e.preventDefault()
-        globalThis.history.pushState(null, '', url.href)
+        globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', url.href)
 
         if (!url.hash) shouldScrollToTop = true
 
@@ -242,7 +242,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
             }
 
             // Update the URL manually and perform the Solid transition
-            globalThis.history.pushState(null, '', ctx._redirect)
+            globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', ctx._redirect)
             shouldScrollToTop = true
             startTransition(() => {
               setCurrentUrl(urlObjRedirect.href)
