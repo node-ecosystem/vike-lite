@@ -13,18 +13,18 @@ export type PageContext<Data = unknown> = PageContextBase & (
   unknown extends Data ? { data?: Data } : { data: Data }
 )
 
-export interface PageContextServer extends PageContextBase {
+export type PageContextServer<Data = unknown> = PageContext<Data> & {
   isClientSide: false
   nonce?: string
   // request?: Request OR request: Request    // Fetch API Request native
   // responseHeaders: Headers   // To set Set-Cookie, etc.
 }
 
-export interface PageContextClient extends PageContextBase {
+export type PageContextClient = PageContextBase & {
   isClientSide: true
   isHydration?: boolean
 }
 
-export type DataAsync<Data = unknown> = (pageContext: PageContext) => Promise<Data>
+export type DataAsync<Data = unknown> = (pageContext: PageContextServer<Data>) => Promise<Data>
 
-export type DataSync<Data = unknown> = (pageContext: PageContext) => Data
+export type DataSync<Data = unknown> = (pageContext: PageContextServer<Data>) => Data
