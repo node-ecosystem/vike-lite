@@ -360,8 +360,7 @@ if (process.env.NODE_ENV === 'production') {
       const response = await renderPage(request);
       res.statusCode = response.status;
       for (const [key, val] of response.headers) res.setHeader(key, val);
-      if (method === 'HEAD') { await response.body.cancel(); res.end(); return; }
-      else if (!response.body) { res.end(); return; }
+      if (method === 'HEAD' || !response.body) { await response.body?.cancel(); res.end(); return; }
       try { await pipeline(Readable.fromWeb(response.body), res); } catch {}
     } catch (e) {
       console.error(e);
