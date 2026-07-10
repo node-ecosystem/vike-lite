@@ -419,6 +419,10 @@ if (process.env.NODE_ENV === 'production') {
         }
 
         if (shouldPrerender) {
+          if (route.path.includes(':') && dynamicUrls.length === 0) {
+            console.warn(`[vike-lite] ⚠️ Skipping dynamic route "${route.path}": no URLs provided by +prerender. Return an array of URLs to prerender it.`)
+            continue
+          }
           // Skip dynamic routes without explicit URLs (they need +prerender.ts returning URLs)
           if (!route.path.includes(':')) {
             urlsToPrerender.add(route.path)
