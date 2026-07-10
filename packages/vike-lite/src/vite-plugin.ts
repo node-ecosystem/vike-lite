@@ -41,6 +41,7 @@ export default function routerPlugin({
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
   let outDir: string
+  let serverEntryPath = ''
   const virtualModuleId = 'virtual:routes'
   const virtualManifestId = 'virtual:client-manifest'
   const virtualRendererId = 'virtual:vike-lite/renderer'
@@ -262,26 +263,19 @@ export default function routerPlugin({
       }
 
       if (id === resolvedVirtualEntryServerId) {
-        let hasCustomServer = false
-        let customServerPath = ''
-
         if (serverEntry) {
           const basePath = path.resolve(viteConfigRoot, serverEntry)
           const extensions = ['.ts', '.js', '.mjs']
           for (const ext of extensions) {
             if (fs.existsSync(basePath + ext)) {
-              hasCustomServer = true
-              customServerPath = (basePath + ext).replaceAll('\\', '/')
+              serverEntryPath = (basePath + ext).replaceAll('\\', '/')
               break
             }
           }
-        }
-
-        if (hasCustomServer) {
           return `import '${virtualSetupId}';`
             + (prerender ? `export{routes}from'${virtualModuleId}';` : '')
-            + `export * from'${customServerPath}';`
-            + `export{default}from'${customServerPath}';`
+            + `export * from'${serverEntryPath}';`
+            + `export{default}from'${serverEntryPath}';`
         }
 
         return `import '${virtualSetupId}';`
