@@ -376,7 +376,6 @@ if (process.env.NODE_ENV === 'production') {
     },
     // Run SSG at end of the build
     async closeBundle() {
-      // Esegue solo in produzione e solo al termine della build lato Server
       if (!prerender || !isProd || !import.meta.env.SSR) return
 
       // Small delay to give Vite time to write all files to disk
