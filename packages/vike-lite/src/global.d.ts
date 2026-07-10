@@ -1,34 +1,41 @@
 /* eslint-disable no-var */
 
 declare module 'virtual:routes' {
-  export const config: import('./__internal/shared').Config
+  type Config = import('./__internal/shared').Config
+  type Route = import('./__internal/shared').Route
+  type PageContext = import('./index').PageContext
+
+  export const config: Config
 
   type Imported<Name extends string, T> = () => Promise<
     | ({ [K in Name]: T } & { default?: T })
     | ({ [K in Name]?: T } & { default: T })
   >
 
-  type PageContext = import('./index').PageContext
-  export const routes: Array<Route & {
-    Page: Imported<'Page', HTMLElement>
-    Head?: Imported<'Head', HTMLElement>
-    Layout?: Imported<'Layout', HTMLElement>
+  type RouteBase = Route & {
+    Page: Imported<'Page', unknown>
+    Head?: Imported<'Head', unknown>
+    Layout?: Imported<'Layout', unknown>
+    Prerender?: Imported<'prerender',
+      | boolean
+      | string[]
+      | (() => boolean | string[] | Promise<boolean | string[]>)
+    >
+  }
+
+  export const routes: Array<RouteBase & {
     Data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
     Title?: Imported<'title', string | ((pageContext: PageContext) => string)>
-    Prerender?: Imported<'prerender', boolean>
   }>
 
-  export const errorRoute: Route & {
-    Page: Imported<'Page', HTMLElement>
-    Head?: Imported<'Head', HTMLElement>
-    Layout?: Imported<'Layout', HTMLElement>
-    Prerender?: Imported<'prerender', boolean>
-  }
+  export const errorRoute: RouteBase | null
 }
 
 declare module 'virtual:client-manifest' {
-  export default Manifest
+  import type { Manifest } from 'vite'
+  const manifest: Manifest
+  export default manifest
 }
 
-declare var __PAGE_CONTEXT__: import('./index').PageContext
+declare var __PAGE_CONTEXT__: import('./index').PageContext | undefined
 declare var _vike_lite: import('./server/store').VikeState
