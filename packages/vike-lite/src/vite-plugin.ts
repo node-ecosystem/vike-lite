@@ -272,6 +272,7 @@ export default function routerPlugin({
               break
             }
           }
+          if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found!`)
           return `import '${virtualSetupId}';`
             + (prerender ? `export{routes}from'${virtualModuleId}';` : '')
             + `export * from'${serverEntryPath}';`
