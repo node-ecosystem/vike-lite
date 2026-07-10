@@ -42,7 +42,6 @@ export default function routerPlugin({
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
   let outDir: string
-  let serverEntryPath = ''
 
   const VIRTUAL = {
     routes: 'virtual:routes',
@@ -269,6 +268,7 @@ export default function routerPlugin({
 
         if (serverEntry) {
           const basePath = path.resolve(viteConfigRoot, serverEntry)
+          let serverEntryPath = ''
           const extensions = ['.ts', '.js', '.mjs']
           for (const ext of extensions) {
             if (fs.existsSync(basePath + ext)) {
