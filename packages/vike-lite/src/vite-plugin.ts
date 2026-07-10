@@ -44,18 +44,16 @@ export default function routerPlugin({
   let outDir: string
   let serverEntryPath = ''
 
-  const virtualModuleId = 'virtual:routes'
-  const virtualManifestId = 'virtual:client-manifest'
-  const virtualRendererId = 'virtual:vike-lite/renderer'
-  const virtualEntryClientId = 'virtual:entry-client'
-  const virtualSetupId = 'virtual:vike-lite/setup'
-  const virtualEntryServerId = 'virtual:entry-server'
-
-  const resolvedVirtualModuleId = '\0' + virtualModuleId
-  const resolvedVirtualManifestId = '\0' + virtualManifestId
-  const resolvedVirtualEntryClientId = '\0' + virtualEntryClientId
-  const resolvedVirtualSetupId = '\0' + virtualSetupId
-  const resolvedVirtualEntryServerId = '\0' + virtualEntryServerId
+  const VIRTUAL = {
+    routes: 'virtual:routes',
+    manifest: 'virtual:client-manifest',
+    renderer: 'virtual:vike-lite/renderer',
+    entryClient: 'virtual:entry-client',
+    setup: 'virtual:vike-lite/setup',
+    entryServer: 'virtual:entry-server'
+  } as const
+  const VIRTUAL_VALUES = new Set<string>(Object.values(VIRTUAL))
+  const RESOLVED = Object.fromEntries(Object.entries(VIRTUAL).map(([k, v]) => [k, `\0${v}`])) as { [K in keyof typeof VIRTUAL]: `\0${typeof VIRTUAL[K]}` }
 
   return {
     name: 'vike-lite',
@@ -84,7 +82,7 @@ export default function routerPlugin({
               sourcemap,
               manifest: true,
               rolldownOptions: {
-                input: virtualEntryClientId,
+                input: VIRTUAL.entryClient,
                 output: {
                   format: 'esm',
                   // Prevents the entry chunk from bloating with all transitive imports
@@ -161,7 +159,7 @@ export default function routerPlugin({
               minify,
               sourcemap,
               rolldownOptions: {
-                input: virtualEntryServerId,
+                input: VIRTUAL.entryServer,
                 output: {
                   format: 'esm',
                   // Entry point as dist/server/index.mjs
@@ -191,20 +189,16 @@ export default function routerPlugin({
       }
     },
     resolveId(id) {
-      if (id === virtualModuleId) return resolvedVirtualModuleId
-      if (id === virtualManifestId) return resolvedVirtualManifestId
-      if (id === virtualEntryClientId) return resolvedVirtualEntryClientId
-      if (id === virtualSetupId) return resolvedVirtualSetupId
-      if (id === virtualEntryServerId) return resolvedVirtualEntryServerId
+      if (VIRTUAL_VALUES.has(id)) return '\0' + id
     },
     async load(id, options) {
       // Generate the virtual routes module
-      if (id === resolvedVirtualModuleId) {
+      if (id === RESOLVED.routes) {
         const { routes, errorRoute } = generateRoutes(viteConfigRoot, pagesDir)
         const isSSR = options!.ssr
 
         // Import the server rendering function from the bridge virtual module
-        let code = `import { onRenderHtml } from '${virtualRendererId}';\n`
+        let code = `import { onRenderHtml } from '${VIRTUAL.renderer}';\n`
           + `export const config = { onRenderHtml };\n`
           + `export const routes = [\n`
 
@@ -238,7 +232,7 @@ export default function routerPlugin({
       }
 
       // Generate virtual manifest
-      if (id === resolvedVirtualManifestId) {
+      if (id === RESOLVED.manifest) {
         if (!isProd || !options?.ssr) return 'export default {}'
         const manifestPath = path.join(viteConfigRoot, outDir, 'client/.vite/manifest.json')
         const manifestContent = fs.readFileSync(manifestPath, 'utf8')
@@ -246,32 +240,32 @@ export default function routerPlugin({
       }
 
       // Generate virtual entry client
-      if (id === resolvedVirtualEntryClientId) {
+      if (id === RESOLVED.entryClient) {
         // Import the client rendering function from the bridge virtual module
-        return `import { routes, errorRoute } from '${virtualModuleId}';
-          import { onRenderClient } from '${virtualRendererId}';
+        return `import { routes, errorRoute } from '${VIRTUAL.routes}';
+          import { onRenderClient } from '${VIRTUAL.renderer}';
           const { default: render } = await onRenderClient();
           await render({ routes, errorRoute });`
       }
 
-      if (id === resolvedVirtualSetupId) {
-        return `import { routes, errorRoute, config } from '${virtualModuleId}';
+      if (id === RESOLVED.setup) {
+        return `import { routes, errorRoute, config } from '${VIRTUAL.routes}';
           import { setVikeState } from 'vike-lite/__internal/server';
           let manifest;
           if (process.env.NODE_ENV === 'production') {
-            manifest = (await import('${virtualManifestId}')).default;
+            manifest = (await import('${VIRTUAL.manifest}')).default;
           }
           setVikeState({ routes, errorRoute, config, manifest });`
       }
 
-      if (id === resolvedVirtualEntryServerId) {
+      if (id === RESOLVED.entryServer) {
         // Check at build-time if any route needs SSG:
         // - global prerender = true → ALL routes are SSG candidates
         // - any route has a +prerender.ts file → at least one route can be SSG
         // Only export `routes` if needed by closeBundle (SSG step)
         const { routes } = generateRoutes(viteConfigRoot, pagesDir)
         const hasAnyPrerender = prerender || routes.some(r => r.prerender)
-        const exportRoutes = hasAnyPrerender ? `export{routes}from'${virtualModuleId}';` : ''
+        const exportRoutes = hasAnyPrerender ? `export{routes}from'${VIRTUAL.routes}';` : ''
 
         if (serverEntry) {
           const basePath = path.resolve(viteConfigRoot, serverEntry)
@@ -283,13 +277,13 @@ export default function routerPlugin({
             }
           }
           if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found!`)
-          return `import '${virtualSetupId}';`
+          return `import '${VIRTUAL.setup}';`
             + exportRoutes
             + `export * from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
         }
 
-        return `import '${virtualSetupId}';`
+        return `import '${VIRTUAL.setup}';`
           + exportRoutes
           + `import { renderPage } from 'vike-lite/server';
 export default {
@@ -487,7 +481,7 @@ if (process.env.NODE_ENV === 'production') {
         server.watcher.on('all', (event, file) => {
           if (!((event === 'add' || event === 'unlink') && file.startsWith(pagesPath))) return
           for (const env of Object.values(server.environments)) {
-            const mod = env.moduleGraph.getModuleById(resolvedVirtualModuleId)
+            const mod = env.moduleGraph.getModuleById(RESOLVED.routes)
             if (mod) env.moduleGraph.invalidateModule(mod)
           }
           server.ws.send({ type: 'full-reload' })
@@ -499,7 +493,7 @@ if (process.env.NODE_ENV === 'production') {
 
             // Dynamically import the server app to ensure it uses the latest dev code
             // Migrated from server.ssrLoadModule with the new Environment Module Runner API
-            const { default: app } = await ssrEnv.runner.import(resolvedVirtualEntryServerId) as { default: { fetch: typeof fetch } }
+            const { default: app } = await ssrEnv.runner.import(RESOLVED.entryServer) as { default: { fetch: typeof fetch } }
 
             const headers = new Headers()
             for (const [key, value] of Object.entries(req.headers)) {
