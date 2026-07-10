@@ -241,20 +241,17 @@ export default function routerPlugin({
       // Generate virtual entry client
       if (id === RESOLVED.entryClient) {
         // Import the client rendering function from the bridge virtual module
-        return `import { routes, errorRoute } from '${VIRTUAL.routes}';
-          import { onRenderClient } from '${VIRTUAL.renderer}';
-          const { default: render } = await onRenderClient();
-          await render({ routes, errorRoute });`
+        return `import{routes,errorRoute}from'${VIRTUAL.routes}';`
+          + `import{onRenderClient}from'${VIRTUAL.renderer}';`
+          + `const{default:render}=await onRenderClient();`
+          + `await render({routes,errorRoute});`
       }
 
       if (id === RESOLVED.setup) {
-        return `import { routes, errorRoute, config } from '${VIRTUAL.routes}';
-          import { setVikeState } from 'vike-lite/__internal/server';
-          let manifest;
-          if (process.env.NODE_ENV === 'production') {
-            manifest = (await import('${VIRTUAL.manifest}')).default;
-          }
-          setVikeState({ routes, errorRoute, config, manifest });`
+        return `import{routes,errorRoute,config}from'${VIRTUAL.routes}';`
+          + `import{setVikeState}from'vike-lite/__internal/server';`
+          + `const manifest=process.env.NODE_ENV==='production'?(await import('${VIRTUAL.manifest}')).default:null;`
+          + `setVikeState({routes,errorRoute,config,manifest});`
       }
 
       if (id === RESOLVED.entryServer) {
@@ -282,15 +279,11 @@ export default function routerPlugin({
             + `export * from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
         }
-
+        // Default server entry for PROD
         return `import '${VIRTUAL.setup}';`
           + exportRoutes
-          + `import { renderPage } from 'vike-lite/server';
-export default {
-  async fetch(request) {
-    return renderPage(request);
-  }
-};
+          + `import{renderPage}from'vike-lite/server';
+export default{async fetch(request){return renderPage(request);}};
 if (process.env.NODE_ENV === 'production') {
   const { createServer } = await import('node:http');
   const { Readable } = await import('node:stream');
@@ -452,7 +445,7 @@ if (process.env.NODE_ENV === 'production') {
           fs.mkdirSync(outDirRoute, { recursive: true })
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
         } else {
-          console.error(`\u{1B}[31m✖ SSG HTML Error for ${urlPath}\u{1B}[0m`)
+          throw new Error(`\u{1B}[31m✖ SSG HTML Error for ${urlPath}\u{1B}[0m`)
         }
 
         // Generate JSON (Context)
@@ -464,7 +457,7 @@ if (process.env.NODE_ENV === 'production') {
           fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
         } else {
-          console.error(`\u{1B}[31m✖ SSG JSON Error for ${jsonTarget}\u{1B}[0m`)
+          throw new Error(`\u{1B}[31m✖ SSG JSON Error for ${jsonTarget}\u{1B}[0m`)
         }
 
         console.log(`\u{1B}[32m✓\u{1B}[0m Pre-rendered: ${urlPath}`)
