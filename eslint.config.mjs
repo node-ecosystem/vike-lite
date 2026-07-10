@@ -25,6 +25,7 @@ export default defineConfig(
       'unicorn/no-global-object-property-assignment': 0,
       'unicorn/no-keyword-prefix': 0,
       'unicorn/no-null': 0,
+      'unicorn/no-this-outside-of-class': 0,
       'unicorn/numeric-separators-style': 0,
       'unicorn/prefer-node-protocol': 0
     }

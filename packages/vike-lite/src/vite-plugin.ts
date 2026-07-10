@@ -355,9 +355,7 @@ if (process.env.NODE_ENV === 'production') {
       const request = new Request(urlObj.href, init);
       const response = await renderPage(request);
       res.statusCode = response.status;
-      for (const [key, val] of response.headers) {
-        res.setHeader(key, val);
-      }
+      for (const [key, val] of response.headers) res.setHeader(key, val);
       if (response.body) await pipeline(Readable.fromWeb(response.body), res);
       else res.end();
     } catch (e) {
@@ -482,11 +480,8 @@ if (process.env.NODE_ENV === 'production') {
             const headers = new Headers()
             for (const [key, value] of Object.entries(req.headers)) {
               if (key.startsWith(':')) continue
-              if (Array.isArray(value)) {
-                for (const v of value) headers.append(key, v)
-              } else if (value !== undefined) {
-                headers.set(key, value)
-              }
+              if (Array.isArray(value)) for (const v of value) headers.append(key, v)
+              else if (value !== undefined) headers.set(key, value)
             }
 
             const requestInit = { method: req.method, headers } as RequestInit
