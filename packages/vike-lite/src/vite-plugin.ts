@@ -312,18 +312,27 @@ if (process.env.NODE_ENV === 'production') {
     '.mjs': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.json': 'application/json; charset=utf-8',
+    '.xml': 'application/xml',
+    '.txt': 'text/plain; charset=utf-8',
+    '.map': 'application/json; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
     '.svg': 'image/svg+xml',
     '.ico': 'image/x-icon',
-    '.webmanifest': 'application/manifest+json',
-    '.xml': 'application/xml',
-    '.txt': 'text/plain; charset=utf-8',
+    '.webp': 'image/webp',
+    '.avif': 'image/avif',
     '.woff': 'font/woff',
     '.woff2': 'font/woff2',
-    '.wasm': 'application/wasm'
+    '.ttf': 'font/ttf',
+    '.otf': 'font/otf',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
+    '.mp3': 'audio/mpeg',
+    '.pdf': 'application/pdf',
+    '.wasm': 'application/wasm',
+    '.webmanifest': 'application/manifest+json'
   };
   const { BASE_URL } = import.meta.env;
   const server = createServer(async (req, res) => {
