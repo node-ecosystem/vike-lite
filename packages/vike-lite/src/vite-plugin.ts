@@ -381,13 +381,10 @@ if (process.env.NODE_ENV === 'production') {
       // Small delay to give Vite time to write all files to disk
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      const { pathToFileURL } = await import('node:url')
-      const serverEntryPath = path.resolve(viteConfigRoot, outDir, 'server/index.mjs')
-
-      if (!fs.existsSync(serverEntryPath)) return
+      if (!serverEntryPath) return
 
       // Import the app and routes directly from the just built file
-      const serverModule = await import(pathToFileURL(serverEntryPath).href)
+      const serverModule = await import(serverEntryPath)
       const app = serverModule.default
       const routes = serverModule.routes || []
 
