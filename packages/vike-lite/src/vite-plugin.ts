@@ -374,7 +374,7 @@ if (process.env.NODE_ENV === 'production') {
     },
     // Run SSG at end of the build
     async closeBundle() {
-      if (!prerender || !isProd || !import.meta.env.SSR) return
+      if (!prerender || !isProd || this.environment.name !== 'ssr') return
 
       // Small delay to give Vite time to write all files to disk
       await new Promise(resolve => setTimeout(resolve, 500))
