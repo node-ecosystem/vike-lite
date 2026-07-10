@@ -344,20 +344,14 @@ if (process.env.NODE_ENV === 'production') {
       }
       const { method } = req;
       const init = { method, headers };
-      if (req.method === 'HEAD') {
-        res.end()
-        return
-      }
-      if (method !== 'GET' && method !== 'HEAD') {
-        init.body = Readable.toWeb(req);
-        init.duplex = 'half';
-      }
+      if (method !== 'GET' && method !== 'HEAD') { init.body = Readable.toWeb(req); init.duplex = 'half'; }
       const request = new Request(urlObj.href, init);
       const response = await renderPage(request);
       res.statusCode = response.status;
       for (const [key, val] of response.headers) res.setHeader(key, val);
-      if (response.body) await pipeline(Readable.fromWeb(response.body), res);
-      else res.end();
+      if (method === 'HEAD') { await response.body.cancel(); res.end(); return; }
+      else if (!response.body) { res.end(); return; }
+      try { await pipeline(Readable.fromWeb(response.body), res); } catch {}
     } catch (e) {
       console.error(e);
       res.statusCode = 500;
@@ -515,14 +509,16 @@ if (process.env.NODE_ENV === 'production') {
 
             // Use the original pipeline with /api and /*.pageContext.json responses
             for (const [key, value] of response.headers) res.setHeader(key, value)
-            if (!response.body) {
-              res.end()
+            if (req.method === 'HEAD' || !response.body) {
+              await response.body?.cancel()
+              if (!res.destroyed && !res.closed) res.end()
               return
             }
-            if (res.destroyed || res.closed) return
-            try {
-              await pipeline(Readable.fromWeb(response.body as any), res)
-            } catch { }
+            if (res.destroyed || res.closed) {
+              await response.body.cancel()
+              return
+            }
+            try { await pipeline(Readable.fromWeb(response.body as any), res) } catch { }
           } catch (error) {
             next(error)
           }
