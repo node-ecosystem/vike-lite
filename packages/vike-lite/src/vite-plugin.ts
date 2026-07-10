@@ -42,6 +42,7 @@ export default function routerPlugin({
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
   let outDir: string
+  let hasAnyPrerender: boolean
 
   const VIRTUAL = {
     routes: 'virtual:routes',
@@ -49,7 +50,8 @@ export default function routerPlugin({
     renderer: 'virtual:vike-lite/renderer',
     entryClient: 'virtual:entry-client',
     setup: 'virtual:vike-lite/setup',
-    entryServer: 'virtual:entry-server'
+    entryServer: 'virtual:entry-server',
+    entryPrerender: 'virtual:entry-prerender'
   } as const
   const VIRTUAL_VALUES = new Set<string>(Object.values(VIRTUAL))
   const RESOLVED = Object.fromEntries(Object.entries(VIRTUAL).map(([k, v]) => [k, `\0${v}`])) as { [K in keyof typeof VIRTUAL]: `\0${typeof VIRTUAL[K]}` }
@@ -64,6 +66,10 @@ export default function routerPlugin({
 
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
+      viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
+      const { routes } = generateRoutes(viteConfigRoot, pagesDir)
+      hasAnyPrerender = prerender || routes.some(r => r.prerender)
+
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware      
         appType: 'custom',
@@ -158,7 +164,9 @@ export default function routerPlugin({
               minify,
               sourcemap,
               rolldownOptions: {
-                input: VIRTUAL.entryServer,
+                input: hasAnyPrerender
+                  ? { index: VIRTUAL.entryServer, prerender: VIRTUAL.entryPrerender }
+                  : VIRTUAL.entryServer,
                 output: {
                   format: 'esm',
                   // Entry point as dist/server/index.mjs
@@ -179,7 +187,6 @@ export default function routerPlugin({
       }
     },
     configResolved(config) {
-      viteConfigRoot = config.root
       const hasUIRenderer = config.plugins.some(
         plugin => plugin.name?.startsWith('vike-lite-') && SUPPORTED_RENDERERS.includes(plugin.name.replace('vike-lite-', '') as any)
       )
@@ -255,14 +262,6 @@ export default function routerPlugin({
       }
 
       if (id === RESOLVED.entryServer) {
-        // Check at build-time if any route needs SSG:
-        // - global prerender = true → ALL routes are SSG candidates
-        // - any route has a +prerender.ts file → at least one route can be SSG
-        // Only export `routes` if needed by closeBundle (SSG step)
-        const { routes } = generateRoutes(viteConfigRoot, pagesDir)
-        const hasAnyPrerender = prerender || routes.some(r => r.prerender)
-        const exportRoutes = hasAnyPrerender ? `export{routes}from'${VIRTUAL.routes}';` : ''
-
         if (serverEntry) {
           const basePath = path.resolve(viteConfigRoot, serverEntry)
           let serverEntryPath = ''
@@ -275,13 +274,11 @@ export default function routerPlugin({
           }
           if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found!`)
           return `import '${VIRTUAL.setup}';`
-            + exportRoutes
             + `export * from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
         }
         // Default server entry for PROD
         return `import '${VIRTUAL.setup}';`
-          + exportRoutes
           + `import{renderPage}from'vike-lite/server';
 export default{async fetch(request){return renderPage(request);}};
 if (process.env.NODE_ENV === 'production') {
@@ -371,18 +368,23 @@ if (process.env.NODE_ENV === 'production') {
   });
 }`
       }
+
+      if (id === RESOLVED.entryPrerender) {
+        return `import'${VIRTUAL.setup}';`
+          + `export{routes}from'${VIRTUAL.routes}';`
+      }
     },
     // Run SSG at end of the build
     async closeBundle() {
       if (!isProd || this.environment.name !== 'ssr') return
 
       const { pathToFileURL } = await import('node:url')
-      const builtServerPath = path.resolve(viteConfigRoot, outDir, 'server/index.mjs')
-      if (!fs.existsSync(builtServerPath)) return
+      const prerenderPath = path.resolve(viteConfigRoot, outDir, 'server/prerender.mjs')
+      if (!fs.existsSync(prerenderPath)) return
 
       // Import the built server module — this triggers setVikeState() as side-effect,
       // which is required for renderPage to know about routes/config
-      const serverModule = await import(pathToFileURL(builtServerPath).href)
+      const serverModule = await import(pathToFileURL(prerenderPath).href) as { routes?: typeof import('virtual:routes').routes }
       const { routes } = serverModule
 
       // If routes is not exported, no SSG is needed (nothing to prerender)
