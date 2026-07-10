@@ -1,5 +1,3 @@
-import type { Config } from '../__internal/shared'
-
 const STORE_KEY = '_vike_lite'
 
 if (!Object.hasOwn(globalThis, STORE_KEY)) {
@@ -7,15 +5,15 @@ if (!Object.hasOwn(globalThis, STORE_KEY)) {
     routes: [],
     errorRoute: null,
     config: null,
-    manifest: undefined
+    manifest: null
   } as VikeState
 }
 
 export interface VikeState {
   routes: typeof import('virtual:routes')['routes']
   errorRoute: typeof import('virtual:routes')['errorRoute'] | null
-  config: Config | null
-  manifest: Manifest | undefined
+  config: typeof import('virtual:routes')['config'] | null
+  manifest: typeof import('virtual:client-manifest')['default'] | null
 }
 
 // Proxy that always reads from globalThis — works even if there are
