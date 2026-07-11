@@ -14,13 +14,13 @@ function getGlobalObject<T extends object = never>(
 }
 
 // Raw store in the Context: contains the full PageContext.
-interface InternalContextValue {
-  state: Store<PageContext>
-  setState: SetStoreFunction<PageContext>
+export interface InternalContextValue<Data = unknown> {
+  state: Store<PageContext<Data>>
+  setState: SetStoreFunction<PageContext<Data>>
 }
 
 const globalContext = getGlobalObject('PageContextProvider', {
-  solidContext: createContext<InternalContextValue>(undefined as never)
+  solidContext: createContext<InternalContextValue<unknown>>()
 })
 
 export default globalContext
