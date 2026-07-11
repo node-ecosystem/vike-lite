@@ -7,6 +7,7 @@ import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 import generateRoutes from './utils/generateRoutes'
 import injectFOUCStyles from './utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from './config'
+import { renderPage } from './server'
 
 export default function routerPlugin({
   pagesDir = 'pages',
@@ -394,8 +395,6 @@ if (process.env.NODE_ENV === 'production') {
       // Import renderPage directly, bypassing the user's custom server:
       // this avoids middleware/side-effects (CORS, DB connections, etc.)
       // that shouldn't run during static generation
-      const { renderPage } = await import('vike-lite/server')
-
       const urlsToPrerender = new Set<string>()
 
       // Determine which URLs to generate by evaluating +prerender.ts files
