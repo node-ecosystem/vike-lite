@@ -46,6 +46,7 @@
     "dist"
   ],
   "scripts": {
+    "tsc": "tsc --noEmit",
     "build": "tsdown"
   },
   "devDependencies": {

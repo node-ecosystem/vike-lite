@@ -14,7 +14,7 @@
     "lint": "eslint packages/**/*.ts",
     "lint:vike": "eslint packages/vike-lite/**/*.ts",
     "lint:vike-solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
-    "tsc": "tsc packages/**/*.ts --noEmit",
+    "tsc": "yarn workspaces foreach -A -pv run tsc",
     "release": "node scripts/release.mjs",
     "od": "yarn outdated"
   },
