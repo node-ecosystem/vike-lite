@@ -14,7 +14,27 @@ function withBase(file: string): string {
   return `${cleanBase}${cleanFile}`
 }
 
-function getAssets(route: typeof import('virtual:routes').routes[number], nonce?: string) {
+// 2D Map: Route -> Nonce -> Assets
+// WeakMap avoids memory leaks if the routes array changes (e.g. in DEV, even though we are in PROD)
+const assetsCache = new WeakMap<typeof store.routes[number], Map<string, ReturnType<typeof computeAssets>>>()
+
+function getAssets(route: typeof store.routes[number], nonce?: string) {
+  if (!isProd) return computeAssets(route, nonce) // In DEV compute every time
+  const nonceKey = nonce || ''
+  let routeCache = assetsCache.get(route)
+  if (!routeCache) {
+    routeCache = new Map()
+    assetsCache.set(route, routeCache)
+  }
+  let assets = routeCache.get(nonceKey)
+  if (!assets) {
+    assets = computeAssets(route, nonce)
+    routeCache.set(nonceKey, assets)
+  }
+  return assets
+}
+
+function computeAssets(route: typeof store.routes[number], nonce?: string) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
