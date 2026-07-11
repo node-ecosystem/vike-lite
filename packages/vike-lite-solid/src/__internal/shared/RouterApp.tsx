@@ -6,7 +6,7 @@ import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import PageContextProvider from './PageContextProvider'
-import stripBase, { BASE_URL } from './stripBase'
+import stripBase from './stripBase'
 
 export interface ViewComponents {
   Page: any | null
@@ -221,6 +221,7 @@ export default function RouterApp(props: RouterProps): JSX.Element {
 
           // Get the URL for the fetch by adding the base
           const jsonTarget = pathname === '/' ? '/index' : pathname
+          const { BASE_URL } = import.meta.env
           const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
           // e.g. base "/my-app/" and path "/about" → fetch "/my-app/about.pageContext.json"
           const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`

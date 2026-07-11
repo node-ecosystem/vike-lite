@@ -1,14 +1,17 @@
 import type { PageContext } from '..'
 import matchRoute from '../__internal/shared/matchRoute'
-import { BASE_URL } from '../shared'
 import serializeContext from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'
 
 const isProd = process.env.NODE_ENV === 'production'
 
-function withBase(file: string): `/${string}` | `${string}/${string}` {
-  return `${BASE_URL.replace(/\/$/, '')}/${file.replace(/^\//, '')}`
+// return `/${string}` | `${string}/${string}`
+function withBase(file: string): string {
+  const { BASE_URL } = import.meta.env
+  const cleanBase = BASE_URL === '/' ? '' : (BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL)
+  const cleanFile = file.startsWith('/') ? file : `/${file}`
+  return `${cleanBase}${cleanFile}`
 }
 
 function getAssets(route: typeof import('virtual:routes').routes[number], nonce?: string) {
@@ -161,6 +164,7 @@ export default async function renderPage(req: Request, { nonce }: { nonce?: stri
   let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname
+  const { BASE_URL } = import.meta.env
   if (BASE_URL !== '/') {
     const baseSlashed = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/'
     const baseNoSlash = baseSlashed.slice(0, -1)
