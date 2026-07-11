@@ -39,5 +39,5 @@ declare module 'virtual:client-manifest' {
   export default manifest
 }
 
-declare var __PAGE_CONTEXT__: import('./index').PageContext | undefined
+declare var __PAGE_CONTEXT__: import('./index').PageContextClient
 declare var _vike_lite: import('./server/store').VikeState
