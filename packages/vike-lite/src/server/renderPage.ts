@@ -122,6 +122,13 @@ async function renderErrorPage(
   error?: unknown,
   nonce?: string
 ): Promise<Response> {
+  let errorMessage
+  let is500
+  if (status === 500) {
+    console.error(`[vike-lite] Server Error:`, error)
+    errorMessage = isProd ? 'Internal Server Error' : (error instanceof Error ? error.message : 'Unknown error')
+    is500 = true
+  } else is500 = false
   if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
 
   try {
@@ -138,8 +145,8 @@ async function renderErrorPage(
       urlPathname,
       routeParams: {},
       is404: status === 404,
-      is500: status === 500,
-      errorMessage: status === 500 && error instanceof Error ? error.message : undefined
+      is500,
+      errorMessage
     } as PageContext
 
     const html = await onRenderHtml({
@@ -155,7 +162,7 @@ async function renderErrorPage(
 
     return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
   } catch (renderError) {
-    console.error('Error page render failed:', renderError)
+    console.error('[vike-lite] Error page render failed:', renderError)
     return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
   }
 }
