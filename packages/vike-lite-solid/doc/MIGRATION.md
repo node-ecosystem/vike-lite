@@ -29,6 +29,12 @@ export default {
 +const [data, setData] = useData<DataType>()
 ```
 
+#### `useHydrated`
+```diff
+-import { useHydrated } from 'vike-solid/useHydrated'
++import { useHydrated } from 'vike-lite-solid'
+```
+
 #### `usePageContext` ~ Search in `Page`
 `pageContext.urlParsed` isn't implemente in `vike-lite` and in `vike-lite-solid`. You have to use the `URL`
 

@@ -96,7 +96,27 @@ export default Page
 ```
 
 ### `useHydrated`
-> 🚧 **TODO:** Implement a `useHydrated()` hook (similar to [vike-solid's implementation](https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useHydrated.tsx)) to easily detect the hydration state and avoid SSR mismatch errors.
+Detect whether the application has successfully hydrated on the client. Essential for wrapping client-only libraries (like chart tools or window-dependent logic) to avoid SSR hydration mismatches.
+
+```tsx
+// /pages/+Page.tsx
+import { useHydrated } from 'vike-lite-solid'
+import { Show } from 'solid-js'
+import ClientOnlyChart from './Chart'
+
+export default function Page() {
+  const hydrated = useHydrated()
+
+  return (
+    <div>
+      <h1>Statistics</h1>
+      <Show fallback={<p>Loading chart…</p>} when={hydrated()}>
+        <ClientOnlyChart />
+      </Show>
+    </div>
+  )
+}
+```
 
 ### `useUrl`
 ```tsx
