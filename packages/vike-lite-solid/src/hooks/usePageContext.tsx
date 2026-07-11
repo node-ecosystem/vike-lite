@@ -8,6 +8,6 @@ import globalContext, { type InternalContextValue } from './globalContext'
  * if they access properties that have actually changed.
  * @link https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/usePageContext.tsx
  */
-export default function usePageContext<Data = unknown>(): PageContext<Data> {
+export function usePageContext<Data = unknown>(): PageContext<Data> {
   return (useContext(globalContext.solidContext) as InternalContextValue<Data>).state
 }

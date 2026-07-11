@@ -31,7 +31,7 @@ if (sharedConfig.context) {
  * )
  * ```
  */
-export default function useHydrated() {
+export function useHydrated() {
   onMount(() => {
     // ONLY on Client AFTER hydration
     // Update the global signal, so all listening components re-render

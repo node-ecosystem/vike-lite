@@ -1,4 +1,4 @@
-export { default as useData } from './hooks/useData'
-export { default as useHydrated } from './hooks/useHydrated'
-export { default as usePageContext } from './hooks/usePageContext'
-export { default as useUrl } from './hooks/useUrl'
+export { useData } from './hooks/useData'
+export { useHydrated } from './hooks/useHydrated'
+export { usePageContext } from './hooks/usePageContext'
+export { useUrl } from './hooks/useUrl'

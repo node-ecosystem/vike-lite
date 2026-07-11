@@ -8,7 +8,7 @@ import globalContext from './globalContext'
  * Hook dedicated to `data` for convenience (returns getter and setter as an array).
  * @link https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useData.tsx
  */
-export default function useData<Data extends PageContext['data']>(): [Data, SetStoreFunction<Data>] {
+export function useData<Data extends PageContext['data']>(): [Data, SetStoreFunction<Data>] {
   const context = useContext(globalContext.solidContext)!
 
   const setData: SetStoreFunction<Data> = (...args: any[]) => {
