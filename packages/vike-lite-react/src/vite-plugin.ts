@@ -14,9 +14,7 @@ export interface VikeLiteReactOptions {
   react?: ReactPluginOptions
 }
 
-export default function vikeLiteReact(options: VikeLiteReactOptions = {}): Plugin[] {
-  const { hydration = true, react: reactOptions } = options
-
+export default function vikeLiteReact({ hydration = true, react: reactOptions }: VikeLiteReactOptions = {}): Plugin[] {
   const virtualConfigId = 'virtual:vike-lite/config'
   const virtualRendererId = 'virtual:vike-lite/renderer'
   const resolvedVirtualConfigId = '\0' + virtualConfigId
