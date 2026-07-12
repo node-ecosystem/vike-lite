@@ -176,6 +176,14 @@ function RouterApp(props: RouterProps) {
         ])
         if (signal.aborted) return
         setPageContext(() => ({
+          urlOriginal: urlFull,
+          urlPathname: pathname,
+          routeParams: {},
+          is404,
+          is500: !is404,
+          errorMessage: message,
+          isClientSide: true,
+          isHydration: false
         } as PageContextClient))
         setView({
           Page: ErrorPageMod.Page ?? ErrorPageMod.default,
@@ -240,6 +248,9 @@ function RouterApp(props: RouterProps) {
           search: urlObj.search,
           ...(ctx?.data && { data: ctx.data }),
           ...(ctx?.title && { title: ctx.title }),
+          ...contextOverride,
+          isClientSide: true,
+          isHydration: false
         } as PageContextClient))
         setView({
           Page: PageMod.Page ?? PageMod.default,
@@ -287,9 +298,14 @@ function RouterApp(props: RouterProps) {
 
   const { Page, Layout } = view
 
+  const contextValue = useMemo(
+    () => ({ pageContext, setPageContext }),
+    [pageContext, setPageContext]
+  )
+
   return (
     <RootErrorBoundary>
-      <PageContextProvider value={{ pageContext, setPageContext }}>
+      <PageContextProvider value={contextValue}>
         {Layout ? <Layout><Page /></Layout> : <Page />}
       </PageContextProvider>
     </RootErrorBoundary>
@@ -301,6 +317,11 @@ export default async function onRenderClient(clientOptions: { routes: VikeState[
   const rawContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
   const isHydration = hydration && !!globalThis.__PAGE_CONTEXT__
 
+  const initialContext = {
+    ...rawContext,
+    isClientSide: true,
+    isHydration
+  } as PageContextClient
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
 
   if (isHydration) {
