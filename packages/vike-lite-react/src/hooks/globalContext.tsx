@@ -1,9 +1,9 @@
 import { createContext } from 'react'
-import type { PageContext } from 'vike-lite'
+import type { PageContextClient } from 'vike-lite'
 
 export interface PageContextValue {
-  pageContext: PageContext
-  setPageContext: (updater: (prev: PageContext) => PageContext) => void
+  pageContext: PageContextClient
+  setPageContext: (updater: (prev: PageContextClient) => PageContextClient) => void
 }
 
 const KEY = '__vike_lite_react_context__'

@@ -1,16 +1,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback, Component, type ReactNode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
-import type { PageContext } from 'vike-lite'
+import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
 import { hydration } from 'virtual:vike-lite/config'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
 import { stripBase } from '../shared/stripBase'
-
-declare global {
-  var __PAGE_CONTEXT__: PageContext | undefined
-}
 
 interface ViewComponents {
   Page: any | null
@@ -22,7 +18,7 @@ interface RouterProps {
   routes: VikeState['routes']
   errorRoute: VikeState['errorRoute']
   initialView: ViewComponents
-  initialContext: PageContext
+  initialContext: PageContextClient
   initialUrl: string
 }
 
@@ -39,18 +35,18 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
 }
 
 function RouterApp(props: RouterProps) {
-  const [pageContext, setPageContextState] = useState<PageContext>(props.initialContext)
+  const [pageContext, setPageContextState] = useState<PageContextClient>(props.initialContext)
   const [view, setView] = useState<ViewComponents>(props.initialView)
   const [currentUrl, setCurrentUrl] = useState(props.initialUrl)
   const [currentPathname, setCurrentPathname] = useState(props.initialContext.urlPathname)
   const [reloadTick, setReloadTick] = useState(0)
 
   const shouldScrollToTop = useRef(false)
-  const pendingContextOverride = useRef<Partial<PageContext> | null>(null)
+  const pendingContextOverride = useRef<Partial<PageContextClient> | null>(null)
   const reloadResolvers = useRef<Array<() => void>>([])
   const isFirstRun = useRef(true)
 
-  const setPageContext = useCallback((updater: (prev: PageContext) => PageContext) => {
+  const setPageContext = useCallback((updater: (prev: PageContextClient) => PageContextClient) => {
     setPageContextState(updater)
   }, [])
 
@@ -109,7 +105,7 @@ function RouterApp(props: RouterProps) {
     }
 
     const handleProgrammaticNavigate = (e: Event) => {
-      const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContext> }>).detail || {}
+      const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContextClient> }>).detail || {}
       if (!detail.keepScrollPosition) shouldScrollToTop.current = true
       if (detail.pageContext) pendingContextOverride.current = detail.pageContext
       setCurrentUrl(globalThis.location.href)
@@ -180,9 +176,7 @@ function RouterApp(props: RouterProps) {
         ])
         if (signal.aborted) return
         setPageContext(() => ({
-          urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
-          is404, is500: !is404, errorMessage: message
-        } as PageContext))
+        } as PageContextClient))
         setView({
           Page: ErrorPageMod.Page ?? ErrorPageMod.default,
           Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
@@ -246,8 +240,7 @@ function RouterApp(props: RouterProps) {
           search: urlObj.search,
           ...(ctx?.data && { data: ctx.data }),
           ...(ctx?.title && { title: ctx.title }),
-          ...contextOverride
-        } as PageContext))
+        } as PageContextClient))
         setView({
           Page: PageMod.Page ?? PageMod.default,
           Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
@@ -305,7 +298,7 @@ function RouterApp(props: RouterProps) {
 
 export default async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'] }) {
   const container = document.querySelector('#root') as HTMLDivElement
-  const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContext)
+  const rawContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
   const isHydration = hydration && !!globalThis.__PAGE_CONTEXT__
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
