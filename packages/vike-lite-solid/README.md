@@ -18,14 +18,14 @@ yarn add -D vike-lite-solid vite-plugin-solid
 yarn add solid-js
 ```
 
-### 📖 Usage
+### ⚙️ Vite Plugin
 Add the plugin to your `vite.config`.
 
 ```ts
 // vite.config.ts
+import type { UserConfig } from 'vite'
 import vikeLite from 'vike-lite/vite'
 import vikeLiteSolid from 'vike-lite-solid/vite'
-import type { UserConfig } from 'vite'
 
 export default {
   plugins: [
@@ -46,6 +46,11 @@ export default {
   ]
 } satisfies UserConfig
 ```
+
+| Option | Type | Default | Description
+| - | - | - | -
+| `hydration` | `boolean` | `true` | When `true`, the server renders the page to HTML and the client hydrates it. When `false`, the client discards the server-rendered HTML on load and mounts a fresh tree — useful for highly interactive pages where paying the hydration-mismatch tax isn't worth it.
+| `solid` | `Options` (from `vite-plugin-solid`) | `{}` | Passed through to the underlying `vite-plugin-solid` instance. Use this for custom Babel plugins or any other low-level Solid compiler setting.
 
 ### 🪝 Hooks
 
