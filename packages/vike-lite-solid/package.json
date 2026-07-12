@@ -51,7 +51,7 @@
     "solid-js": "*",
     "vike-lite": "*",
     "vite": ">=8",
-    "vite-plugin-solid": "*"
+    "vite-plugin-solid": ">=2"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

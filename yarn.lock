@@ -4734,7 +4734,7 @@ __metadata:
     solid-js: "*"
     vike-lite: "*"
     vite: ">=8"
-    vite-plugin-solid: "*"
+    vite-plugin-solid: ">=2"
   languageName: unknown
   linkType: soft
 
