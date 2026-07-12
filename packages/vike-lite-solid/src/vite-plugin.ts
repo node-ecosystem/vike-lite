@@ -17,9 +17,11 @@ export default function vikeLiteSolid({
   solid?: Partial<SolidOptions>
 } = {}): PluginOption[] {
   const virtualConfigId = 'virtual:vike-lite/config'
-  const virtualRendererId = 'virtual:vike-lite/renderer'
+  const virtualClientId = 'virtual:vike-lite/client'
+  const virtualServerId = 'virtual:vike-lite/server'
   const resolvedVirtualConfigId = '\0' + virtualConfigId
-  const resolvedVirtualRendererId = '\0' + virtualRendererId
+  const resolvedVirtualClientId = '\0' + virtualClientId
+  const resolvedVirtualServerId = '\0' + virtualServerId
 
   const vikeLiteSolidPlugin = {
     name: 'vike-lite-solid',
@@ -46,17 +48,18 @@ export default function vikeLiteSolid({
     // Provide a virtual module that vike-lite will read to discover the renderers
     resolveId(id) {
       if (id === virtualConfigId) return resolvedVirtualConfigId
-      if (id === virtualRendererId) return resolvedVirtualRendererId
+      if (id === virtualClientId) return resolvedVirtualClientId
+      if (id === virtualServerId) return resolvedVirtualServerId
     },
     load(id) {
       if (id === resolvedVirtualConfigId) {
         return `export const hydration=${hydration};`
       }
-      if (id === resolvedVirtualRendererId) {
-        // We use dynamic imports here. This is crucial because it allows Vite
-        // to code-split the Node.js server logic from the Browser client logic!
-        return `export const onRenderHtml=()=>import('vike-lite-solid/__internal/server/onRenderHtml');
-          export const onRenderClient=()=>import('vike-lite-solid/__internal/client/onRenderClient');`
+      if (id === resolvedVirtualClientId) {
+        return `export const onRenderClient=()=>import('vike-lite-solid/__internal/client/onRenderClient');`
+      }
+      if (id === resolvedVirtualServerId) {
+        return `export const onRenderHtml=()=>import('vike-lite-solid/__internal/server/onRenderHtml');`
       }
     }
   } satisfies Plugin

@@ -48,7 +48,8 @@ export default function routerPlugin({
   const VIRTUAL = {
     routes: 'virtual:routes',
     manifest: 'virtual:client-manifest',
-    renderer: 'virtual:vike-lite/renderer',
+    client: 'virtual:vike-lite/client',
+    server: 'virtual:vike-lite/server',
     entryClient: 'virtual:entry-client',
     setup: 'virtual:vike-lite/setup',
     entryServer: 'virtual:entry-server',
@@ -205,7 +206,7 @@ export default function routerPlugin({
         const isSSR = options!.ssr
 
         // Import the server rendering function from the bridge virtual module
-        let code = `import { onRenderHtml } from '${VIRTUAL.renderer}';\n`
+        let code = `import { onRenderHtml } from '${VIRTUAL.server}';\n`
           + `export const config = { onRenderHtml };\n`
           + `export const routes = [\n`
 
@@ -250,7 +251,7 @@ export default function routerPlugin({
       if (id === RESOLVED.entryClient) {
         // Import the client rendering function from the bridge virtual module
         return `import{routes,errorRoute}from'${VIRTUAL.routes}';`
-          + `import{onRenderClient}from'${VIRTUAL.renderer}';`
+          + `import{onRenderClient}from'${VIRTUAL.client}';`
           + `const{default:render}=await onRenderClient();`
           + `await render({routes,errorRoute});`
       }
