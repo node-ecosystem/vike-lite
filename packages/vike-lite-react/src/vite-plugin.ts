@@ -38,7 +38,7 @@ export default function vikeLiteReact({ hydration = true, react: reactOptions }:
         return 'export const onRenderClient=()=>import("vike-lite-react/__internal/client/onRenderClient");'
       }
       if (id === resolvedVirtualServerId) {
-        return `export const { default: onRenderHtml } = await import('vike-lite-react/__internal/server/onRenderHtml');`
+        return `export const { onRenderHtml } = await import('vike-lite-react/__internal/server/onRenderHtml');`
       }
     }
   }

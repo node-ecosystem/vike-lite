@@ -11,7 +11,7 @@ export interface ReactRenderContext extends RenderContext {
   Layout?: ComponentType<{ children: ReactNode }>
 }
 
-export default function onRenderHtml({
+export function onRenderHtml({
   pageContext,
   Page,
   Head,
