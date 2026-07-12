@@ -192,7 +192,7 @@ export default function routerPlugin({
         plugin => plugin.name?.startsWith('vike-lite-') && SUPPORTED_RENDERERS.includes(plugin.name.replace('vike-lite-', '') as any)
       )
       if (!hasUIRenderer) {
-        throw new Error(`No UI renderer plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
+        throw new Error(`[vike-lite] No UI renderer plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
       }
     },
     resolveId(id) {
@@ -273,7 +273,7 @@ export default function routerPlugin({
               break
             }
           }
-          if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found!`)
+          if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found`)
           return `import '${VIRTUAL.setup}';`
             + `export * from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
@@ -432,7 +432,7 @@ if (process.env.NODE_ENV === 'production') {
 
       if (urlsToPrerender.size === 0) return
 
-      console.log('\n\u{1B}[36m📦 Starting Static Site Generation (SSG)...\u{1B}[0m')
+      console.log('[vike-lite] 📦 Starting Static Site Generation (SSG)…')
 
       const { BASE_URL } = import.meta.env
       const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
@@ -449,9 +449,7 @@ if (process.env.NODE_ENV === 'production') {
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
           fs.mkdirSync(outDirRoute, { recursive: true })
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
-        } else {
-          throw new Error(`\u{1B}[31m✖ SSG HTML Error for ${urlPath}\u{1B}[0m`)
-        }
+        } else throw new Error(`[vike-lite] ❌ SSG HTML Error for "${urlPath}"`)
 
         // Generate JSON (Context)
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
@@ -461,15 +459,12 @@ if (process.env.NODE_ENV === 'production') {
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
           fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
-        } else {
-          throw new Error(`\u{1B}[31m✖ SSG JSON Error for ${jsonTarget}\u{1B}[0m`)
-        }
+        } else throw new Error(`[vike-lite] ❌ SSG JSON Error for "${jsonTarget}"`)
 
-        console.log(`\u{1B}[32m✓\u{1B}[0m Pre-rendered: ${urlPath}`)
+        console.log(`  └─ ${urlPath}`)
         generatedCount++
       }
-
-      console.log(`\n\u{1B}[32m✨ SSG Completed! Generated ${generatedCount} static routes.\u{1B}[0m\n`)
+      console.log(`[vike-lite] ✨ SSG Completed! Generated ${generatedCount} static routes`)
     },
     configureServer(server) {
       // Return a callback to run this middleware as last
@@ -502,12 +497,12 @@ if (process.env.NODE_ENV === 'production') {
 
             const requestInit = { method: req.method, headers } as RequestInit
             if (req.url!.startsWith(apiPrefix)) {
-              server.config.logger.info(`API request: ${req.method} ${req.url}`, { timestamp: true })
+              server.config.logger.info(`⚡ API: ${req.method} ${req.url}`, { timestamp: true })
               requestInit.body = Readable.toWeb(req) as any
               // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
               requestInit.duplex = 'half'
             } else if (req.url!.endsWith('.pageContext.json')) {
-              server.config.logger.info(`SPA Navigation request: ${req.url}`, { timestamp: true })
+              server.config.logger.info(`🔄 SPA Navigation: ${req.url}`, { timestamp: true })
             }
 
             // The frontend code is evaluated and the styles imports are registered internally in the ssrEnv.moduleGraph
@@ -515,7 +510,7 @@ if (process.env.NODE_ENV === 'production') {
             res.statusCode = response.status
 
             if (response.headers.get('content-type')?.includes('text/html')) {
-              server.config.logger.info(`Page request: ${req.url}`, { timestamp: true })
+              server.config.logger.info(`📄 Page: ${req.url}`, { timestamp: true })
               let html = await response.text()
 
               // Fix FOUC: Inspect the Module Graph populated earlier,
