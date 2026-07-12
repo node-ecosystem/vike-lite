@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+
 import { PageContextReactContext, type PageContextValue } from './globalContext'
 
 export function PageContextProvider({
