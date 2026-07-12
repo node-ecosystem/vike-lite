@@ -445,7 +445,7 @@ if (process.env.NODE_ENV === 'production') {
         // Generate HTML
         const htmlReq = new Request(`http://localhost${baseNoSlash}${urlPath}`)
         const htmlRes = await renderPage(htmlReq)
-        if (htmlRes && htmlRes.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
+        if (htmlRes?.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
           fs.mkdirSync(outDirRoute, { recursive: true })
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
@@ -457,7 +457,7 @@ if (process.env.NODE_ENV === 'production') {
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
         const jsonReq = new Request(`http://localhost${baseNoSlash}${jsonTarget}.pageContext.json`)
         const jsonRes = await renderPage(jsonReq)
-        if (jsonRes && jsonRes.ok) {
+        if (jsonRes?.ok) {
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
           fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
