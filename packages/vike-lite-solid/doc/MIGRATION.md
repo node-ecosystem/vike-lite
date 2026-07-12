@@ -36,7 +36,7 @@ export default {
 ```
 
 #### `usePageContext` ~ Search in `Page`
-`pageContext.urlParsed` isn't implemente in `vike-lite` and in `vike-lite-solid`. You have to use the `URL`
+`pageContext.urlParsed` isn't implemente in `vike-lite` and in `vike-lite-solid`. Use the `URL` API directly instead.
 
 Inside the component if you don't need the `usePageContext` hook, you can use the `useUrl` hook directly.
 ```diff
