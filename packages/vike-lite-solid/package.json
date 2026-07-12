@@ -7,13 +7,12 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "solid": "./src/index.ts",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.mts"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./vite": {
-      "import": "./dist/vite.mjs",
-      "types": "./dist/vite.d.mts"
+      "types": "./dist/vite.d.mts",
+      "import": "./dist/vite.mjs"
     },
     "./__internal/client/onRenderClient": {
       "solid": "./src/__internal/client/onRenderClient.tsx",
