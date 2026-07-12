@@ -152,8 +152,6 @@ async function renderErrorPage(
   if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
 
   try {
-    const { default: onRenderHtml } = await store.config!.onRenderHtml()
-
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
       store.errorRoute.Page(),
       store.errorRoute.Head?.() ?? null,
@@ -169,7 +167,7 @@ async function renderErrorPage(
       errorMessage
     } as PageContext
 
-    const html = await onRenderHtml({
+    const html = await store.config!.onRenderHtml({
       pageContext,
       Page: (PageModule.Page ?? PageModule.default)!,
       Layout: LayoutModule ? (LayoutModule.Layout ?? LayoutModule.default)! : undefined,
@@ -224,9 +222,7 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
 
     if (isJsonRequest) return Response.json(pageContext)
 
-    const { default: onRenderHtml } = await store.config!.onRenderHtml()
-
-    const html = await onRenderHtml({
+    const html = await store.config!.onRenderHtml({
       pageContext,
       Page: (PageModule!.Page ?? PageModule!.default)!,
       Head: HeadModule ? (HeadModule.Head ?? HeadModule.default)! : undefined,

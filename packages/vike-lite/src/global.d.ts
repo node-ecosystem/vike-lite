@@ -2,8 +2,8 @@
 
 declare module 'virtual:routes' {
   type Config = {
-    onRenderHtml: () => Promise<{ default: (ctx: RenderContext) => Promise<string> }>
     onRenderClient: () => Promise<{ default: (opts: { routes: any[]; errorRoute: any }) => void }>
+    onRenderHtml: (ctx: RenderContext) => Promise<string>
   }
   type PageContext = import('./index').PageContext
 
