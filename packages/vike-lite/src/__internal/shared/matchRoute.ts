@@ -4,7 +4,7 @@ function escapeRegex(str: string) {
   return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
 }
 
-export default function matchRoute(
+export function matchRoute(
   urlPathname: string,
   routes: typeof import('virtual:routes').routes
 ) {

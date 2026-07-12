@@ -5,8 +5,8 @@ import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
 
-import PageContextProvider from './PageContextProvider'
-import stripBase from './stripBase'
+import { PageContextProvider } from './PageContextProvider'
+import { stripBase } from './stripBase'
 
 export interface ViewComponents {
   Page: any | null
@@ -22,7 +22,7 @@ export interface RouterProps {
   initialUrl: string
 }
 
-export default function RouterApp(props: RouterProps): JSX.Element {
+export function RouterApp(props: RouterProps): JSX.Element {
   const [pageContextStore, setPageContextStore] = createStore<PageContext>(props.initialContext)
   const [view, setView] = createSignal<ViewComponents>(props.initialView)
 

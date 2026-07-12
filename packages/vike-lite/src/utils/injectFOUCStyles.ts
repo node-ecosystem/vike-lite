@@ -4,7 +4,7 @@ import type { ViteDevServer } from 'vite'
  * Anti-FOUC: Inspect all known SSR modules, ask the client environment
  * to translate them into plain text (thanks to ?direct) and return them.
  */
-export default async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<string> {
+export async function injectFOUCStyles(server: ViteDevServer, html: string): Promise<string> {
   const styles = new Set<string>()
   const ssrEnv = server.environments.ssr
   const clientEnv = server.environments.client

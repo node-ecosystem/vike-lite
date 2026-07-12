@@ -19,8 +19,6 @@ export interface InternalContextValue<Data = unknown> {
   setState: SetStoreFunction<PageContext<Data>>
 }
 
-const globalContext = getGlobalObject('PageContextProvider', {
+export const globalContext = getGlobalObject('PageContextProvider', {
   solidContext: createContext<InternalContextValue<unknown>>()
 })
-
-export default globalContext

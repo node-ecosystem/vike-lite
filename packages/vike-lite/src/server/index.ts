@@ -1,1 +1,1 @@
-export { default as renderPage } from './renderPage'
+export { renderPage } from './renderPage'

@@ -4,8 +4,8 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 
-import generateRoutes from './utils/generateRoutes'
-import injectFOUCStyles from './utils/injectFOUCStyles'
+import { generateRoutes } from './utils/generateRoutes'
+import { injectFOUCStyles } from './utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from './config'
 import { renderPage } from './server'
 

@@ -13,4 +13,4 @@ export interface RenderContext {
   nonce?: string
 }
 
-export { default as matchRoute } from './matchRoute'
+export { matchRoute } from './matchRoute'

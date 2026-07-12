@@ -2,7 +2,7 @@ import { useContext } from 'solid-js'
 import type { SetStoreFunction } from 'solid-js/store'
 import type { PageContext } from 'vike-lite'
 
-import globalContext from './globalContext'
+import { globalContext } from './globalContext'
 
 /**
  * Hook dedicated to `data` for convenience (returns getter and setter as an array).

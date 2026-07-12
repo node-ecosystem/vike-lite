@@ -10,7 +10,7 @@ function findFile(files: string[], basename: string, extensions: string[]): stri
   )
 }
 
-export default function generateRoutes(viteRoot: string, pagesDir: string): { routes: Route[]; errorRoute?: Route } {
+export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Route[]; errorRoute?: Route } {
   const pagesAbsPath = path.resolve(viteRoot, pagesDir)
   if (!fs.existsSync(pagesAbsPath)) return { routes: [] }
 

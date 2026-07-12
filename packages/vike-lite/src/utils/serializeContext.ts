@@ -7,6 +7,6 @@ const ESCAPE_LOOKUP: Record<string, string> = {
 }
 const ESCAPE_REGEX = /[&><\u{2028}\u{2029}]/gu
 
-export default function serializeContext(data: unknown): string {
+export function serializeContext(data: unknown): string {
   return JSON.stringify(data).replaceAll(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match])
 }

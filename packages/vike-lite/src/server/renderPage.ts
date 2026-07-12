@@ -1,6 +1,6 @@
 import type { PageContext } from '..'
-import matchRoute from '../__internal/shared/matchRoute'
-import serializeContext from '../utils/serializeContext'
+import { matchRoute } from '../__internal/shared/matchRoute'
+import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'
 
@@ -187,7 +187,7 @@ async function renderErrorPage(
   }
 }
 
-export default async function renderPage(req: Request, { nonce }: { nonce?: string } = {}): Promise<Response> {
+export async function renderPage(req: Request, { nonce }: { nonce?: string } = {}): Promise<Response> {
   let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname
