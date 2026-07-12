@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/node": "^26.1.1",
     "solid-js": "^1.9.14",
-    "tsdown": "^0.22.4",
+    "tsdown": "^0.22.5",
     "vike-lite": "workspace:*",
     "vite": "^8.1.4",
     "vite-plugin-solid": "^2.11.12"

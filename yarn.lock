@@ -964,156 +964,156 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-darwin-arm64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-darwin-arm64@npm:0.5.46"
+"@yuku-codegen/binding-darwin-arm64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-darwin-arm64@npm:0.5.48"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-darwin-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-darwin-x64@npm:0.5.46"
+"@yuku-codegen/binding-darwin-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-darwin-x64@npm:0.5.48"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-freebsd-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-freebsd-x64@npm:0.5.46"
+"@yuku-codegen/binding-freebsd-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-freebsd-x64@npm:0.5.48"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-arm-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-arm-gnu@npm:0.5.46"
+"@yuku-codegen/binding-linux-arm-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-arm-gnu@npm:0.5.48"
   conditions: os=linux & cpu=arm & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-arm-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-arm-musl@npm:0.5.46"
+"@yuku-codegen/binding-linux-arm-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-arm-musl@npm:0.5.48"
   conditions: os=linux & cpu=arm & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-arm64-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-arm64-gnu@npm:0.5.46"
+"@yuku-codegen/binding-linux-arm64-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-arm64-gnu@npm:0.5.48"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-arm64-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-arm64-musl@npm:0.5.46"
+"@yuku-codegen/binding-linux-arm64-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-arm64-musl@npm:0.5.48"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-x64-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-x64-gnu@npm:0.5.46"
+"@yuku-codegen/binding-linux-x64-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-x64-gnu@npm:0.5.48"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-linux-x64-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-linux-x64-musl@npm:0.5.46"
+"@yuku-codegen/binding-linux-x64-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-linux-x64-musl@npm:0.5.48"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-win32-arm64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-win32-arm64@npm:0.5.46"
+"@yuku-codegen/binding-win32-arm64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-win32-arm64@npm:0.5.48"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@yuku-codegen/binding-win32-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-codegen/binding-win32-x64@npm:0.5.46"
+"@yuku-codegen/binding-win32-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-codegen/binding-win32-x64@npm:0.5.48"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-darwin-arm64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-darwin-arm64@npm:0.5.46"
+"@yuku-parser/binding-darwin-arm64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-darwin-arm64@npm:0.5.48"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-darwin-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-darwin-x64@npm:0.5.46"
+"@yuku-parser/binding-darwin-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-darwin-x64@npm:0.5.48"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-freebsd-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-freebsd-x64@npm:0.5.46"
+"@yuku-parser/binding-freebsd-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-freebsd-x64@npm:0.5.48"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-arm-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-arm-gnu@npm:0.5.46"
+"@yuku-parser/binding-linux-arm-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-arm-gnu@npm:0.5.48"
   conditions: os=linux & cpu=arm & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-arm-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-arm-musl@npm:0.5.46"
+"@yuku-parser/binding-linux-arm-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-arm-musl@npm:0.5.48"
   conditions: os=linux & cpu=arm & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-arm64-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-arm64-gnu@npm:0.5.46"
+"@yuku-parser/binding-linux-arm64-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-arm64-gnu@npm:0.5.48"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-arm64-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-arm64-musl@npm:0.5.46"
+"@yuku-parser/binding-linux-arm64-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-arm64-musl@npm:0.5.48"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-x64-gnu@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-x64-gnu@npm:0.5.46"
+"@yuku-parser/binding-linux-x64-gnu@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-x64-gnu@npm:0.5.48"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-linux-x64-musl@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-linux-x64-musl@npm:0.5.46"
+"@yuku-parser/binding-linux-x64-musl@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-linux-x64-musl@npm:0.5.48"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-win32-arm64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-win32-arm64@npm:0.5.46"
+"@yuku-parser/binding-win32-arm64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-win32-arm64@npm:0.5.48"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@yuku-parser/binding-win32-x64@npm:0.5.46":
-  version: 0.5.46
-  resolution: "@yuku-parser/binding-win32-x64@npm:0.5.46"
+"@yuku-parser/binding-win32-x64@npm:0.5.48":
+  version: 0.5.48
+  resolution: "@yuku-parser/binding-win32-x64@npm:0.5.48"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -2813,16 +2813,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown-plugin-dts@npm:^0.27.1":
-  version: 0.27.4
-  resolution: "rolldown-plugin-dts@npm:0.27.4"
+"rolldown-plugin-dts@npm:^0.27.4":
+  version: 0.27.6
+  resolution: "rolldown-plugin-dts@npm:0.27.6"
   dependencies:
     dts-resolver: "npm:^3.0.0"
     get-tsconfig: "npm:5.0.0-beta.5"
     obug: "npm:^2.1.3"
     yuku-ast: "npm:^0.1.7"
-    yuku-codegen: "npm:^0.5.44"
-    yuku-parser: "npm:^0.5.44"
+    yuku-codegen: "npm:^0.5.46"
+    yuku-parser: "npm:^0.5.46"
   peerDependencies:
     "@ts-macro/tsc": ^0.3.6
     "@typescript/native-preview": ">=7.0.0-dev.20260325.1"
@@ -2838,11 +2838,11 @@ __metadata:
       optional: true
     vue-tsc:
       optional: true
-  checksum: 10c0/612a63fb8db8d2c8bda32e33d0810af80ef7ac8d719394a5c83f475eb78a2a60b3b1da1f04d6ffb9a83ffd6729257f26ff470c428486e900225f66a88c4129c2
+  checksum: 10c0/e26a1dd3a1b6d2170c2f0836f59fa5edf49f300585312ec6b4705d86924d1167e5a17b0c419960588678f223a00fa79ecbc36cd15fed109c004f7d3639ed6f08
   languageName: node
   linkType: hard
 
-"rolldown@npm:~1.1.4":
+"rolldown@npm:~1.1.4, rolldown@npm:~1.1.5":
   version: 1.1.5
   resolution: "rolldown@npm:1.1.5"
   dependencies:
@@ -3122,9 +3122,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.22.4":
-  version: 0.22.4
-  resolution: "tsdown@npm:0.22.4"
+"tsdown@npm:^0.22.5":
+  version: 0.22.5
+  resolution: "tsdown@npm:0.22.5"
   dependencies:
     ansis: "npm:^4.3.1"
     cac: "npm:^7.0.0"
@@ -3134,8 +3134,8 @@ __metadata:
     import-without-cache: "npm:^0.4.0"
     obug: "npm:^2.1.3"
     picomatch: "npm:^4.0.5"
-    rolldown: "npm:~1.1.4"
-    rolldown-plugin-dts: "npm:^0.27.1"
+    rolldown: "npm:~1.1.5"
+    rolldown-plugin-dts: "npm:^0.27.4"
     semver: "npm:^7.8.5"
     tinyexec: "npm:^1.2.4"
     tinyglobby: "npm:^0.2.17"
@@ -3143,12 +3143,12 @@ __metadata:
     unconfig-core: "npm:^7.5.0"
   peerDependencies:
     "@arethetypeswrong/core": ^0.18.1
-    "@tsdown/css": 0.22.4
-    "@tsdown/exe": 0.22.4
+    "@tsdown/css": 0.22.5
+    "@tsdown/exe": 0.22.5
     "@vitejs/devtools": "*"
     publint: ^0.3.8
     tsx: "*"
-    typescript: ^5.0.0 || ^6.0.0
+    typescript: ^5.0.0 || ^6.0.0 || ^7.0.0
     unplugin-unused: ^0.5.0
     unrun: "*"
   peerDependenciesMeta:
@@ -3172,7 +3172,7 @@ __metadata:
       optional: true
   bin:
     tsdown: ./dist/run.mjs
-  checksum: 10c0/2a3c91e0e350d9f802831dd60633d16a5c05ae306b9b10cf500f8b88f6aae1698c1fd459b703bb0df1c4d81bd1cafa99c0b8c23d6873e5c8526e52215a594761
+  checksum: 10c0/73f8fbbb0948da553dd5c93d8352f8aed88d4761cb0d9071236aa039a30959fcda7bdb2746186a25a364b2430e4191b135e310ba1574ca2644adfb37fe1dee8e
   languageName: node
   linkType: hard
 
@@ -3307,7 +3307,7 @@ __metadata:
   dependencies:
     "@types/node": "npm:^26.1.1"
     solid-js: "npm:^1.9.14"
-    tsdown: "npm:^0.22.4"
+    tsdown: "npm:^0.22.5"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.4"
     vite-plugin-solid: "npm:^2.11.12"
@@ -3324,7 +3324,7 @@ __metadata:
   resolution: "vike-lite@workspace:packages/vike-lite"
   dependencies:
     "@types/node": "npm:^26.1.1"
-    tsdown: "npm:^0.22.4"
+    tsdown: "npm:^0.22.5"
     vite: "npm:^8.1.4"
   peerDependencies:
     vite: ">=8"
@@ -3494,21 +3494,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yuku-codegen@npm:^0.5.44":
-  version: 0.5.46
-  resolution: "yuku-codegen@npm:0.5.46"
+"yuku-codegen@npm:^0.5.46":
+  version: 0.5.48
+  resolution: "yuku-codegen@npm:0.5.48"
   dependencies:
-    "@yuku-codegen/binding-darwin-arm64": "npm:0.5.46"
-    "@yuku-codegen/binding-darwin-x64": "npm:0.5.46"
-    "@yuku-codegen/binding-freebsd-x64": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-arm-gnu": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-arm-musl": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-arm64-gnu": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-arm64-musl": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-x64-gnu": "npm:0.5.46"
-    "@yuku-codegen/binding-linux-x64-musl": "npm:0.5.46"
-    "@yuku-codegen/binding-win32-arm64": "npm:0.5.46"
-    "@yuku-codegen/binding-win32-x64": "npm:0.5.46"
+    "@yuku-codegen/binding-darwin-arm64": "npm:0.5.48"
+    "@yuku-codegen/binding-darwin-x64": "npm:0.5.48"
+    "@yuku-codegen/binding-freebsd-x64": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-arm-gnu": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-arm-musl": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-arm64-gnu": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-arm64-musl": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-x64-gnu": "npm:0.5.48"
+    "@yuku-codegen/binding-linux-x64-musl": "npm:0.5.48"
+    "@yuku-codegen/binding-win32-arm64": "npm:0.5.48"
+    "@yuku-codegen/binding-win32-x64": "npm:0.5.48"
     "@yuku-toolchain/types": "npm:0.5.43"
   dependenciesMeta:
     "@yuku-codegen/binding-darwin-arm64":
@@ -3533,25 +3533,25 @@ __metadata:
       optional: true
     "@yuku-codegen/binding-win32-x64":
       optional: true
-  checksum: 10c0/d84a184b700336a8f9e7d60afbaa4397c02b358fbe70725da8cae1824373e6a36d7b7ed75307b0f14d9b1f38cdefc67330f53b16bccbfb6cafa5bf07c808b663
+  checksum: 10c0/7c3bdb1a4a7b9906c731727b4972b70a62bb6b01de70fca084963b6c42eed95db4d3da2dfe8c3bba25533ecc4e58ac4018415926d295e3bdf16e67ecd38c0ee7
   languageName: node
   linkType: hard
 
-"yuku-parser@npm:^0.5.44":
-  version: 0.5.46
-  resolution: "yuku-parser@npm:0.5.46"
+"yuku-parser@npm:^0.5.46":
+  version: 0.5.48
+  resolution: "yuku-parser@npm:0.5.48"
   dependencies:
-    "@yuku-parser/binding-darwin-arm64": "npm:0.5.46"
-    "@yuku-parser/binding-darwin-x64": "npm:0.5.46"
-    "@yuku-parser/binding-freebsd-x64": "npm:0.5.46"
-    "@yuku-parser/binding-linux-arm-gnu": "npm:0.5.46"
-    "@yuku-parser/binding-linux-arm-musl": "npm:0.5.46"
-    "@yuku-parser/binding-linux-arm64-gnu": "npm:0.5.46"
-    "@yuku-parser/binding-linux-arm64-musl": "npm:0.5.46"
-    "@yuku-parser/binding-linux-x64-gnu": "npm:0.5.46"
-    "@yuku-parser/binding-linux-x64-musl": "npm:0.5.46"
-    "@yuku-parser/binding-win32-arm64": "npm:0.5.46"
-    "@yuku-parser/binding-win32-x64": "npm:0.5.46"
+    "@yuku-parser/binding-darwin-arm64": "npm:0.5.48"
+    "@yuku-parser/binding-darwin-x64": "npm:0.5.48"
+    "@yuku-parser/binding-freebsd-x64": "npm:0.5.48"
+    "@yuku-parser/binding-linux-arm-gnu": "npm:0.5.48"
+    "@yuku-parser/binding-linux-arm-musl": "npm:0.5.48"
+    "@yuku-parser/binding-linux-arm64-gnu": "npm:0.5.48"
+    "@yuku-parser/binding-linux-arm64-musl": "npm:0.5.48"
+    "@yuku-parser/binding-linux-x64-gnu": "npm:0.5.48"
+    "@yuku-parser/binding-linux-x64-musl": "npm:0.5.48"
+    "@yuku-parser/binding-win32-arm64": "npm:0.5.48"
+    "@yuku-parser/binding-win32-x64": "npm:0.5.48"
     "@yuku-toolchain/types": "npm:0.5.43"
   dependenciesMeta:
     "@yuku-parser/binding-darwin-arm64":
@@ -3576,6 +3576,6 @@ __metadata:
       optional: true
     "@yuku-parser/binding-win32-x64":
       optional: true
-  checksum: 10c0/760293b9770822cddad9129bac6fdab34ce03ea64aa9be20eb57cf27edf35226bde07e93d1baaa7ad5b0bfcf6ba38001f275a5f7f02baa6051c388beaf764037
+  checksum: 10c0/6d0668746d8e3c5d686396cb2c2c835524aad837c81dd8a5a322fc94fb536453a827f4764915036d11b0c1c9eba1d24c9de7385a85b8aa751f54cdcfc640be30
   languageName: node
   linkType: hard
