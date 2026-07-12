@@ -1,6 +1,7 @@
 import { defineConfig } from 'eslint/config'
 import pluginTypescript from 'typescript-eslint'
 import pluginUnicorn from 'eslint-plugin-unicorn'
+import react from 'eslint-plugin-react'
 import pluginSolid from 'eslint-plugin-solid/configs/typescript'
 
 export default defineConfig(
@@ -30,6 +31,10 @@ export default defineConfig(
       'unicorn/numeric-separators-style': 0,
       'unicorn/prefer-node-protocol': 0
     }
+  },
+  {
+    plugins: { react },
+    files: ['packages/vike-lite-react/**/*.{ts,tsx}']
   },
   {
     files: ['packages/vike-lite-solid/**/*.{ts,tsx}'],
