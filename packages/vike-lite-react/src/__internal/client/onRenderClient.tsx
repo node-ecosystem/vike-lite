@@ -339,7 +339,7 @@ export default async function onRenderClient(clientOptions: { routes: VikeState[
   if (isHydration) {
     hydrateRoot(container, app)
   } else {
-    container.replaceChildren?.() ?? (container.innerHTML = '')
+    container.replaceChildren()
     createRoot(container).render(app)
   }
 }
