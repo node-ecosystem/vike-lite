@@ -20,7 +20,7 @@ export default {
 
 #### `useData`
 ```diff
--import { useData } from 'vike-solid'
+-import { useData } from 'vike-solid/useData'
 
 -const data = useData<DataType>()
 
@@ -31,7 +31,7 @@ export default {
 
 #### `useHydrated`
 ```diff
--import { useHydrated } from 'vike-solid'
+-import { useHydrated } from 'vike-solid/useHydrated'
 +import { useHydrated } from 'vike-lite-solid'
 ```
 
@@ -56,7 +56,7 @@ By this way you access at the context only 1 time.
 
 ```diff
 -import { createSignal } from 'solid-js'
--import { usePageContext } from 'vike-solid'
+-import { usePageContext } from 'vike-solid/usePageContext'
 +import { createSignal, createMemo } from 'solid-js'
 +import { usePageContext } from 'vike-lite-solid'
 
