@@ -4,5 +4,4 @@ declare module 'virtual:vike-lite/config' {
   export const hydration: boolean
 }
 
-declare var __PAGE_CONTEXT__: import('vike-lite').PageContextClient
-declare var _$HY: unknown
+declare var __PAGE_CONTEXT__: import('vike-lite').PageContextClient | undefined

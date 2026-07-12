@@ -17,19 +17,24 @@ export interface VikeLiteReactOptions {
 export default function vikeLiteReact(options: VikeLiteReactOptions = {}): Plugin[] {
   const { hydration = true, react: reactOptions } = options
 
-  const virtualId = 'virtual:vike-lite/renderer'
-  const resolvedVirtualId = '\0' + virtualId
+  const virtualConfigId = 'virtual:vike-lite/config'
+  const virtualRendererId = 'virtual:vike-lite/renderer'
+  const resolvedVirtualConfigId = '\0' + virtualConfigId
+  const resolvedVirtualRendererId = '\0' + virtualRendererId
 
   const adapter: Plugin = {
     name: 'vike-lite-react',
     enforce: 'pre',
     resolveId(id) {
-      if (id === virtualId) return resolvedVirtualId
+      if (id === virtualConfigId) return resolvedVirtualConfigId
+      if (id === virtualRendererId) return resolvedVirtualRendererId
     },
     load(id) {
-      if (id === resolvedVirtualId) {
+      if (id === resolvedVirtualConfigId) {
         return `export const hydration = ${JSON.stringify(hydration)};`
-          + `export const onRenderHtml = () => import('vike-lite-react/__internal/server/onRenderHtml');`
+      }
+      if (id === resolvedVirtualRendererId) {
+        return `export const onRenderHtml = () => import('vike-lite-react/__internal/server/onRenderHtml');`
           + `export const onRenderClient = () => import('vike-lite-react/__internal/client/onRenderClient');`
       }
     }

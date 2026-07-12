@@ -16,10 +16,10 @@ export default function vikeLiteSolid({
    */
   solid?: Partial<SolidOptions>
 } = {}): PluginOption[] {
+  const virtualConfigId = 'virtual:vike-lite/config'
   const virtualRendererId = 'virtual:vike-lite/renderer'
-  const virtualConfigId = 'virtual:vike-lite-solid/config'
-  const resolvedVirtualRendererId = '\0' + virtualRendererId
   const resolvedVirtualConfigId = '\0' + virtualConfigId
+  const resolvedVirtualRendererId = '\0' + virtualRendererId
 
   const vikeLiteSolidPlugin = {
     name: 'vike-lite-solid',
@@ -45,8 +45,8 @@ export default function vikeLiteSolid({
     },
     // Provide a virtual module that vike-lite will read to discover the renderers
     resolveId(id) {
-      if (id === virtualRendererId) return resolvedVirtualRendererId
       if (id === virtualConfigId) return resolvedVirtualConfigId
+      if (id === virtualRendererId) return resolvedVirtualRendererId
     },
     load(id) {
       if (id === resolvedVirtualConfigId) {

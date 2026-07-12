@@ -3,7 +3,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
-import { hydration } from 'virtual:vike-lite/renderer'
+import { hydration } from 'virtual:vike-lite/config'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
 import { stripBase } from '../shared/stripBase'

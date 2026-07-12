@@ -1,4 +1,4 @@
-import { hydration } from 'virtual:vike-lite-solid/config'
+import { hydration } from 'virtual:vike-lite/config'
 import { renderToStringAsync, NoHydration, generateHydrationScript, renderToString } from 'solid-js/web'
 import type { Component, ParentComponent } from 'solid-js'
 import type { RenderContext } from 'vike-lite/__internal/shared'

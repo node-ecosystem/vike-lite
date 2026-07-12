@@ -1,4 +1,4 @@
-import { hydration } from 'virtual:vike-lite-solid/config'
+import { hydration } from 'virtual:vike-lite/config'
 import { hydrate, render } from 'solid-js/web'
 import { matchRoute } from 'vike-lite/__internal/shared'
 
