@@ -7,12 +7,15 @@ You need to install both `vike-lite-solid` and the official Vite plugin for Soli
 ```sh
 # npm
 npm install -D vike-lite-solid vite-plugin-solid
+npm install solid-js
 
 # pnpm
 pnpm add -D vike-lite-solid vite-plugin-solid
+pnpm add solid-js
 
 # yarn
 yarn add -D vike-lite-solid vite-plugin-solid
+yarn add solid-js
 ```
 
 ### 📖 Usage
