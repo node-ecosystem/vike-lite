@@ -81,4 +81,3 @@ const server = createServer(async (req, res) => {
 })
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000
 server.listen(port, () => { console.log(`\n\u{1B}[32m🚀 Server is running at http://localhost:${port}\u{1B}[0m\n`) })
-export default {}

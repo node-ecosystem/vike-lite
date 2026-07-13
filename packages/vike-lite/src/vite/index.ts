@@ -279,9 +279,12 @@ export default function routerPlugin({
             + `export{default}from'${serverEntryPath}';`
         }
         // Default server entry for PROD
-        const defaultServerEntry = fs.readFileSync(path.resolve(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
-        return `import '${VIRTUAL.setup}';`
+        const defaultServerEntry = process.env.NODE_ENV === 'production'
+          ? fs.readFileSync(path.resolve(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
+          : `import{renderPage}from'vike-lite/server'`
+        return `import'${VIRTUAL.setup}'`
           + defaultServerEntry
+          + 'export default{fetch:renderPage}'
       }
 
       if (id === RESOLVED.entryPrerender) {
