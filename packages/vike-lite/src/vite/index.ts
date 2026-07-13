@@ -50,8 +50,8 @@ export default function routerPlugin({
     manifest: 'virtual:vike-lite/client-manifest',
     client: 'virtual:vike-lite/client',
     server: 'virtual:vike-lite/server',
-    entryClient: 'virtual:vike-lite/entry-client',
     setup: 'virtual:vike-lite/setup',
+    entryClient: 'virtual:vike-lite/entry-client',
     entryServer: 'virtual:vike-lite/entry-server',
     entryPrerender: 'virtual:vike-lite/entry-prerender'
   } as const
