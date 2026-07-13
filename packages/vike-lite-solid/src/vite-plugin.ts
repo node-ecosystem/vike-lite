@@ -59,7 +59,7 @@ export default function vikeLiteSolid({
         return `export const onRenderClient=()=>import('vike-lite-solid/__internal/client/onRenderClient');`
       }
       if (id === resolvedVirtualServerId) {
-        return `export { onRenderHtml } from 'vike-lite-solid/__internal/server/onRenderHtml';`
+        return `export{onRenderHtml}from'vike-lite-solid/__internal/server/onRenderHtml';`
       }
     }
   } satisfies Plugin
