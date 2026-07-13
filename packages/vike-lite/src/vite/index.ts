@@ -206,9 +206,10 @@ export default function routerPlugin({
         const isSSR = options!.ssr
 
         // Import the server rendering function from the bridge virtual module
-        let code = `import { onRenderHtml } from '${VIRTUAL.server}';\n`
-          + `export const config = { onRenderHtml };\n`
-          + `export const routes = [\n`
+        let code = `import{onRenderHtml}from'${VIRTUAL.server}';`
+          // eslint-disable-next-line unicorn/no-incorrect-template-string-interpolation
+          + `export const config={onRenderHtml};`
+          + `export const routes=[`
 
         for (const r of routes) {
           code += `{path:'${r.path}',page:'${r.page}',Page:()=>import('/${r.page}'),`
@@ -224,24 +225,22 @@ export default function routerPlugin({
           }
           code += '},'
         }
-        code += '];\n'
-
+        code += '];'
         if (errorRoute) {
           const e = errorRoute
           code += `export const errorRoute={path:'${e.path}',page:'${e.page}',Page:()=>import('/${e.page}'),`
           if (e.layout) code += `layout:'${e.layout}',Layout:()=>import('/${e.layout}'),`
           if (e.head) code += `head:'${e.head}',Head:()=>import('/${e.head}'),`
-          code += '};\n'
+          code += '};'
         } else {
-          code += 'export const errorRoute=null;\n'
+          code += 'export const errorRoute=null;'
         }
-
         return code
       }
 
       // Generate virtual manifest
       if (id === RESOLVED.manifest) {
-        if (!isProd || !options?.ssr) return 'export default {}'
+        if (!isProd || !options?.ssr) return 'export default{}'
         const manifestPath = path.join(viteConfigRoot, outDir, 'client/.vite/manifest.json')
         const manifestContent = fs.readFileSync(manifestPath, 'utf8')
         return `export default ${manifestContent}`
@@ -279,12 +278,12 @@ export default function routerPlugin({
             + `export{default}from'${serverEntryPath}';`
         }
         // Default server entry for PROD
-        const defaultServerEntry = process.env.NODE_ENV === 'production'
+        const defaultServerEntry = isProd
           ? fs.readFileSync(path.resolve(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
-          : `import{renderPage}from'vike-lite/server'`
-        return `import'${VIRTUAL.setup}'`
+          : `import{renderPage}from'vike-lite/server'\n`
+        return `import'${VIRTUAL.setup}'\n`
           + defaultServerEntry
-          + 'export default{fetch:renderPage}'
+          + 'export default{fetch:renderPage}\n'
       }
 
       if (id === RESOLVED.entryPrerender) {
