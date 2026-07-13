@@ -3,6 +3,7 @@ import pluginTypescript from 'typescript-eslint'
 import pluginUnicorn from 'eslint-plugin-unicorn'
 import react from 'eslint-plugin-react'
 import pluginSolid from 'eslint-plugin-solid/configs/typescript'
+import vue from 'eslint-plugin-vue'
 
 export default defineConfig(
   {
@@ -40,5 +41,9 @@ export default defineConfig(
   {
     files: ['packages/vike-lite-solid/**/*.{ts,tsx}'],
     extends: [pluginSolid]
+  },
+  {
+    plugins: { vue },
+    files: ['packages/vike-lite-vue/**/*.ts']
   }
 )
