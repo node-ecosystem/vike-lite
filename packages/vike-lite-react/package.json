@@ -15,12 +15,12 @@
       "import": "./dist/vite.mjs"
     },
     "./__internal/client/onRenderClient": {
-      "types": "./src/__internal/client/onRenderClient.tsx",
-      "import": "./src/__internal/client/onRenderClient.tsx"
+      "types": "./dist/__internal/client/onRenderClient.d.mts",
+      "import": "./dist/__internal/client/onRenderClient.mjs"
     },
     "./__internal/server/onRenderHtml": {
-      "types": "./src/__internal/server/onRenderHtml.tsx",
-      "import": "./src/__internal/server/onRenderHtml.tsx"
+      "types": "./dist/__internal/server/onRenderHtml.d.mts",
+      "import": "./dist/__internal/server/onRenderHtml.mjs"
     }
   },
   "repository": {
@@ -32,8 +32,7 @@
     "url": "https://github.com/node-ecosystem/vike-lite-react/issues"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "tsc": "tsc --noEmit",
