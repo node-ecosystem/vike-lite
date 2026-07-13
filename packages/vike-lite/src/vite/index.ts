@@ -251,7 +251,7 @@ export default function routerPlugin({
         // Import the client rendering function from the bridge virtual module
         return `import{routes,errorRoute}from'${VIRTUAL.routes}';`
           + `import{onRenderClient}from'${VIRTUAL.client}';`
-          + `await (await onRenderClient()).default({routes,errorRoute});`
+          + `await(await onRenderClient()).default({routes,errorRoute});`
       }
 
       if (id === RESOLVED.setup) {
