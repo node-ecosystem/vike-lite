@@ -378,7 +378,7 @@ export default function routerPlugin({
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
         } else throw new Error(`[vike-lite] ❌ SSG JSON Error for "${jsonTarget}"`)
 
-        console.log(`  └─ ${urlPath}`)
+        console.log(`  → ${urlPath}`)
         generatedCount++
       }
       console.log(`[vike-lite] ✨ SSG Completed! Generated ${generatedCount} static routes`)
