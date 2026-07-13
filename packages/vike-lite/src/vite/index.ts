@@ -279,11 +279,11 @@ export default function routerPlugin({
             + `export{default}from'${serverEntryPath}';`
         }
         // Default server entry for PROD
-        const defaultServerEntry = isProd
+        const defaultServerEntryContent = isProd
           ? fs.readFileSync(path.resolve(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
           : `import{renderPage}from'vike-lite/server'\n`
         return `import'${VIRTUAL.setup}'\n`
-          + defaultServerEntry
+          + defaultServerEntryContent
           + 'export default{fetch:renderPage}\n'
       }
 
