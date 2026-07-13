@@ -32,7 +32,8 @@
     "url": "https://github.com/node-ecosystem/vike-lite-react/issues"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "tsc": "tsc --noEmit",
