@@ -255,9 +255,10 @@ export default function routerPlugin({
       }
 
       if (id === RESOLVED.setup) {
+        const manifestContent = isProd ? `(await import('${VIRTUAL.manifest}')).default` : 'null'
         return `import{routes,errorRoute,config}from'${VIRTUAL.routes}';`
           + `import{setVikeState}from'vike-lite/__internal/server';`
-          + `const manifest=process.env.NODE_ENV==='production'?(await import('${VIRTUAL.manifest}')).default:null;`
+          + `const manifest=${manifestContent};`
           + `setVikeState({routes,errorRoute,config,manifest});`
       }
 
