@@ -8,7 +8,8 @@ export default {
     '__internal/client/onRenderClient': 'src/__internal/client/onRenderClient.ts',
     '__internal/server/onRenderHtml': 'src/__internal/server/onRenderHtml.ts'
   },
-  platform: 'neutral',
-  plugins: [Vue({ isProduction: true })],
-  dts: { vue: true }
+  deps: {
+    neverBundle: [/^virtual:/]
+  },
+  plugins: [Vue({ isProduction: true })]
 } satisfies UserConfig
