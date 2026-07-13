@@ -38,7 +38,7 @@ function computeAssets(route: typeof store.routes[number], nonce?: string) {
   if (!isProd) return {
     cssLinks: '',
     jsPreloads: '',
-    entryClient: withBase('@id/virtual:entry-client')
+    entryClient: withBase('@id/virtual:vike-lite/entry-client')
   }
 
   const cssFiles = new Set<string>()
