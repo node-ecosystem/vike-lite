@@ -73,7 +73,7 @@ export default function vikeLite({
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
 
       return {
-        // Fix white page issue: Disable Vite's internal HTML middleware      
+        // Fix white page issue: Disable Vite's internal HTML middleware
         appType: 'custom',
         ssr: {
           // Solution to https://github.com/vikejs/vike/issues/3070
