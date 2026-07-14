@@ -5,6 +5,7 @@ The official SolidJS integration for `vike-lite`. It provides seamless Server-Si
 
 ### ⚙️ Install
 You need to install both `vike-lite-solid` and the official Vite plugin for SolidJS (`vite-plugin-solid`).
+
 ```sh
 # npm
 npm install -D vike-lite-solid vite-plugin-solid
@@ -19,7 +20,7 @@ yarn add -D vike-lite-solid vite-plugin-solid
 yarn add solid-js
 ```
 
-### ⚙️ Vite Plugin
+### 🛠️ Vite Plugin
 Add the plugin to your `vite.config`.
 
 ```ts

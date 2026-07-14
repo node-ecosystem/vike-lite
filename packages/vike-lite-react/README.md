@@ -20,7 +20,7 @@ yarn add -D vike-lite-react @vitejs/plugin-react
 yarn add react react-dom
 ```
 
-### ⚙️ Vite Plugin
+### 🛠️ Vite Plugin
 
 ```ts
 // vite.config.ts

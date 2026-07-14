@@ -20,7 +20,7 @@ yarn add -D vike-lite-vue @vitejs/plugin-vue
 yarn add vue
 ```
 
-### ⚙️ Vite Plugin
+### 🛠️ Vite Plugin
 Add the plugin to your `vite.config`.
 
 ```ts
