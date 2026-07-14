@@ -25,11 +25,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/node-ecosystem/vike-lite-react.git"
+    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
   },
-  "homepage": "https://github.com/node-ecosystem/vike-lite-react#readme",
+  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
   "bugs": {
-    "url": "https://github.com/node-ecosystem/vike-lite-react/issues"
+    "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
   "files": [
     "dist"
