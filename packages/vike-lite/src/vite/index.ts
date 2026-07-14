@@ -115,7 +115,7 @@ export default function vikeLite({
                       // by Vite/Rollup and wouldn't otherwise be bounded by path separators like real file paths.
                       {
                         name: 'framework',
-                        test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|@solidjs)[\\/]|^\0virtual:vike-lite\/(setup|renderer)$/,
+                        test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|vue|@vue|react|react-dom)[\\/]|^\0virtual:vike-lite\/(setup|renderer)$/,
                         priority: 30
                       },
                       // Vendor: rest of the dependencies — separate from the framework
