@@ -1,4 +1,5 @@
-# vike-lite-vue
+# Vike Lite Vue
+<a href="https://npmjs.com/package/vike-lite-vue"><img src="https://img.shields.io/npm/v/vike-lite-vue.svg" alt="npm package"></a>
 
 The official Vue integration for `vike-lite`. It provides seamless Server-Side Rendering (SSR), Static Site Generation (SSG), and client hydration out of the box, with a focus on minimalism and performance.
 

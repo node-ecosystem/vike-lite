@@ -1,4 +1,4 @@
-# Monorepo of `vike-lite`
+# Monorepo of Vike Lite
 
 Vike Lite (pronounced _/vaɪk laɪt/_) is a _light_ web framework inspired by [Vike](https://vike.dev).
 

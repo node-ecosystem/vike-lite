@@ -1,4 +1,5 @@
-# vike-lite-react
+# Vike Lite React
+<a href="https://npmjs.com/package/vike-lite-react"><img src="https://img.shields.io/npm/v/vike-lite-react.svg" alt="npm package"></a>
 
 The official React integration for `vike-lite`. It provides seamless Server-Side Rendering (SSR), Static Site Generation (SSG), and client hydration out of the box, with a focus on minimalism and performance.
 

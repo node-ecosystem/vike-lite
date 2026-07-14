@@ -1,4 +1,5 @@
-# vike-lite
+# Vike Lite
+<a href="https://npmjs.com/package/vike-lite"><img src="https://img.shields.io/npm/v/vike-lite.svg" alt="npm package"></a>
 
 A lightweight, fast, and minimal framework for Server-Side Rendering (SSR) and Static Site Generation (SSG) inspired by [Vike](https://vike.dev).
 

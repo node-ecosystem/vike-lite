@@ -1,4 +1,5 @@
-# vike-lite-solid
+# Vike Lite Solid
+<a href="https://npmjs.com/package/vike-lite-solid"><img src="https://img.shields.io/npm/v/vike-lite-solid.svg" alt="npm package"></a>
 
 The official SolidJS integration for `vike-lite`. It provides seamless Server-Side Rendering (SSR), Static Site Generation (SSG), and client hydration out of the box, with a focus on minimalism and performance.
 
