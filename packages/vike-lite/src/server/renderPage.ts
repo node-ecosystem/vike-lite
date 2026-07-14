@@ -114,7 +114,8 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
       const dataFn = (dataMod.data ?? dataMod.default)!
       pageContext.data = await dataFn(pageContext)
     } catch (error) {
-      console.error('+data hook failed at:', urlPathname)
+      if (!(error instanceof AbortRedirect || error instanceof AbortRender))
+        console.error('+data hook failed at:', urlPathname)
       throw error
     }
   }
@@ -124,7 +125,8 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
       const titleFn = titleMod.title ?? titleMod.default
       pageContext.title = typeof titleFn === 'function' ? titleFn(pageContext) : titleFn
     } catch (error) {
-      console.error('+title hook failed at:', urlPathname)
+      if (!(error instanceof AbortRedirect || error instanceof AbortRender))
+        console.error('+title hook failed at:', urlPathname)
       throw error
     }
   }
@@ -142,7 +144,6 @@ async function renderErrorPage(
   let errorMessage
   let is500
   if (status === 500) {
-    console.error(`[vike-lite] Server Error:`, error)
     errorMessage = isProd ? 'Internal Server Error' : (error instanceof Error ? error.message : 'Unknown error')
     is500 = true
   } else is500 = false
