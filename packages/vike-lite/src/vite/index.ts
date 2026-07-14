@@ -247,7 +247,8 @@ export default function vikeLite({
 
       // Generate virtual manifest
       if (id === RESOLVED.manifest) {
-        if (!isProd || !options?.ssr) return 'export default{}'
+        const isSSR = options!.ssr
+        if (!isProd || !isSSR) return 'export default{}'
         const manifestPath = path.join(viteConfigRoot, outDir, 'client/.vite/manifest.json')
         const manifestContent = fs.readFileSync(manifestPath, 'utf8')
         return `export default ${manifestContent}`
