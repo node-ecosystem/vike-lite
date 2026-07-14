@@ -16,31 +16,9 @@ function withBase(file: string): string {
 
 // 2D Map: Route -> Nonce -> Assets
 // WeakMap avoids memory leaks if the routes array changes (e.g. in DEV, even though we are in PROD)
-const assetsCache = new WeakMap<typeof store.routes[number], Map<string, ReturnType<typeof computeAssets>>>()
+const assetsCache = new WeakMap<typeof store.routes[number], ReturnType<typeof computeAssetFiles>>()
 
-function getAssets(route: typeof store.routes[number], nonce?: string) {
-  if (!isProd) return computeAssets(route, nonce) // In DEV compute every time
-  const nonceKey = nonce || ''
-  let routeCache = assetsCache.get(route)
-  if (!routeCache) {
-    routeCache = new Map()
-    assetsCache.set(route, routeCache)
-  }
-  let assets = routeCache.get(nonceKey)
-  if (!assets) {
-    assets = computeAssets(route, nonce)
-    routeCache.set(nonceKey, assets)
-  }
-  return assets
-}
-
-function computeAssets(route: typeof store.routes[number], nonce?: string) {
-  if (!isProd) return {
-    cssLinks: '',
-    jsPreloads: '',
-    entryClient: withBase('@id/virtual:vike-lite/entry-client')
-  }
-
+function computeAssetFiles(route: typeof store.routes[number]) {
   const cssFiles = new Set<string>()
   // Map file -> isCritical. Allows upgrading shared→critical, but not the other way around.
   const jsFiles = new Map<string, boolean>()
@@ -54,17 +32,13 @@ function computeAssets(route: typeof store.routes[number], nonce?: string) {
   function collectAssets(key: string, isCritical: boolean) {
     const chunk = manifest![key]
     if (!chunk) return
-
     const current = jsFiles.get(chunk.file)
-
     // Skip cases
     if (current === true) return  // Already critical: no upgrade needed
     if (current === false && !isCritical) return  // Already shared AND new call is also shared: no change
-
     // Otherwise: either first time seeing this file, OR upgrading shared→critical
     jsFiles.set(chunk.file, isCritical)
     if (chunk.css) for (const css of chunk.css) cssFiles.add(css)
-
     // Transitive imports are always shared (they are cross-cutting dependencies)
     // (vendor/framework/other pages), likely already in cache after
     // the first navigation. No dependency on chunk names.
@@ -85,15 +59,38 @@ function computeAssets(route: typeof store.routes[number], nonce?: string) {
     (isCritical ? criticalJs : sharedJs).push(file)
   }
 
-  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
-
   return {
-    cssLinks: [...cssFiles].map(href => `<link rel="stylesheet" href="${withBase(href)}"${nonceAttr}>`).join(''),
+    cssFiles: [...cssFiles],
+    criticalJs,
+    sharedJs,
+    entryClientFile: manifest![virtualEntryClientKey].file
+  }
+}
+
+function getAssets(route: typeof store.routes[number], nonce?: string) {
+  if (!isProd) {
+    return {
+      cssLinks: '',
+      jsPreloads: '',
+      entryClient: withBase('@id/virtual:vike-lite/entry-client')
+    }
+  }
+
+  // Cache hit/miss ONLY file names — never the nonce
+  let files = assetsCache.get(route)
+  if (!files) {
+    files = computeAssetFiles(route)!
+    assetsCache.set(route, files)
+  }
+  // nonce is injected in the HTML tags on every request, so it can be different for each request — never cached
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
+  return {
+    cssLinks: files.cssFiles.map(href => `<link rel="stylesheet" href="${withBase(href)}"${nonceAttr}>`).join(''),
     jsPreloads: [
-      ...criticalJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin fetchpriority="high"${nonceAttr}>`),
-      ...sharedJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin${nonceAttr}>`)
+      ...files.criticalJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin fetchpriority="high"${nonceAttr}>`),
+      ...files.sharedJs.map(href => `<link rel="modulepreload" href="${withBase(href)}" crossorigin${nonceAttr}>`)
     ].join(''),
-    entryClient: withBase(manifest![virtualEntryClientKey].file)
+    entryClient: withBase(files.entryClientFile)
   }
 }
 
