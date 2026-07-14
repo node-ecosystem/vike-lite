@@ -63,7 +63,7 @@ export default function vikeLite({
     config(config, { mode }) {
       // Inject environment variables from .env files in process.env
       const envDir = config.envDir || process.cwd()
-      const envVariables = loadEnv(mode, envDir)
+      const envVariables = loadEnv(mode, envDir, '')
       for (const key in envVariables) if (process.env[key] === undefined) process.env[key] = envVariables[key]
 
       outDir = config.build?.outDir ?? 'dist'
