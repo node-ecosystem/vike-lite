@@ -33,7 +33,7 @@
     "eslint-plugin-unicorn": "^71.1.0",
     "eslint-plugin-vue": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.63.0",
+    "typescript-eslint": "^8.64.0",
     "vue-eslint-parser": "^10.4.1"
   },
   "packageManager": "yarn@4.17.1",
