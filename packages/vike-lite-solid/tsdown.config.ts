@@ -11,5 +11,5 @@ export default {
   deps: {
     neverBundle: [/^virtual:/]
   },
-  plugins: [solid()]
+  plugins: [solid({ ssr: true })]
 } satisfies UserConfig
