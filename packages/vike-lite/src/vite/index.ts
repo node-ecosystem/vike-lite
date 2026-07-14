@@ -109,10 +109,17 @@ export default function vikeLite({
                   assetFileNames: 'assets/static/[name].[hash][extname]',
                   codeSplitting: {
                     groups: [
-                      // Framework: vike-lite + solid-js — changes rarely, very long cache
-                      // The 3rd alternative also matches vike-lite's own virtual modules (e.g. \0virtual:vike-lite/setup,
-                      // \0virtual:vike-lite/renderer, \0virtual:vike-lite/config), which are prefixed with \0
-                      // by Vite/Rollup and wouldn't otherwise be bounded by path separators like real file paths.
+                      // Framework: vike-lite + UI framework packages (solid-js, vue, react/react-dom) —
+                      // changes rarely, very long cache.
+                      // The 3rd alternative matches ONLY vike-lite's internal bootstrap/bridge virtual
+                      // modules (\0virtual:vike-lite/setup, \0virtual:vike-lite/renderer) — never its
+                      // entry points (\0virtual:vike-lite/entry-client, \0virtual:vike-lite/entry-server,
+                      // \0virtual:vike-lite/entry-prerender) or data modules (\0virtual:vike-lite/routes,
+                      // \0virtual:vike-lite/client-manifest). Those are prefixed with \0 by Vite/Rollup
+                      // and wouldn't otherwise be bounded by path separators like real file paths,
+                      // so the alternative is anchored with ^...$ to avoid accidentally absorbing the
+                      // entry chunk into this group (which would break isEntry detection in the manifest
+                      // and crash getVirtualEntryClientKey() in production).
                       {
                         name: 'framework',
                         test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|vue|@vue|react|react-dom)[\\/]|^\0virtual:vike-lite\/(setup|renderer)$/,
