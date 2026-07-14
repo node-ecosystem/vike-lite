@@ -9,7 +9,7 @@ import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { renderPage } from '../server'
 
-export default function routerPlugin({
+export default function vikeLite({
   pagesDir = 'pages',
   serverEntry = 'server/index',
   apiPrefix = '/api',
