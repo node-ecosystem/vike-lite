@@ -56,12 +56,25 @@ const COMMIT_REGEX = /^([a-zA-Z]+)(?:\([^)]+\))?(!?):\s*(.*)/
 const getBumpWeight = (type) => ({ major: 3, minor: 2, patch: 1, none: 0 }[type])
 
 async function main() {
-  const packages = fs.readdirSync(PACKAGES_DIR).filter(p => fs.statSync(path.join(PACKAGES_DIR, p)).isDirectory())
+  // Read the package name from the command line (e.g., "yarn release vike-lite")
+  const targetPackage = process.argv[2]
+
+  // Get all available packages
+  let packages = fs.readdirSync(PACKAGES_DIR).filter(p => fs.statSync(path.join(PACKAGES_DIR, p)).isDirectory())
+
+  if (targetPackage) {
+    if (!packages.includes(targetPackage)) {
+      throw new Error(`Package "${targetPackage}" not found in ${PACKAGES_DIR} directory.`)
+    }
+    packages = [targetPackage]
+    log(`🎯 Analyzing specific package: ${targetPackage}…`, colors.cyan)
+  } else {
+    log(`🔍 Analyzing all packages in the monorepo…`, colors.cyan)
+  }
+
   const bumpsInfo = []
 
   run('git fetch --tags origin')
-
-  log(`🔍 Analyzing packages in the monorepo…`, colors.cyan)
 
   for (const pkgName of packages) {
     const pkgPath = path.join(process.cwd(), PACKAGES_DIR, pkgName, 'package.json')
@@ -115,7 +128,7 @@ async function main() {
   }
 
   if (bumpsInfo.length === 0) {
-    log('No new features or fixes detected in the packages. No release necessary', colors.green)
+    log('No new features or fixes detected in the targeted package(s). No release necessary', colors.green)
     return
   }
 
