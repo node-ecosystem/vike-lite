@@ -6,7 +6,7 @@ function escapeRegex(str: string) {
 
 export function matchRoute(
   urlPathname: string,
-  routes: typeof import('virtual:vike-lite/routes').routes
+  routes: typeof import('virtual:routes').routes
 ) {
   for (const route of routes) {
     if (!route.path.includes(':')) {

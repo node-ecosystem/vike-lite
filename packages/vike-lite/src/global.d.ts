@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
 
-declare module 'virtual:vike-lite/routes' {
+declare module 'virtual:routes' {
   type Config = {
     onRenderClient: () => Promise<{ default: (opts: { routes: any[]; errorRoute: any }) => void }>
     onRenderHtml: (ctx: RenderContext) => Promise<string>
@@ -33,7 +33,7 @@ declare module 'virtual:vike-lite/routes' {
   export const errorRoute: RouteBase | null
 }
 
-declare module 'virtual:vike-lite/client-manifest' {
+declare module 'virtual:client-manifest' {
   import type { Manifest } from 'vite'
   const manifest: Manifest
   export default manifest
