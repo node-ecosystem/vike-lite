@@ -142,6 +142,7 @@ const url = useUrl()
 | **Reactivity Architecture** | _Single Source of Truth_ | _Separation of Concerns_ | `vike-lite-vue` keeps page data (`pageContext`) and the active UI (`view`: Page/Layout/Head) as two separate reactive atoms, so a data update doesn't force Vue to re-resolve which components are mounted, and vice versa.
 | **Accessibility (A11y)** | _Not_ handled by default | _Automatic_ handled | After a client-side navigation, `vike-lite-vue` moves the focus to `#root`. This significantly improves UX for keyboard navigation and screen readers.
 | `useData()` **Composable** | `getter` only | `[getter, setter]` | `vike-lite-vue` allows you to mutate the route data locally without needing other state managers.
+| URL parsed | [pageContext.urlParsed](https://vike.dev/pageContext#urlParsed) | [useUrl()](#useurl) | A dedicated hook, consistent with `vike-lite-vue`
 
 ---
 

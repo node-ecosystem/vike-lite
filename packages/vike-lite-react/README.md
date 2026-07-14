@@ -141,7 +141,7 @@ Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here a
 | **Reactivity Architecture** | _Single Source of Truth_ | _Separation of Concerns_ | `vike-lite-react` keeps page data (`pageContext`) and the active UI (`view`: Page/Layout/Head) as two separate `useState` atoms, so a data update doesn't force React to re-resolve which components are mounted, and vice versa.
 | **Accessibility (A11y)** | _Not_ handled by default | _Automatic_ handled | After a client-side navigation, `vike-lite-react` moves the focus to `#root`. This significantly improves UX for keyboard navigation and screen readers.
 | `useData()` **Hook** | `getter` only | `[getter, setter]` | `vike-lite-react` allows you to mutate the route data locally without needing other state managers.
-| URL parsed | manual `new URL(pageContext.urlOriginal)` | [useUrl()](#useurl) | A dedicated hook, consistent with `vike-lite-solid`.
+| URL parsed | [pageContext.urlParsed](https://vike.dev/pageContext#urlParsed) | [useUrl()](#useurl) | A dedicated hook, consistent with `vike-lite-react`
 
 ---
 

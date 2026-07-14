@@ -155,7 +155,7 @@ Why choose `vike-lite`? It's built to be as minimal and fast as possible. Here a
 | **Reactivity Architecture** | _Single Source of Truth_ | _Separation of Concerns_ | `vike-solid` serializes everything into a single massive `pageContext`. `vike-lite` separates the reactive state into 2 distinct entities (`pageContextStore` and `view`), taking advantage of Solid's [batch()](https://docs.solidjs.com/reference/reactive-utilities/batch) for blazing-fast atomic updates.
 | **Accessibility (A11y)** | _Not_ handled by default | _Automatic_ handled | After a client-side navigation, `vike-lite-solid` moves the focus away from the clicked `<a>` tag by focusing `#root`. This significantly improves UX for keyboard navigation and screen readers.
 | `useData()` **Hook** | `getter` only | `[getter, setter]` | `vike-lite-solid` allows you to mutate the route data locally without needing other state managers.
-| URL parsed | [pageContext.urlParsed](https://vike.dev/pageContext#urlParsed) | [useUrl()](#useurl) | TODO
+| URL parsed | [pageContext.urlParsed](https://vike.dev/pageContext#urlParsed) | [useUrl()](#useurl) | A dedicated hook, consistent with `vike-lite-solid`
 
 ---
 
