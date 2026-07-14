@@ -232,7 +232,6 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
     })
 
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })
-
   } catch (error) {
     if (error instanceof AbortRedirect) {
       // Add the base path if the URL is internal
