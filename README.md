@@ -9,10 +9,10 @@ Vike Lite (pronounced _/vaɪk laɪt/_) is a _light_ web framework inspired by [V
 ### 📦 Packages
 | Package | Description | Migration
 | - | - | -
-| [vike-lite](packages/vike-lite) | Core, inspired by [vike](https://github.com/vikejs/vike) | [Migration from `vike`](./packages/vike-lite/doc/MIGRATION.md)
-| [vike-lite-react](packages/vike-lite-react) | UI adapter for React, inspired by [vike-react](https://github.com/vikejs/vike-react) | [Migration from `vike-react`](./packages/vike-lite-solid/doc/MIGRATION.md)
-| [vike-lite-solid](packages/vike-lite-solid) | UI adapter for SolidJS, inspired by [vike-solid](https://github.com/vikejs/vike-solid) | [Migration from `vike-solid`](./packages/vike-lite-solid/doc/MIGRATION.md)
-| [vike-lite-vue](packages/vike-lite-vue) | UI adapter for Vue, inspired by [vike-vue](https://github.com/vikejs/vike-vue) | [Migration from `vike-vue`](./packages/vike-lite-vue/doc/MIGRATION.md)
+| [vike-lite](packages/vike-lite) | Core, inspired by [vike](https://github.com/vikejs/vike) | [From `vike`](./packages/vike-lite/doc/MIGRATION.md)
+| [vike-lite-react](packages/vike-lite-react) | UI adapter for React, inspired by [vike-react](https://github.com/vikejs/vike-react) | [From `vike-react`](./packages/vike-lite-solid/doc/MIGRATION.md)
+| [vike-lite-solid](packages/vike-lite-solid) | UI adapter for SolidJS, inspired by [vike-solid](https://github.com/vikejs/vike-solid) | [From `vike-solid`](./packages/vike-lite-solid/doc/MIGRATION.md)
+| [vike-lite-vue](packages/vike-lite-vue) | UI adapter for Vue, inspired by [vike-vue](https://github.com/vikejs/vike-vue) | [From `vike-vue`](./packages/vike-lite-vue/doc/MIGRATION.md)
 
 ### 📚 Templates
 - [Vike Lite + SolidJS + daisyUI + Hono](https://github.com/templates-ecosystem/template-vike-lite-solid-daisyui-hono)
