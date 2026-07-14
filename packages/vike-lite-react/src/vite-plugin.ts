@@ -32,7 +32,7 @@ export default function vikeLiteReact({ hydration = true, react: reactOptions }:
     },
     load(id) {
       if (id === resolvedVirtualConfigId) {
-        return `export const hydration=${JSON.stringify(hydration)};`
+        return `export const hydration=${hydration};`
       }
       if (id === resolvedVirtualClientId) {
         return 'export const onRenderClient=()=>import("vike-lite-react/__internal/client/onRenderClient");'
