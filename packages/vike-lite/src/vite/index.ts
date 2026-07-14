@@ -46,14 +46,14 @@ export default function vikeLite({
   let hasAnyPrerender: boolean
 
   const VIRTUAL = {
-    routes: 'virtual:routes',
-    manifest: 'virtual:client-manifest',
+    routes: 'virtual:vike-lite/routes',
+    manifest: 'virtual:vike-lite/client-manifest',
     client: 'virtual:vike-lite/client',
     server: 'virtual:vike-lite/server',
     setup: 'virtual:vike-lite/setup',
-    entryClient: 'virtual:entry-client',
-    entryServer: 'virtual:entry-server',
-    entryPrerender: 'virtual:entry-prerender'
+    entryClient: 'virtual:vike-lite/entry-client',
+    entryServer: 'virtual:vike-lite/entry-server',
+    entryPrerender: 'virtual:vike-lite/entry-prerender'
   } as const
   const VIRTUAL_VALUES = new Set<string>(Object.values(VIRTUAL))
   const RESOLVED = Object.fromEntries(Object.entries(VIRTUAL).map(([k, v]) => [k, `\0${v}`])) as { [K in keyof typeof VIRTUAL]: `\0${typeof VIRTUAL[K]}` }
@@ -94,7 +94,7 @@ export default function vikeLite({
                   format: 'esm',
                   // Prevents the entry chunk from bloating with all transitive imports
                   hoistTransitiveImports: false,
-                  // Entry point virtual:entry-client
+                  // Entry point virtual:vike-lite/entry-client
                   entryFileNames: 'assets/[name].[hash].js',
                   // Pages and shared chunks
                   chunkFileNames: (chunkInfo) => {
@@ -302,7 +302,7 @@ export default function vikeLite({
 
       // Import the built server module — this triggers setVikeState() as side-effect,
       // which is required for renderPage to know about routes/config
-      const serverModule = await import(pathToFileURL(prerenderPath).href) as { routes?: typeof import('virtual:routes').routes }
+      const serverModule = await import(pathToFileURL(prerenderPath).href) as { routes?: typeof import('virtual:vike-lite/routes').routes }
       const { routes } = serverModule
 
       // If routes is not exported, no SSG is needed (nothing to prerender)
