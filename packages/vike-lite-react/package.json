@@ -2,6 +2,14 @@
   "name": "vike-lite-react",
   "version": "1.0.2",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
+  },
+  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
+  "bugs": {
+    "url": "https://github.com/node-ecosystem/vike-lite/issues"
+  },
   "type": "module",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -22,14 +30,6 @@
       "types": "./dist/__internal/server/onRenderHtml.d.mts",
       "import": "./dist/__internal/server/onRenderHtml.mjs"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
-  },
-  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
-  "bugs": {
-    "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
   "files": [
     "dist"
