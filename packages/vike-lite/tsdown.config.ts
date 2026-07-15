@@ -9,5 +9,8 @@ export default {
     'server/abort': 'src/server/abort.ts',
     '__internal/shared': 'src/__internal/shared/index.ts',
     '__internal/server': 'src/__internal/server.ts'
-  }
+  },
+  copy: [
+    { from: 'src/vite/defaultServerEntry.mjs', to: 'dist/__internal/vite' }
+  ]
 } satisfies UserConfig

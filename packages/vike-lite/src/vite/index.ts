@@ -294,7 +294,7 @@ export default function vikeLite({
             + `import{renderPage}from'vike-lite/server';`
             + `export default{fetch:renderPage};`
         const defaultServerEntryContent = isProd
-          ? fs.readFileSync(path.join(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
+          ? fs.readFileSync(path.resolve('vike-lite/__internal/vite/defaultServerEntry.mjs'), 'utf8')
           : `import{renderPage}from'vike-lite/server';`
         return importSetup + defaultServerEntryContent + 'export default{fetch:renderPage};'
       }
