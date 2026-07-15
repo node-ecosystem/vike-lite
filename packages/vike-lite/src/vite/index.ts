@@ -275,17 +275,16 @@ export default function vikeLite({
       if (id === RESOLVED.entryServer) {
         if (serverEntry) {
           const basePath = path.join(viteConfigRoot, serverEntry)
+          const extensions = ['', '.ts', '.js', '.mjs']
           let serverEntryPath = ''
-          if (!fs.existsSync(basePath)) {
-            const extensions = ['.ts', '.js', '.mjs']
-            for (const ext of extensions) {
-              if (fs.existsSync(basePath + ext)) {
-                serverEntryPath = (basePath + ext)
-                break
-              }
+          for (const ext of extensions) {
+            const fullPath = basePath + ext
+            if (fs.existsSync(fullPath)) {
+              serverEntryPath = fullPath
+              break
             }
-            if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found`)
           }
+          if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry '${serverEntry}' file not found`)
           serverEntryPath = serverEntryPath.replaceAll('\\', '/')
           return importSetup
             + `export*from'${serverEntryPath}';`
