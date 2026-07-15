@@ -272,7 +272,7 @@ export default function vikeLite({
 
       if (id === RESOLVED.entryServer) {
         if (serverEntry) {
-          const basePath = path.resolve(viteConfigRoot, serverEntry)
+          const basePath = path.join(viteConfigRoot, serverEntry)
           let serverEntryPath = ''
           const extensions = ['.ts', '.js', '.mjs']
           for (const ext of extensions) {
@@ -288,7 +288,7 @@ export default function vikeLite({
         }
         // Default server entry for PROD
         const defaultServerEntryContent = isProd
-          ? fs.readFileSync(path.resolve(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
+          ? fs.readFileSync(path.join(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
           : `import{renderPage}from'vike-lite/server'\n`
         return `import'${VIRTUAL.setup}'\n`
           + defaultServerEntryContent
@@ -305,7 +305,7 @@ export default function vikeLite({
       if (!isProd || this.environment.name !== 'ssr') return
 
       const { pathToFileURL } = await import('node:url')
-      const prerenderPath = path.resolve(viteConfigRoot, outDir, 'server/prerender.mjs')
+      const prerenderPath = path.join(viteConfigRoot, outDir, 'server/prerender.mjs')
       if (!fs.existsSync(prerenderPath)) return
 
       // Import the built server module — this triggers setVikeState() as side-effect,
@@ -363,7 +363,7 @@ export default function vikeLite({
       const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
       let generatedCount = 0
 
-      const clientDir = path.resolve(viteConfigRoot, outDir, 'client')
+      const clientDir = path.join(viteConfigRoot, outDir, 'client')
 
       // Simulate requests and save HTML/JSON
       for (const urlPath of urlsToPrerender) {
@@ -394,7 +394,7 @@ export default function vikeLite({
     configureServer(server) {
       // Return a callback to run this middleware as last
       return () => {
-        const pagesPath = path.resolve(viteConfigRoot, pagesDir)
+        const pagesPath = path.join(viteConfigRoot, pagesDir)
         // DEV server watcher to invalidate the virtual module and trigger a full reload when pages are added or removed
         server.watcher.on('all', (event, file) => {
           if (!((event === 'add' || event === 'unlink') && file.startsWith(pagesPath))) return
