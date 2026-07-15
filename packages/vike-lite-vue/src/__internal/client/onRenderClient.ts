@@ -1,5 +1,5 @@
-import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured } from 'vue'
-import type { PageContext } from 'vike-lite'
+import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
+import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
 import { hydration } from 'virtual:vike-lite/config'
@@ -17,19 +17,22 @@ interface RouterProps {
   routes: VikeState['routes']
   errorRoute: VikeState['errorRoute']
   initialView: ViewComponents
-  initialContext: PageContext
+  initialContext: PageContextClient
   initialUrl: string
 }
 
 const RouterApp = defineComponent<RouterProps>((props) => {
-  const pageContext = reactive<PageContext>({ ...props.initialContext })
+  const pageContext = reactive<PageContextClient>({ ...props.initialContext })
+
+  provide(pageContextInjectionKey, { pageContext })
+
   const view = ref<ViewComponents>(props.initialView)
   const currentUrl = ref(props.initialUrl)
   const currentPathname = ref(props.initialContext.urlPathname)
   const reloadTick = ref(0)
 
   const shouldScrollToTop = { value: false }
-  const pendingContextOverride = { value: null as Partial<PageContext> | null }
+  const pendingContextOverride = { value: null as Partial<PageContextClient> | null }
   const reloadResolvers: Array<() => void> = []
   let isFirstRun = true
   let abortController: AbortController | null = null
@@ -37,10 +40,12 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
   const matchedRoute = computed(() => matchRoute(currentPathname.value, props.routes))
 
-  function setPageContext(next: Partial<PageContext>) {
-    // reactive() requires property assignments, not object reassignment —
-    // clear and reassign to achieve the same effect as reconcile() in Solid
-    for (const key of Object.keys(pageContext)) delete (pageContext as any)[key]
+  function setPageContext(next: Partial<PageContextClient>) {
+    // Optimization: We only remove old keys that are not in the new state
+    // This prevents temporarily deleting keys and breaking child computed properties
+    for (const key of Object.keys(pageContext)) {
+      if (!(Object.hasOwn(next, key))) delete (pageContext as any)[key]
+    }
     Object.assign(pageContext, next)
   }
 
@@ -80,7 +85,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       setPageContext({
         urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
         is404, is500: !is404, errorMessage: message
-      } as PageContext)
+      } as PageContextClient)
       view.value = {
         Page: ErrorPageMod.Page ?? ErrorPageMod.default,
         Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
@@ -145,7 +150,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         ...(ctx?.data && { data: ctx.data }),
         ...(ctx?.title && { title: ctx.title }),
         ...contextOverride
-      } as PageContext)
+      } as PageContextClient)
       view.value = {
         Page: PageMod.Page ?? PageMod.default,
         Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
@@ -230,7 +235,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     }
 
     const handleProgrammaticNavigate = (e: Event) => {
-      const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContext> }>).detail || {}
+      const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContextClient> }>).detail || {}
       if (!detail.keepScrollPosition) shouldScrollToTop.value = true
       if (detail.pageContext) pendingContextOverride.value = detail.pageContext
       currentUrl.value = globalThis.location.href
@@ -284,35 +289,45 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     if (renderError.value) return h('div', `Error: ${renderError.value.message}`)
     const { Page, Layout } = view.value
     if (!Page) return null
-    return h('div', [
-      Layout ? h(Layout, null, { default: () => h(Page) }) : h(Page)
-    ])
+    return Layout ? h(Layout, null, { default: () => h(Page) }) : h(Page)
   }
 }, { props: ['routes', 'errorRoute', 'initialView', 'initialContext', 'initialUrl'] })
 
 export default async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'] }) {
   const container = document.querySelector('#root') as HTMLDivElement
-  const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContext)
+  const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
   const isHydration = hydration && !!globalThis.__PAGE_CONTEXT__
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
 
-  if (isHydration) {
-    const pathname = initialContext.urlPathname ?? globalThis.location.pathname
-    const matched = matchRoute(pathname, clientOptions.routes)
-    if (matched) {
+  if (isHydration)
+    if ((initialContext.is404 || initialContext.is500) && clientOptions.errorRoute) {
       const [PageMod, LayoutMod, HeadMod] = await Promise.all([
-        matched.route.Page(),
-        matched.route.Layout?.() ?? null,
-        matched.route.Head?.() ?? null
+        clientOptions.errorRoute.Page(),
+        clientOptions.errorRoute.Layout?.() ?? null,
+        clientOptions.errorRoute.Head?.() ?? null
       ])
       initialView = {
         Page: PageMod.Page ?? PageMod.default,
         Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
         Head: HeadMod?.Head ?? HeadMod?.default ?? null
       }
+    } else {
+      const pathname = initialContext.urlPathname ?? globalThis.location.pathname
+      const matched = matchRoute(pathname, clientOptions.routes)
+      if (matched) {
+        const [PageMod, LayoutMod, HeadMod] = await Promise.all([
+          matched.route.Page(),
+          matched.route.Layout?.() ?? null,
+          matched.route.Head?.() ?? null
+        ])
+        initialView = {
+          Page: PageMod.Page ?? PageMod.default,
+          Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
+          Head: HeadMod?.Head ?? HeadMod?.default ?? null
+        }
+      }
     }
-  }
 
   const app = createSSRApp(RouterApp, {
     ...clientOptions,
@@ -320,7 +335,6 @@ export default async function onRenderClient(clientOptions: { routes: VikeState[
     initialContext,
     initialUrl: globalThis.location.href
   })
-  app.provide(pageContextInjectionKey, { pageContext: reactive(initialContext) })
 
   if (!isHydration) container.replaceChildren()
   app.mount(container)
