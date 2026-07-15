@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import type { RenderContext } from 'vike-lite/__internal/shared'
-import { hydration } from 'virtual:vike-lite/renderer'
+import { hydration } from 'virtual:vike-lite/config'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
 
