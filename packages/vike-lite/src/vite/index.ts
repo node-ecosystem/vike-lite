@@ -285,6 +285,7 @@ export default function vikeLite({
             }
             if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found`)
           }
+          serverEntryPath = serverEntryPath.replaceAll('\\', '/')
           return importSetup
             + `export*from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
