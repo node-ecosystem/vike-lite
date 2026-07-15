@@ -1,4 +1,4 @@
-import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch } from 'vue'
+import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured } from 'vue'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
@@ -33,6 +33,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
   const reloadResolvers: Array<() => void> = []
   let isFirstRun = true
   let abortController: AbortController | null = null
+  const renderError = ref<Error | null>(null)
 
   const matchedRoute = computed(() => matchRoute(currentPathname.value, props.routes))
 
@@ -274,7 +275,13 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     loadRoute()
   })
 
+  onErrorCaptured((err) => {
+    renderError.value = err as Error
+    return false // stop propagation to avoid Vue's default error handling (which logs the error to console)
+  })
+
   return () => {
+    if (renderError.value) return h('div', `Error: ${renderError.value.message}`)
     const { Page, Layout } = view.value
     if (!Page) return null
     return h('div', [
