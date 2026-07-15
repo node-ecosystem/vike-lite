@@ -62,9 +62,8 @@ app.route('/api', apiRoutes)
 
 // 2. Catch-all remaining requests and pass them to vike-lite
 app.get('*', async (c, next) => {
-  const response = await renderPage(c.req.raw)
-  // If vike-lite successfully renders a page, return it. Otherwise, continue.
-  return response ?? next()
+  // renderPage will return a Node.js Response
+  return await renderPage(c.req.raw)
 })
 
 // 3. Error Handling

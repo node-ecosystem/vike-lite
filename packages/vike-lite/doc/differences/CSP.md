@@ -57,11 +57,11 @@ Hono / Cloudflare Workers:
 ```ts
 // server/index.ts
 // ...
-app.all('*', async (c, next) => {
+app.all('*', async (c) => {
   const nonce = randomUUID()
   const response = await renderPage(c.req.raw, { nonce })
   response.headers.set('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`)
-  return response ?? next()
+  return response
 })
 ```
 

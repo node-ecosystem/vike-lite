@@ -15,12 +15,11 @@ function withBase(file: string): string {
 }
 
 // 2D Map: Route -> Nonce -> Assets
-// WeakMap avoids memory leaks if the routes array changes (e.g. in DEV, even though we are in PROD)
+// WeakMap avoids memory leaks if the routes array changes
 const assetsCache = new WeakMap<typeof store.routes[number], ReturnType<typeof computeAssetFiles>>()
 
 function computeAssetFiles(route: typeof store.routes[number]) {
   const cssFiles = new Set<string>()
-  // Map file -> isCritical. Allows upgrading shared→critical, but not the other way around.
   const jsFiles = new Map<string, boolean>()
   const { manifest } = store
 
@@ -147,7 +146,11 @@ async function renderErrorPage(
     errorMessage = isProd ? 'Internal Server Error' : (error instanceof Error ? error.message : 'Unknown error')
     is500 = true
   } else is500 = false
-  if (!store.errorRoute) return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
+
+  const fallbackText = status === 404 ? 'Not Found' : 'Internal Server Error'
+
+  if (!store.errorRoute)
+    return new Response(fallbackText, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
 
   try {
     const [PageModule, HeadModule, LayoutModule] = await Promise.all([
@@ -176,14 +179,22 @@ async function renderErrorPage(
       nonce
     })
 
-    return new Response(html, { status, headers: { 'Content-Type': 'text/html' } })
+    return new Response(html, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
   } catch (renderError) {
     console.error('[vike-lite] Error page render failed:', renderError)
-    return new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status })
+    return new Response(fallbackText, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
   }
 }
 
-export async function renderPage(req: Request, { nonce }: { nonce?: string } = {}): Promise<Response> {
+export async function renderPage(
+  req: Request,
+  // Accepts additional keys because platforms like Vercel inject a default `context` object
+  // (e.g. { params: ... }) when you export GET/POST.
+  { nonce }: {
+    nonce?: string
+    [key: string]: any
+  } = {}
+): Promise<Response> {
   let { pathname } = new URL(req.url)
 
   // If we have a base path different from '/', we need to remove it from the pathname
@@ -191,7 +202,6 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
   if (BASE_URL !== '/') {
     const baseSlashed = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/'
     const baseNoSlash = baseSlashed.slice(0, -1)
-
     pathname = (pathname === baseNoSlash)
       // The user visits exactly '/my-app' (without trailing slash)
       ? '/'
@@ -199,7 +209,6 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
       : pathname.slice(baseSlashed.length - 1)
   }
 
-  // "pathname" is clean (e.g. "/about")
   const isJsonRequest = pathname.endsWith('.pageContext.json')
 
   let targetPathname = pathname
@@ -207,7 +216,6 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
     targetPathname = targetPathname.replace(/\.pageContext\.json$/, '')
     if (targetPathname === '/index') targetPathname = '/'
   }
-
   try {
     const resolved = await buildPageContext(targetPathname, req.url, isJsonRequest)
 
@@ -231,7 +239,7 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
       nonce
     })
 
-    return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } })
+    return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
   } catch (error) {
     if (error instanceof AbortRedirect) {
       // Add the base path if the URL is internal
@@ -249,6 +257,7 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
       // If it's the first load or SSR, use the native HTTP redirect
       return new Response(null, { status: error.statusCode, headers: { Location: redirectUrl } })
     }
+
     if (error instanceof AbortRender) {
       if (isJsonRequest) {
         // If the user is navigating in SPA mode and the +data.ts does "throw render(404)"
@@ -265,6 +274,7 @@ export async function renderPage(req: Request, { nonce }: { nonce?: string } = {
       // First load, render the error UI (with layout and styles)
       return renderErrorPage(req, error.statusCode, targetPathname, error.reason, nonce)
     }
+
     console.error('Render Error:', error)
     if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })
     return renderErrorPage(req, 500, targetPathname, error, nonce)
