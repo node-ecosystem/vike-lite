@@ -2,6 +2,37 @@
   "name": "vike-lite",
   "version": "1.14.1",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
+  },
+  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
+  "bugs": {
+    "url": "https://github.com/node-ecosystem/vike-lite/issues"
+  },
+  "keywords": [
+    "framework",
+    "lite",
+    "react",
+    "react-ssr",
+    "server-side-rendering",
+    "solid",
+    "solid-js",
+    "solid-ssr",
+    "solidjs",
+    "ssg",
+    "ssr",
+    "static-site-generator",
+    "vike",
+    "vike-lite",
+    "vite",
+    "vite-plugin",
+    "vite-ssr",
+    "vitejs",
+    "vue",
+    "vue-ssr",
+    "web-framework"
+  ],
   "type": "module",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -33,14 +64,6 @@
       "types": "./dist/__internal/server.d.mts",
       "import": "./dist/__internal/server.mjs"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/node-ecosystem/vike-lite.git"
-  },
-  "homepage": "https://github.com/node-ecosystem/vike-lite#readme",
-  "bugs": {
-    "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
   "files": [
     "dist"

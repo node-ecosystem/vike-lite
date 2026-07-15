@@ -10,6 +10,23 @@
   "bugs": {
     "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
+  "keywords": [
+    "framework",
+    "lite",
+    "server-side-rendering",
+    "ssg",
+    "ssr",
+    "static-site-generator",
+    "vike",
+    "vike-lite",
+    "vite",
+    "vite-plugin",
+    "vite-ssr",
+    "vitejs",
+    "vue",
+    "vue-ssr",
+    "web-framework"
+  ],
   "type": "module",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
