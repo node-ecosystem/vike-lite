@@ -30,28 +30,27 @@
     "web-framework"
   ],
   "type": "module",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "solid": "./src/index.ts",
+      "import": "./src/index.ts"
     },
     "./vite": {
       "types": "./dist/vite.d.mts",
       "import": "./dist/vite.mjs"
     },
     "./__internal/client/onRenderClient": {
-      "types": "./dist/__internal/client/onRenderClient.d.mts",
-      "import": "./dist/__internal/client/onRenderClient.mjs"
+      "solid": "./src/__internal/client/onRenderClient.tsx",
+      "import": "./src/__internal/client/onRenderClient.tsx"
     },
     "./__internal/server/onRenderHtml": {
-      "types": "./dist/__internal/server/onRenderHtml.d.mts",
-      "import": "./dist/__internal/server/onRenderHtml.mjs"
+      "solid": "./src/__internal/server/onRenderHtml.tsx",
+      "import": "./src/__internal/server/onRenderHtml.tsx"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "tsc": "tsc --noEmit",
@@ -61,7 +60,6 @@
     "@types/node": "^26.1.1",
     "solid-js": "^1.9.14",
     "tsdown": "^0.22.8",
-    "unplugin-solid": "^2.0.0",
     "vike-lite": "workspace:*",
     "vite": "^8.1.4",
     "vite-plugin-solid": "^2.11.12"
