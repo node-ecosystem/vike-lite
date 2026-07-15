@@ -69,7 +69,7 @@ export default function vikeLite({
 
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
-      viteConfigRoot = (config.root ? path.resolve(config.root) : process.cwd()).replaceAll('\\', '/')
+      viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
 
