@@ -10,7 +10,7 @@
       "DOM.Iterable",
       "ESNext"
     ],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "react",
     "module": "ESNext",
     "moduleResolution": "Bundler",
