@@ -28,9 +28,9 @@ export default {
   plugins: [
     vikeLite({
       pagesDir: 'pages',           // Default: Directory containing your pages
-      serverEntry: 'server/index', // Default: Custom server entry file
       apiPrefix: '/api',           // Default: Prefix to bypass SSR for API routes
       prerender: false             // Default: Enable SSG globally
+      serverEntry: 'server/index', // Default: unfedined value that allows to use a custom server entry file
     })
   ]
 } satisfies UserConfig

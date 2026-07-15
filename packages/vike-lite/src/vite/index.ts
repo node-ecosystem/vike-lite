@@ -11,9 +11,9 @@ import { renderPage } from '../server'
 
 export default function vikeLite({
   pagesDir = 'pages',
-  serverEntry = 'server/index',
   apiPrefix = '/api',
-  prerender = false
+  prerender = false,
+  serverEntry
 }: {
   /**
    * The directory where your page components are located.
@@ -21,13 +21,6 @@ export default function vikeLite({
    * @default 'pages'
    */
   pagesDir?: string
-  /**
-   * The entry point for your server application code.
-   * This is where you can define custom server logic, such as API routes or middleware.
-   * The build will produce dist/server/index.mjs, which is the entry point for your server application.
-   * @default 'server/index'
-   */
-  serverEntry?: string
   /**
    * The prefix for your API routes.
    * @default '/api'
@@ -39,6 +32,14 @@ export default function vikeLite({
    * @default false
    */
   prerender?: boolean
+  /**
+   * The entry point for your server application code.
+   * This is where you can define custom server logic, such as API routes or middleware.
+   * The build will produce dist/server/index.mjs, which is the entry point for your server application.
+   * If false disable the server entry.
+   * @default undefined
+  */
+  serverEntry?: string | false
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
@@ -57,7 +58,7 @@ export default function vikeLite({
   } as const
   const VIRTUAL_VALUES = new Set<string>(Object.values(VIRTUAL))
   const RESOLVED = Object.fromEntries(Object.entries(VIRTUAL).map(([k, v]) => [k, `\0${v}`])) as { [K in keyof typeof VIRTUAL]: `\0${typeof VIRTUAL[K]}` }
-
+  const importSetup = `import'${VIRTUAL.setup}';`
   return {
     name: 'vike-lite',
     config(config, { mode }) {
@@ -282,23 +283,21 @@ export default function vikeLite({
             }
           }
           if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry ${serverEntry} file not found`)
-          return `import '${VIRTUAL.setup}';`
-            + `export * from'${serverEntryPath}';`
+          return importSetup
+            + `export*from'${serverEntryPath}';`
             + `export{default}from'${serverEntryPath}';`
         }
-        // Default server entry for PROD
+        if (serverEntry === false)
+          return importSetup
+            + `import{renderPage}from'vike-lite/server';`
+            + `export default{fetch:renderPage};`
         const defaultServerEntryContent = isProd
           ? fs.readFileSync(path.join(viteConfigRoot, 'defaultServerEntry.mjs'), 'utf8')
-          : `import{renderPage}from'vike-lite/server'\n`
-        return `import'${VIRTUAL.setup}'\n`
-          + defaultServerEntryContent
-          + 'export default{fetch:renderPage}\n'
+          : `import{renderPage}from'vike-lite/server';`
+        return importSetup + defaultServerEntryContent + 'export default{fetch:renderPage};'
       }
 
-      if (id === RESOLVED.entryPrerender) {
-        return `import'${VIRTUAL.setup}';`
-          + `export{routes}from'${VIRTUAL.routes}';`
-      }
+      if (id === RESOLVED.entryPrerender) return importSetup + `export{routes}from'${VIRTUAL.routes}';`
     },
     // Run SSG at end of the build
     async closeBundle() {
