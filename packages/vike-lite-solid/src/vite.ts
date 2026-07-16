@@ -50,8 +50,8 @@ export default function vikeLiteSolid({
     },
     load(id) {
       if (id === resolvedVirtualClientId) {
-        return 'export const onRenderClient = async () => {' +
-          +'const mod = await import("vike-lite-solid/__internal/client/onRenderClient");'
+        return 'export const onRenderClient = async () => {'
+          + 'const mod = await import("vike-lite-solid/__internal/client/onRenderClient");'
           + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
           + '}'
       }

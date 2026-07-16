@@ -29,8 +29,8 @@ export default function vikeLiteReact({ hydration = true, react: reactOptions }:
     },
     load(id) {
       if (id === resolvedVirtualClientId) {
-        return 'export const onRenderClient = async () => {' +
-          +'const mod = await import("vike-lite-react/__internal/client/onRenderClient");'
+        return 'export const onRenderClient = async () => {'
+          + 'const mod = await import("vike-lite-react/__internal/client/onRenderClient");'
           + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
           + '}'
       }
