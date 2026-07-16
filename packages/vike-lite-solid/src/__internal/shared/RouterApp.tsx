@@ -3,7 +3,7 @@ import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import { createLinkClickHandler, createLinkPrefetchHandler } from 'vike-lite/__internal/client'
+import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from './PageContextProvider'
@@ -148,19 +148,6 @@ export function RouterApp(props: RouterProps): JSX.Element {
         const contextOverride = pendingContextOverride
         pendingContextOverride = null
 
-        // Scroll only when the content is ready
-        function finalizeNavigation() {
-          if (shouldScrollToTop) {
-            globalThis.scrollTo(0, 0)
-            shouldScrollToTop = false
-          } else if (globalThis.location.hash) {
-            // If there's a hash in the URL, wait for the new DOM to be physically on screen
-            // and try to scroll to the element
-            requestAnimationFrame(() => {
-              try { document.querySelector<HTMLElement>(decodeURIComponent(globalThis.location.hash))?.scrollIntoView() } catch { }
-            })
-          }
-        }
         const renderErrorPage = async (is404: boolean, message?: string) => {
           if (!props.errorRoute) return
           // Fetch the error page components instead of the normal ones
@@ -182,7 +169,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             })
           })
           document.title = is404 ? 'Not Found' : 'Server Error'
-          finalizeNavigation()
+          finalizeNavigation(shouldScrollToTop)
         }
 
         //  Native 404 fallback if the route doesn't exist on the Client
@@ -273,7 +260,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             document.querySelector<HTMLDivElement>('#root')!.focus({ preventScroll: true })
           })
 
-          finalizeNavigation()
+          finalizeNavigation(shouldScrollToTop)
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return

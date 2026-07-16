@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, type Reac
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import { createLinkClickHandler, createLinkPrefetchHandler } from 'vike-lite/__internal/client'
+import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
@@ -140,17 +140,6 @@ function RouterApp(props: RouterProps) {
       const contextOverride = pendingContextOverride.current
       pendingContextOverride.current = null
 
-      function finalizeNavigation() {
-        if (shouldScrollToTop.current) {
-          globalThis.scrollTo(0, 0)
-          shouldScrollToTop.current = false
-        } else if (globalThis.location.hash) {
-          requestAnimationFrame(() => {
-            try { document.querySelector<HTMLElement>(decodeURIComponent(globalThis.location.hash))?.scrollIntoView() } catch { }
-          })
-        }
-      }
-
       const renderErrorPage = async (is404: boolean, message?: string) => {
         if (!props.errorRoute) return
         const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
@@ -175,7 +164,7 @@ function RouterApp(props: RouterProps) {
           Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
         })
         document.title = is404 ? 'Not Found' : 'Server Error'
-        finalizeNavigation()
+        finalizeNavigation(shouldScrollToTop.current)
       }
 
       if (!matched) return renderErrorPage(true)
@@ -249,7 +238,7 @@ function RouterApp(props: RouterProps) {
           document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
         })
 
-        finalizeNavigation()
+        finalizeNavigation(shouldScrollToTop.current)
       } catch (error) {
         if ((error as Error).name === 'AbortError') return
 
