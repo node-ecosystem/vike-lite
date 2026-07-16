@@ -26,9 +26,9 @@ interface RouterProps {
 class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   static getDerivedStateFromError(error: Error) { return { error } }
 
-  state = { error: null as Error | null }
+  override state = { error: null as Error | null }
 
-  render() {
+  override render() {
     if (this.state.error) return <div>Error: {this.state.error.message}</div>
     return this.props.children
   }
