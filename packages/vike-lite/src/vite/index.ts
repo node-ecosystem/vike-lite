@@ -123,7 +123,7 @@ export default function vikeLite({
                       // detection in the manifest and crash getVirtualEntryClientKey() in production).
                       {
                         name: 'framework',
-                        test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|vue|@vue|react|react-dom)[\\/]|^\0virtual:vike-lite\/(setup|config|client|server)$/,
+                        test: /[\\/]vike-lite(?:-\w+)?[\\/]|[\\/](?:solid-js|vue|@vue|react|react-dom)[\\/]|^\0virtual:vike-lite\/(setup|client|server)$/,
                         priority: 30
                       },
                       // Vendor: rest of the dependencies — separate from the framework
