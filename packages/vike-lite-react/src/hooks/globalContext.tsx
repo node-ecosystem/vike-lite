@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext, type Context } from 'react'
 import type { PageContextClient } from 'vike-lite'
 
 export interface PageContextValue {
@@ -6,11 +6,9 @@ export interface PageContextValue {
   setPageContext: (updater: (prev: PageContextClient) => PageContextClient) => void
 }
 
-const KEY = '__vike_lite_react_context__'
-const g = globalThis as any
+type PageContextReactContext = Context<PageContextValue | null>
 
-if (!Object.hasOwn(g, KEY)) {
-  g[KEY] = createContext<PageContextValue | null>(null)
-}
+const KEY = Symbol.for('vike-lite-react:context')
 
-export const PageContextReactContext = g[KEY] as React.Context<PageContextValue | null>
+export const PageContextReactContext: PageContextReactContext =
+  (globalThis as { [KEY]?: PageContextReactContext | undefined })[KEY] ??= createContext<PageContextValue | null>(null)

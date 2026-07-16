@@ -40,4 +40,3 @@ declare module 'virtual:vike-lite/client-manifest' {
 }
 
 declare var __PAGE_CONTEXT__: import('./index').PageContextClient
-declare var _vike_lite: import('./server/store').VikeState
