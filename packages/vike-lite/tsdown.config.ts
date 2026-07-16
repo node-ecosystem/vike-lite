@@ -8,7 +8,8 @@ export default {
     'server': 'src/server/index.ts',
     'server/abort': 'src/server/abort.ts',
     '__internal/shared': 'src/__internal/shared/index.ts',
-    '__internal/server': 'src/__internal/server.ts'
+    '__internal/server': 'src/__internal/server.ts',
+    '__internal/client': 'src/__internal/client.ts'
   },
   copy: [
     { from: 'src/vite/defaultServerEntry.mjs', to: 'dist/__internal/vite' }

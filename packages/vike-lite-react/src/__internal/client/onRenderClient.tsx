@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, type Reac
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
+import { createLinkClickHandler, createLinkPrefetchHandler } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
@@ -56,20 +57,11 @@ function RouterApp(props: RouterProps) {
 
   // Link interception, prefetch, popstate, eventi programmatici
   useEffect(() => {
-    const handleLinkClick = (e: MouseEvent) => {
-      if (!(e.target instanceof Element)) return
-      const target = (e.target as HTMLElement).closest('a')
-      if (!target?.href || target.target === '_blank' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return
-      const url = new URL(target.href)
-      if (url.origin !== globalThis.location.origin) return
-      const isSamePage = url.pathname === globalThis.location.pathname && url.search === globalThis.location.search
-      if (isSamePage) return
-      e.preventDefault()
-      globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', url.href)
+    const handleLinkClick = createLinkClickHandler((url) => {
       if (!url.hash) shouldScrollToTop.current = true
       setCurrentUrl(url.href)
       setCurrentPathname(stripBase(url.pathname))
-    }
+    })
 
     const prefetchedModules = new Set<string>()
     function prefetchRoute(route: VikeState['routes'][number]) {
@@ -85,20 +77,11 @@ function RouterApp(props: RouterProps) {
       }
     }
 
-    const handleLinkPrefetch = (e: Event) => {
-      if (!(e.target instanceof Element)) return
-      const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('a')
-      if (!target?.href) return
-      if (target.target && target.target !== '_self') return
-      if (target.hasAttribute('download')) return
-      const url = new URL(target.href)
-      if (url.origin !== globalThis.location.origin) return
-      const isSamePage = url.pathname === globalThis.location.pathname && url.search === globalThis.location.search
-      if (isSamePage) return
-      const matched = matchRoute(stripBase(url.pathname), props.routes)
-      if (!matched) return
-      prefetchRoute(matched.route)
-    }
+    const handleLinkPrefetch = createLinkPrefetchHandler((url) => {
+      const pathname = stripBase(url.pathname)
+      const matched = matchRoute(pathname, props.routes)
+      if (matched) prefetchRoute(matched.route)
+    })
 
     const handlePopState = () => {
       setCurrentUrl(globalThis.location.href)
