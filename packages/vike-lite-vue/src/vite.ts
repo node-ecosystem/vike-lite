@@ -16,10 +16,8 @@ export default function vikeLiteVue({
    */
   vue?: Partial<VueOptions>
 } = {}): PluginOption[] {
-  const virtualConfigId = 'virtual:vike-lite/config'
   const virtualClientId = 'virtual:vike-lite/client'
   const virtualServerId = 'virtual:vike-lite/server'
-  const resolvedVirtualConfigId = '\0' + virtualConfigId
   const resolvedVirtualClientId = '\0' + virtualClientId
   const resolvedVirtualServerId = '\0' + virtualServerId
 
@@ -42,16 +40,15 @@ export default function vikeLiteVue({
       }
     },
     resolveId(id) {
-      if (id === virtualConfigId) return resolvedVirtualConfigId
       if (id === virtualClientId) return resolvedVirtualClientId
       if (id === virtualServerId) return resolvedVirtualServerId
     },
     load(id) {
-      if (id === resolvedVirtualConfigId) {
-        return `export const hydration=${hydration};`
-      }
       if (id === resolvedVirtualClientId) {
-        return `export const onRenderClient=()=>import('vike-lite-vue/__internal/client/onRenderClient');`
+        return 'export const onRenderClient = async () => {' +
+          +'const mod = await import("vike-lite-vue/__internal/client/onRenderClient");'
+          + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
+          + '}'
       }
       if (id === resolvedVirtualServerId) {
         return `export{onRenderHtml}from'vike-lite-vue/__internal/server/onRenderHtml';`

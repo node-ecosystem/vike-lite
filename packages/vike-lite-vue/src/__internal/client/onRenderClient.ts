@@ -2,7 +2,6 @@ import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, o
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
 import type { VikeState } from 'vike-lite/__internal/server'
-import { hydration } from 'virtual:vike-lite/config'
 
 import { pageContextInjectionKey } from '../../hooks/globalContext'
 import { stripBase } from '../shared/stripBase'
@@ -293,10 +292,10 @@ const RouterApp = defineComponent<RouterProps>((props) => {
   }
 }, { props: ['routes', 'errorRoute', 'initialView', 'initialContext', 'initialUrl'] })
 
-export default async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'] }) {
+export default async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'], hydration: boolean }) {
   const container = document.querySelector('#root') as HTMLDivElement
   const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
-  const isHydration = hydration && !!globalThis.__PAGE_CONTEXT__
+  const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
 

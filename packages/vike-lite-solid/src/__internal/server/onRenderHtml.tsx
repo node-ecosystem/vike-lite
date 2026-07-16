@@ -1,4 +1,3 @@
-import { hydration } from 'virtual:vike-lite/config'
 import { renderToStringAsync, NoHydration, generateHydrationScript, renderToString } from 'solid-js/web'
 import type { Component, ParentComponent } from 'solid-js'
 import type { RenderContext } from 'vike-lite/__internal/shared'
@@ -10,10 +9,11 @@ export interface SolidRenderContext extends RenderContext {
   Page: Component
   Head?: Component
   Layout?: ParentComponent
+  hydration: boolean
 }
 
 export async function onRenderHtml({
-  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets, nonce
+  pageContext, Page, Head, Layout, pageTitleTag, serializedContext, assets, nonce, hydration
 }: SolidRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
 

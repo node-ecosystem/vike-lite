@@ -1,11 +1,10 @@
-import { hydration } from 'virtual:vike-lite/config'
 import { hydrate, render } from 'solid-js/web'
 import { matchRoute } from 'vike-lite/__internal/shared'
 
 import { RouterApp, type ViewComponents, type RouterProps } from '../shared/RouterApp'
 import { stripBase } from '../shared/stripBase'
 
-export default async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'>) {
+export default async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'> & { hydration: boolean }) {
   const container = document.querySelector<HTMLDivElement>('#root')!
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
@@ -73,7 +72,7 @@ export default async function onRenderClient(clientOptions: Omit<RouterProps, 'i
     />
   )
 
-  if (hydration && globalThis.__PAGE_CONTEXT__ && globalThis._$HY) {
+  if (clientOptions.hydration && globalThis.__PAGE_CONTEXT__ && globalThis._$HY) {
     hydrate(App, container)
   } else {
     container.replaceChildren()

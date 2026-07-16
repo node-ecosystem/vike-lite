@@ -15,10 +15,8 @@ export interface VikeLiteReactOptions {
 }
 
 export default function vikeLiteReact({ hydration = true, react: reactOptions }: VikeLiteReactOptions = {}): Plugin[] {
-  const virtualConfigId = 'virtual:vike-lite/config'
   const virtualClientId = 'virtual:vike-lite/client'
   const virtualServerId = 'virtual:vike-lite/server'
-  const resolvedVirtualConfigId = '\0' + virtualConfigId
   const resolvedVirtualClientId = '\0' + virtualClientId
   const resolvedVirtualServerId = '\0' + virtualServerId
 
@@ -26,19 +24,19 @@ export default function vikeLiteReact({ hydration = true, react: reactOptions }:
     name: 'vike-lite-react',
     enforce: 'pre',
     resolveId(id) {
-      if (id === virtualConfigId) return resolvedVirtualConfigId
       if (id === virtualClientId) return resolvedVirtualClientId
       if (id === virtualServerId) return resolvedVirtualServerId
     },
     load(id) {
-      if (id === resolvedVirtualConfigId) {
-        return `export const hydration=${hydration};`
-      }
       if (id === resolvedVirtualClientId) {
-        return 'export const onRenderClient=()=>import("vike-lite-react/__internal/client/onRenderClient");'
+        return 'export const onRenderClient = async () => {' +
+          +'const mod = await import("vike-lite-react/__internal/client/onRenderClient");'
+          + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
+          + '}'
       }
       if (id === resolvedVirtualServerId) {
-        return `export {onRenderHtml}from'vike-lite-react/__internal/server/onRenderHtml';`
+        return `import { onRenderHtml as _onRenderHtml } from 'vike-lite-react/__internal/server/onRenderHtml';`
+          + `export const onRenderHtml = (ctx) => _onRenderHtml({ ...ctx, hydration: ${hydration} });`
       }
     }
   }

@@ -1,7 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import type { RenderContext } from 'vike-lite/__internal/shared'
-import { hydration } from 'virtual:vike-lite/config'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
 
@@ -9,6 +8,7 @@ export interface ReactRenderContext extends RenderContext {
   Page: ComponentType
   Head?: ComponentType
   Layout?: ComponentType<{ children: ReactNode }>
+  hydration: boolean
 }
 
 export function onRenderHtml({
@@ -18,7 +18,8 @@ export function onRenderHtml({
   Layout,
   pageTitleTag,
   serializedContext,
-  assets
+  assets,
+  hydration
 }: ReactRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
 
