@@ -180,6 +180,12 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     }
   }
 
+  const handleProgrammaticReload = (e: Event) => {
+    const resolve = (e as CustomEvent<{ resolve?: () => void }>).detail?.resolve
+    if (resolve) reloadResolvers.push(resolve)
+    reloadTick.value++
+  }
+
   onMounted(() => {
     const handleLinkClick = createLinkClickHandler((url) => {
       if (!url.hash) shouldScrollToTop.value = true
@@ -216,12 +222,6 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       if (detail.pageContext) pendingContextOverride.value = detail.pageContext
       currentUrl.value = globalThis.location.href
       currentPathname.value = stripBase(globalThis.location.pathname)
-    }
-
-    const handleProgrammaticReload = (e: Event) => {
-      const resolve = (e as CustomEvent<{ resolve?: () => void }>).detail?.resolve
-      if (resolve) reloadResolvers.push(resolve)
-      reloadTick.value++
     }
 
     document.addEventListener('click', handleLinkClick)

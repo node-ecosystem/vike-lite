@@ -41,6 +41,18 @@ export function RouterApp(props: RouterProps): JSX.Element {
   let pendingContextOverride: Partial<PageContext> | null = null
 
   if (!isServer) {
+    const handleProgrammaticReload = (e: Event) => {
+      const customEvent = e as CustomEvent<{ resolve?: () => void }>
+      if (customEvent.detail?.resolve) {
+        reloadResolvers.push(customEvent.detail.resolve)
+      }
+
+      // Use startTransition to let Solid know that this is a non-blocking update
+      startTransition(() => {
+        setReloadTick(t => t + 1)
+      })
+    }
+
     createEffect(() => {
       const handleLinkClick = createLinkClickHandler((url) => {
         if (!url.hash) shouldScrollToTop = true
@@ -96,18 +108,6 @@ export function RouterApp(props: RouterProps): JSX.Element {
         startTransition(() => {
           setCurrentUrl(globalThis.location.href)
           setCurrentPathname(stripBase(globalThis.location.pathname))
-        })
-      }
-
-      const handleProgrammaticReload = (e: Event) => {
-        const customEvent = e as CustomEvent<{ resolve?: () => void }>
-        if (customEvent.detail?.resolve) {
-          reloadResolvers.push(customEvent.detail.resolve)
-        }
-
-        // Usiamo startTransition per far sapere a Solid che è un update non bloccante
-        startTransition(() => {
-          setReloadTick(t => t + 1)
         })
       }
 

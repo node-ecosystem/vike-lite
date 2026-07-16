@@ -119,12 +119,12 @@ function RouterApp(props: RouterProps) {
     }
   }, [props.routes])
 
-  // Caricamento route
+  // Load route
   useEffect(() => {
     const pathname = currentPathname
     const isReload = reloadTick > 0
 
-    if (isFirstRun.current && !isReload && globalThis.__PAGE_CONTEXT__?.urlPathname === pathname) {
+    if (!isReload && isFirstRun.current && globalThis.__PAGE_CONTEXT__?.urlPathname === pathname) {
       isFirstRun.current = false
       globalThis.__PAGE_CONTEXT__!.urlPathname = undefined as any
       return
@@ -136,36 +136,36 @@ function RouterApp(props: RouterProps) {
     const urlFull = currentUrl
     const matched = matchedRoute
 
+    const renderErrorPage = async (is404: boolean, message?: string) => {
+      if (!props.errorRoute) return
+      const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
+        props.errorRoute.Page(),
+        props.errorRoute.Layout?.() ?? null,
+        props.errorRoute.Head?.() ?? null
+      ])
+      if (signal.aborted) return
+      setPageContext(() => ({
+        urlOriginal: urlFull,
+        urlPathname: pathname,
+        routeParams: {},
+        is404,
+        is500: !is404,
+        errorMessage: message,
+        isClientSide: true,
+        isHydration: false
+      } as PageContextClient))
+      setView({
+        Page: ErrorPageMod.Page ?? ErrorPageMod.default,
+        Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
+        Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
+      })
+      document.title = is404 ? 'Not Found' : 'Server Error'
+      finalizeNavigation(shouldScrollToTop.current)
+    }
+
     const loadRoute = async () => {
       const contextOverride = pendingContextOverride.current
       pendingContextOverride.current = null
-
-      const renderErrorPage = async (is404: boolean, message?: string) => {
-        if (!props.errorRoute) return
-        const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
-          props.errorRoute.Page(),
-          props.errorRoute.Layout?.() ?? null,
-          props.errorRoute.Head?.() ?? null
-        ])
-        if (signal.aborted) return
-        setPageContext(() => ({
-          urlOriginal: urlFull,
-          urlPathname: pathname,
-          routeParams: {},
-          is404,
-          is500: !is404,
-          errorMessage: message,
-          isClientSide: true,
-          isHydration: false
-        } as PageContextClient))
-        setView({
-          Page: ErrorPageMod.Page ?? ErrorPageMod.default,
-          Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
-          Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
-        })
-        document.title = is404 ? 'Not Found' : 'Server Error'
-        finalizeNavigation(shouldScrollToTop.current)
-      }
 
       if (!matched) return renderErrorPage(true)
 
