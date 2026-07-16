@@ -17,6 +17,7 @@ Vike Lite (pronounced _/vaɪk laɪt/_) is a _light_ web framework inspired by [V
 ### 📚 Templates
 - [Vike Lite + React + daisyUI + Hono](https://github.com/templates-ecosystem/template-vike-lite-react-daisyui-hono)
 - [Vike Lite + SolidJS + daisyUI + Hono](https://github.com/templates-ecosystem/template-vike-lite-solid-daisyui-hono)
+- [Vike Lite + Vue + daisyUI + Hono](https://github.com/templates-ecosystem/template-vike-lite-vue-daisyui-hono)
 
 ### 🫶 Contribution
 Want to contribute to the project? Clone the repository and install the dependencies:
