@@ -260,7 +260,7 @@ export default function vikeLite({
         // Import the client rendering function from the bridge virtual module
         return `import{routes,errorRoute}from'${VIRTUAL.routes}';`
           + `import{onRenderClient}from'${VIRTUAL.client}';`
-          + `await(await onRenderClient())({routes,errorRoute});`
+          + `await onRenderClient({routes,errorRoute});`
       }
 
       if (id === RESOLVED.setup) {

@@ -292,7 +292,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
   }
 }, { props: ['routes', 'errorRoute', 'initialView', 'initialContext', 'initialUrl'] })
 
-export default async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'], hydration: boolean }) {
+export async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'], hydration: boolean }) {
   const container = document.querySelector('#root') as HTMLDivElement
   const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
   const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__

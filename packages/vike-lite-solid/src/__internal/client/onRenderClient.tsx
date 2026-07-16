@@ -4,7 +4,7 @@ import { matchRoute } from 'vike-lite/__internal/shared'
 import { RouterApp, type ViewComponents, type RouterProps } from '../shared/RouterApp'
 import { stripBase } from '../shared/stripBase'
 
-export default async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'> & { hydration: boolean }) {
+export async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'> & { hydration: boolean }) {
   const container = document.querySelector<HTMLDivElement>('#root')!
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }

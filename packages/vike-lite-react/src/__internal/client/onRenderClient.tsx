@@ -311,7 +311,7 @@ function RouterApp(props: RouterProps) {
   )
 }
 
-export default async function onRenderClient(clientOptions: {
+export async function onRenderClient(clientOptions: {
   routes: VikeState['routes'],
   errorRoute: VikeState['errorRoute'],
   hydration: boolean
