@@ -24,7 +24,7 @@ export interface RouterProps {
 }
 
 export function RouterApp(props: RouterProps): JSX.Element {
-  const [pageContextStore, setPageContextStore] = createStore<PageContext>(props.initialContext)
+  const [pageContext, setPageContext] = createStore<PageContext>(props.initialContext)
   const [view, setView] = createSignal<ViewComponents>(props.initialView)
 
   const [currentUrl, setCurrentUrl] = createSignal(props.initialUrl)
@@ -158,8 +158,8 @@ export function RouterApp(props: RouterProps): JSX.Element {
           ])
           if (signal.aborted) return
           batch(() => {
-            setPageContextStore(reconcile({
-              ...pageContextStore,
+            setPageContext(reconcile({
+              ...pageContext,
               urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
               is404, is500: !is404, errorMessage: message
             } as PageContext))
@@ -236,7 +236,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
           if (signal.aborted) return
 
           batch(() => {
-            setPageContextStore(reconcile({
+            setPageContext(reconcile({
               routeParams,
               urlOriginal: urlObj.href,
               urlPathname: pathname,
@@ -320,7 +320,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
         )}
       </div>
     )}>
-      <PageContextProvider pageContext={pageContextStore} setPageContext={setPageContextStore}>
+      <PageContextProvider pageContext={pageContext} setPageContext={setPageContext}>
         {(() => {
           const { Page, Layout } = view()
           return <>{Layout ? <Dynamic component={Layout}><Dynamic component={Page} /></Dynamic> : <Dynamic component={Page} />}</>
