@@ -57,6 +57,7 @@ function RouterApp(props: RouterProps) {
   // Link interception, prefetch, popstate, eventi programmatici
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
+      if (!(e.target instanceof Element)) return
       const target = (e.target as HTMLElement).closest('a')
       if (!target?.href || target.target === '_blank' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return
       const url = new URL(target.href)
@@ -85,6 +86,7 @@ function RouterApp(props: RouterProps) {
     }
 
     const handleLinkPrefetch = (e: Event) => {
+      if (!(e.target instanceof Element)) return
       const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('a')
       if (!target?.href) return
       if (target.target && target.target !== '_self') return
