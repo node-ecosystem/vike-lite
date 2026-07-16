@@ -159,6 +159,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
           if (signal.aborted) return
           batch(() => {
             setPageContextStore(reconcile({
+              ...pageContextStore,
               urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
               is404, is500: !is404, errorMessage: message
             } as PageContext))

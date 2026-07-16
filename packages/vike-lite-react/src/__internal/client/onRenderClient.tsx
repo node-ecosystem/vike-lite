@@ -145,6 +145,7 @@ function RouterApp(props: RouterProps) {
       ])
       if (signal.aborted) return
       setPageContext(() => ({
+        ...pageContext,
         urlOriginal: urlFull,
         urlPathname: pathname,
         routeParams: {},

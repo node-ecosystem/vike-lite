@@ -72,6 +72,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       ])
       if (signal.aborted) return
       setPageContext({
+        ...pageContext,
         urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
         is404, is500: !is404, errorMessage: message
       } as PageContextClient)
