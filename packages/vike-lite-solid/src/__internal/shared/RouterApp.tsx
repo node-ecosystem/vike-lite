@@ -346,9 +346,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
       <div style={{ 'font-family': 'sans-serif', padding: '2rem', 'text-align': 'center' }}>
         {import.meta.env.DEV ? (
           <div style={{ 'text-align': 'left', background: '#fee2e2', padding: '1rem', 'border-radius': '4px' }}>
-            <h2 style={{ color: '#991b1b', 'margin-top': 0 }}>Unhandled Application Error</h2>
-
-            <strong>{err.name}: {err.message}</strong>
+            <h2 style={{ color: '#991b1b', 'margin-top': 0 }}><strong>{err.name}:</strong> {err.message}</h2>
 
             <pre style={{ background: '#222', color: '#fff', padding: '1rem', 'overflow-x': 'auto', 'margin-top': '1rem' }}>
               {err.stack}
