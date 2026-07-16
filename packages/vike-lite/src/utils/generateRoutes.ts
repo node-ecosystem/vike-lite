@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const pageExtensions = ['.ts', '.js']
-const pageExtensionsX = ['.tsx', '.jsx', '.vue']
+const nonPageExtensions = ['.ts', '.js']
+const pageExtensions = ['.tsx', '.jsx', '.vue']
 
 function findFile(files: string[], basename: string, extensions: string[]): string | undefined {
   return files.find(file =>
@@ -23,20 +23,20 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
     const importPath = path.relative(viteRoot, dir).replaceAll('\\', '/')
 
     // Layout and Head: override locale if present, otherwise inherit from parent
-    const layoutFile = findFile(files, '+Layout', pageExtensionsX)
+    const layoutFile = findFile(files, '+Layout', pageExtensions)
     const currentLayout = layoutFile ? `${importPath}/${layoutFile}` : parentLayout
-    const headFile = findFile(files, '+Head', pageExtensionsX)
+    const headFile = findFile(files, '+Head', pageExtensions)
     const currentHead = headFile ? `${importPath}/${headFile}` : parentHead
 
-    const pageFile = findFile(files, '+Page', pageExtensionsX)
+    const pageFile = findFile(files, '+Page', pageExtensions)
     if (pageFile) {
       const route: Route = {
         path: routePath || '/',
         page: `${importPath}/${pageFile}`
       }
-      const dataFile = findFile(files, '+data', pageExtensions)
-      const titleFile = findFile(files, '+title', pageExtensions)
-      const prerenderFile = findFile(files, '+prerender', pageExtensions)
+      const dataFile = findFile(files, '+data', nonPageExtensions)
+      const titleFile = findFile(files, '+title', nonPageExtensions)
+      const prerenderFile = findFile(files, '+prerender', nonPageExtensions)
 
       if (dataFile) route.data = `${importPath}/${dataFile}`
       if (titleFile) route.title = `${importPath}/${titleFile}`
@@ -55,7 +55,7 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
       // _error is reserved: register it separately and do not add it to the normal routes
       if (file === '_error') {
         const errorFiles = fs.readdirSync(fullPath)
-        const errorPageFile = findFile(errorFiles, '+Page', pageExtensionsX)
+        const errorPageFile = findFile(errorFiles, '+Page', pageExtensions)
         if (errorPageFile) {
           errorRoute = {
             path: '_error',
