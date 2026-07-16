@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const pageExtensions = ['.ts', '.js']
-const pageExtensionsX = ['.tsx', '.jsx']
+const pageExtensionsX = ['.tsx', '.jsx', '.vue']
 
 function findFile(files: string[], basename: string, extensions: string[]): string | undefined {
   return files.find(file =>
