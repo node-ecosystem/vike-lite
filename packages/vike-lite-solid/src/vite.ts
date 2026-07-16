@@ -52,7 +52,7 @@ export default function vikeLiteSolid({
       if (id === resolvedVirtualClientId) {
         return 'export const onRenderClient = async () => {'
           + 'const mod = await import("vike-lite-solid/__internal/client/onRenderClient");'
-          + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
+          + `return (options) => mod.default({ ...options, hydration: ${hydration} });`
           + '}'
       }
       if (id === resolvedVirtualServerId) {

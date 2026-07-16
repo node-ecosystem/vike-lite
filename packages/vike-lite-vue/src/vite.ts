@@ -47,7 +47,7 @@ export default function vikeLiteVue({
       if (id === resolvedVirtualClientId) {
         return 'export const onRenderClient = async () => {'
           + 'const mod = await import("vike-lite-vue/__internal/client/onRenderClient");'
-          + 'return (options) => mod.default({ ...options, hydration: ${hydration} });'
+          + `return (options) => mod.default({ ...options, hydration: ${hydration} });`
           + '}'
       }
       if (id === resolvedVirtualServerId) {
