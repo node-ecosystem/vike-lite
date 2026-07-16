@@ -85,7 +85,7 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
   })
 
   const homeIndex = routes.findIndex(r => r.path === '/index')
-  if (homeIndex !== -1) routes[homeIndex].path = '/'
+  if (homeIndex !== -1) routes[homeIndex]!.path = '/'
 
   return { routes, errorRoute }
 }
