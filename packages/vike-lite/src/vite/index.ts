@@ -4,11 +4,9 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 
-import { BASE_URL } from '../__internal/shared'
 import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
-import { renderPage } from '../server'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -46,6 +44,7 @@ export default function vikeLite({
   let viteConfigRoot: string
   let outDir: string
   let hasAnyPrerender: boolean
+  let baseUrl: string
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
@@ -63,6 +62,9 @@ export default function vikeLite({
   return {
     name: 'vike-lite',
     config(config, { mode }) {
+      const rawBase = config.base || '/'
+      baseUrl = rawBase === '/' ? '' : (rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase)
+
       // Inject environment variables from .env files in process.env
       const envDir = config.envDir || process.cwd()
       const envVariables = loadEnv(mode, envDir, '')
@@ -300,7 +302,10 @@ export default function vikeLite({
         return importSetup + defaultServerEntryContent + 'export default{fetch:renderPage};'
       }
 
-      if (id === RESOLVED.entryPrerender) return importSetup + `export{routes}from'${VIRTUAL.routes}';`
+      if (id === RESOLVED.entryPrerender)
+        return importSetup
+          + `export{routes}from'${VIRTUAL.routes}';`
+          + `export{renderPage}from'vike-lite/server';`
     },
     // Run SSG at end of the build
     async closeBundle() {
@@ -312,8 +317,10 @@ export default function vikeLite({
 
       // Import the built server module — this triggers setVikeState() as side-effect,
       // which is required for renderPage to know about routes/config
-      const serverModule = await import(pathToFileURL(prerenderPath).href) as { routes?: typeof import('virtual:vike-lite/routes').routes }
-      const { routes } = serverModule
+      const { routes, renderPage } = await import(pathToFileURL(prerenderPath).href) as {
+        routes: typeof import('virtual:vike-lite/routes').routes
+        renderPage: typeof import('vike-lite/server').renderPage
+      }
 
       // If routes is not exported, no SSG is needed (nothing to prerender)
       // This is decided at build-time based on: global `prerender` OR any route having +prerender.ts
@@ -362,13 +369,11 @@ export default function vikeLite({
       console.log('[vike-lite] 📦 Starting Static Site Generation (SSG)…')
 
       let generatedCount = 0
-
       const clientDir = path.join(viteConfigRoot, outDir, 'client')
 
       // Simulate requests and save HTML/JSON
       for (const urlPath of urlsToPrerender) {
-        // Generate HTML
-        const htmlReq = new Request(`http://localhost${BASE_URL}${urlPath}`)
+        const htmlReq = new Request(`http://localhost${baseUrl}${urlPath}`)
         const htmlRes = await renderPage(htmlReq)
         if (htmlRes?.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
@@ -376,9 +381,8 @@ export default function vikeLite({
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
         } else throw new Error(`[vike-lite] ❌ SSG HTML Error for "${urlPath}"`)
 
-        // Generate JSON (Context)
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
-        const jsonReq = new Request(`http://localhost${BASE_URL}${jsonTarget}.pageContext.json`)
+        const jsonReq = new Request(`http://localhost${baseUrl}${jsonTarget}.pageContext.json`)
         const jsonRes = await renderPage(jsonReq)
         if (jsonRes?.ok) {
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
