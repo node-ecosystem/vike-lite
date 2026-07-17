@@ -313,7 +313,6 @@ export default function vikeLite({
 
       const { pathToFileURL } = await import('node:url')
       const prerenderPath = path.join(viteConfigRoot, outDir, 'server/prerender.mjs')
-      if (!fs.existsSync(prerenderPath)) return
 
       // Import the built server module — this triggers setVikeState() as side-effect,
       // which is required for renderPage to know about routes/config
@@ -321,10 +320,6 @@ export default function vikeLite({
         routes: typeof import('virtual:vike-lite/routes').routes
         renderPage: typeof import('vike-lite/server').renderPage
       }
-
-      // If routes is not exported, no SSG is needed (nothing to prerender)
-      // This is decided at build-time based on: global `prerender` OR any route having +prerender.ts
-      if (!routes) return
 
       // Import renderPage directly, bypassing the user's custom server:
       // this avoids middleware/side-effects (CORS, DB connections, etc.)
