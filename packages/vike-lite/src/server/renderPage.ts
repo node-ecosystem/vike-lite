@@ -1,6 +1,5 @@
 import type { PageContext } from '..'
-import { BASE_URL, matchRoute } from '../__internal/shared'
-import { stripBase } from '../__internal/client'
+import { BASE_URL, matchRoute, stripBase } from '../__internal/shared'
 import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'

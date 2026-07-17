@@ -1,5 +1,3 @@
-import { BASE_URL } from './shared'
-
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {
   if (
     !target?.href
@@ -62,11 +60,4 @@ export function finalizeNavigation(shouldScrollToTop: boolean) {
       try { document.querySelector<HTMLElement>(decodeURIComponent(globalThis.location.hash))?.scrollIntoView() } catch { }
     })
   }
-}
-
-export function stripBase(pathname: string): string {
-  if (BASE_URL === '') return pathname
-  if (pathname === BASE_URL) return '/'
-  if (pathname.startsWith(BASE_URL + '/')) return pathname.slice(BASE_URL.length)
-  return pathname
 }
