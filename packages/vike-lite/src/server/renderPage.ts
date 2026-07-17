@@ -1,5 +1,5 @@
 import type { PageContext } from '..'
-import { matchRoute } from '../__internal/shared/matchRoute'
+import { matchRoute } from '../__internal/shared'
 import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'

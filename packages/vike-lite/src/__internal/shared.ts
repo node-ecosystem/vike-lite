@@ -1,3 +1,18 @@
+export interface RenderContext {
+  pageContext: any
+  Page: unknown
+  Head?: unknown
+  Layout?: unknown
+  pageTitleTag: string
+  serializedContext: string
+  assets: {
+    cssLinks: string
+    jsPreloads: string
+    entryClient: string
+  }
+  nonce?: string
+}
+
 const regexCache = new Map<string, { regex: RegExp; paramNames: string[] }>()
 
 function escapeRegex(str: string) {
@@ -45,3 +60,4 @@ export function matchRoute(
 
   return null
 }
+

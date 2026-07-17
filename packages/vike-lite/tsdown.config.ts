@@ -7,7 +7,7 @@ export default {
     'client/router': 'src/client/router.ts',
     'server': 'src/server/index.ts',
     'server/abort': 'src/server/abort.ts',
-    '__internal/shared': 'src/__internal/shared/index.ts',
+    '__internal/shared': 'src/__internal/shared.ts',
     '__internal/server': 'src/__internal/server.ts',
     '__internal/client': 'src/__internal/client.ts'
   },
