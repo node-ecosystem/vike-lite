@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback, Component, type ReactNode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
-import { matchRoute } from 'vike-lite/__internal/shared'
-import { BASE_URL, createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
+import { BASE_URL, matchRoute } from 'vike-lite/__internal/shared'
+import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'

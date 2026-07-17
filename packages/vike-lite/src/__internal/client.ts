@@ -1,3 +1,5 @@
+import { BASE_URL } from './shared'
+
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {
   if (
     !target?.href
@@ -61,11 +63,6 @@ export function finalizeNavigation(shouldScrollToTop: boolean) {
     })
   }
 }
-
-export const BASE_URL = (() => {
-  const { BASE_URL } = import.meta.env
-  return BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
-})()
 
 export function stripBase(pathname: string): string {
   if (BASE_URL === '') return pathname

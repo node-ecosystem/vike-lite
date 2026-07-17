@@ -61,3 +61,7 @@ export function matchRoute(
   return null
 }
 
+export const BASE_URL = (() => {
+  const { BASE_URL } = import.meta.env
+  return BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
+})()

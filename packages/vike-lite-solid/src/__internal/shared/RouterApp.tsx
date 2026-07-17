@@ -2,8 +2,8 @@ import { type JSX, createSignal, createEffect, onCleanup, ErrorBoundary, startTr
 import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
-import { matchRoute } from 'vike-lite/__internal/shared'
-import { BASE_URL, createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
+import { BASE_URL, matchRoute } from 'vike-lite/__internal/shared'
+import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from './PageContextProvider'

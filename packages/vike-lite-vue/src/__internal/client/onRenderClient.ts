@@ -1,7 +1,7 @@
 import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
 import type { PageContextClient } from 'vike-lite'
-import { matchRoute } from 'vike-lite/__internal/shared'
-import { BASE_URL, createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
+import { BASE_URL, matchRoute } from 'vike-lite/__internal/shared'
+import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { pageContextInjectionKey } from '../../hooks/globalContext'
