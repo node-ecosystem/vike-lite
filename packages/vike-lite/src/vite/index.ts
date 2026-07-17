@@ -309,7 +309,7 @@ export default function vikeLite({
     },
     // Run SSG at end of the build
     async closeBundle() {
-      if (!isProd || this.environment.name !== 'ssr') return
+      if (!isProd || !hasAnyPrerender || this.environment.name !== 'ssr') return
 
       const { pathToFileURL } = await import('node:url')
       const prerenderPath = path.join(viteConfigRoot, outDir, 'server/prerender.mjs')
