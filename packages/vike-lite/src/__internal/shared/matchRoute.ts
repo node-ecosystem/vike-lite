@@ -37,7 +37,7 @@ export function matchRoute(
     if (match) {
       const routeParams: Record<string, string> = {}
       for (let i = 0; i < compiled.paramNames.length; i++) {
-        routeParams[compiled.paramNames[i]!] = decodeURIComponent(match[i + 1]!)
+        routeParams[compiled.paramNames[i]] = decodeURIComponent(match[i + 1])
       }
       return { route, routeParams }
     }

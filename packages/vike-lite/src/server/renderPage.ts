@@ -24,7 +24,7 @@ function computeAssetFiles(route: typeof store.routes[number]) {
   const { manifest } = store
 
   function getVirtualEntryClientKey() {
-    for (const key in manifest!) if (manifest[key]!.isEntry) return key
+    for (const key in manifest!) if (manifest[key].isEntry) return key
     throw new Error('entry-client not found in manifest')
   }
 
@@ -62,7 +62,7 @@ function computeAssetFiles(route: typeof store.routes[number]) {
     cssFiles: [...cssFiles],
     criticalJs,
     sharedJs,
-    entryClientFile: manifest![virtualEntryClientKey]!.file
+    entryClientFile: manifest![virtualEntryClientKey].file
   }
 }
 
