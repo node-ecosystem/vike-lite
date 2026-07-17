@@ -61,3 +61,15 @@ export function finalizeNavigation(shouldScrollToTop: boolean) {
     })
   }
 }
+
+export const BASE_URL = (() => {
+  const { BASE_URL } = import.meta.env
+  return BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
+})()
+
+export function stripBase(pathname: string): string {
+  if (BASE_URL === '') return pathname
+  if (pathname === BASE_URL) return '/'
+  if (pathname.startsWith(BASE_URL + '/')) return pathname.slice(BASE_URL.length)
+  return pathname
+}

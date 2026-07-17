@@ -2,11 +2,10 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, type Reac
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation } from 'vike-lite/__internal/client'
+import { BASE_URL, createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
-import { stripBase } from '../shared/stripBase'
 
 interface ViewComponents {
   Page: any | null
@@ -174,9 +173,7 @@ function RouterApp(props: RouterProps) {
       try {
         const urlObj = new URL(urlFull)
         const jsonTarget = pathname === '/' ? '/index' : pathname
-        const { BASE_URL } = import.meta.env
-        const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
-        const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`
+        const jsonUrl = `${BASE_URL}${jsonTarget}.pageContext.json${urlObj.search}`
 
         let ctx: any = null
         if (route.data || route.title) {

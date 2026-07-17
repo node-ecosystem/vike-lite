@@ -1,8 +1,8 @@
 import { hydrate, render } from 'solid-js/web'
 import { matchRoute } from 'vike-lite/__internal/shared'
+import { stripBase } from 'vike-lite/__internal/client'
 
 import { RouterApp, type ViewComponents, type RouterProps } from '../shared/RouterApp'
-import { stripBase } from '../shared/stripBase'
 
 export async function onRenderClient(clientOptions: Omit<RouterProps, 'initialView' | 'initialContext' | 'initialUrl'> & { hydration: boolean }) {
   const container = document.querySelector<HTMLDivElement>('#root')!

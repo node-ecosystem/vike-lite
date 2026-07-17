@@ -3,11 +3,10 @@ import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation } from 'vike-lite/__internal/client'
+import { BASE_URL, createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation, stripBase } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from './PageContextProvider'
-import { stripBase } from './stripBase'
 
 export interface ViewComponents {
   Page: any | null
@@ -182,10 +181,8 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
           // Get the URL for the fetch by adding the base
           const jsonTarget = pathname === '/' ? '/index' : pathname
-          const { BASE_URL } = import.meta.env
-          const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
           // e.g. base "/my-app/" and path "/about" → fetch "/my-app/about.pageContext.json"
-          const jsonUrl = `${baseNoSlash}${jsonTarget}.pageContext.json${urlObj.search}`
+          const jsonUrl = `${BASE_URL}${jsonTarget}.pageContext.json${urlObj.search}`
 
           // Fetch JSON data
           let ctx: any = null

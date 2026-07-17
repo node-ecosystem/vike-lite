@@ -1,4 +1,5 @@
 import type { PageContext } from '..'
+import { BASE_URL } from '../__internal/client'
 
 /**
  * Change page programmatically on the client without reloading the browser.
@@ -18,9 +19,7 @@ export function navigate(
 
   let finalUrl = url
   if (finalUrl.startsWith('/')) {
-    const { BASE_URL } = import.meta.env
-    const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
-    finalUrl = baseNoSlash + (finalUrl === '/' ? '' : finalUrl)
+    finalUrl = BASE_URL + (finalUrl === '/' ? '' : finalUrl)
   }
 
   // Change the URL in the address bar
