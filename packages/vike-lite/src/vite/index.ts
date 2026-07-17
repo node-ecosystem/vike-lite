@@ -4,6 +4,7 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 
+import { BASE_URL } from '../__internal/shared'
 import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
@@ -360,8 +361,6 @@ export default function vikeLite({
 
       console.log('[vike-lite] 📦 Starting Static Site Generation (SSG)…')
 
-      const { BASE_URL } = import.meta.env
-      const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
       let generatedCount = 0
 
       const clientDir = path.join(viteConfigRoot, outDir, 'client')
@@ -369,7 +368,7 @@ export default function vikeLite({
       // Simulate requests and save HTML/JSON
       for (const urlPath of urlsToPrerender) {
         // Generate HTML
-        const htmlReq = new Request(`http://localhost${baseNoSlash}${urlPath}`)
+        const htmlReq = new Request(`http://localhost${BASE_URL}${urlPath}`)
         const htmlRes = await renderPage(htmlReq)
         if (htmlRes?.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
@@ -379,7 +378,7 @@ export default function vikeLite({
 
         // Generate JSON (Context)
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
-        const jsonReq = new Request(`http://localhost${baseNoSlash}${jsonTarget}.pageContext.json`)
+        const jsonReq = new Request(`http://localhost${BASE_URL}${jsonTarget}.pageContext.json`)
         const jsonRes = await renderPage(jsonReq)
         if (jsonRes?.ok) {
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)

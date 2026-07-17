@@ -1,5 +1,6 @@
 import type { PageContext } from '..'
-import { matchRoute } from '../__internal/shared'
+import { BASE_URL, matchRoute } from '../__internal/shared'
+import { stripBase } from '../__internal/client'
 import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from './store'
@@ -8,8 +9,7 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // return `/${string}` | `${string}/${string}`
 function withBase(file: string): string {
-  const { BASE_URL } = import.meta.env
-  const cleanBase = BASE_URL === '/' ? '' : (BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL)
+  const cleanBase = BASE_URL === '' ? '' : BASE_URL
   const cleanFile = file.startsWith('/') ? file : `/${file}`
   return `${cleanBase}${cleanFile}`
 }
@@ -197,17 +197,7 @@ export async function renderPage(
 ): Promise<Response> {
   let { pathname } = new URL(req.url)
 
-  // If we have a base path different from '/', we need to remove it from the pathname
-  const { BASE_URL } = import.meta.env
-  if (BASE_URL !== '/') {
-    const baseSlashed = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/'
-    const baseNoSlash = baseSlashed.slice(0, -1)
-    pathname = (pathname === baseNoSlash)
-      // The user visits exactly '/my-app' (without trailing slash)
-      ? '/'
-      // The user visits '/my-app/about' and '/my-app/' became '/about' and '/'
-      : pathname.slice(baseSlashed.length - 1)
-  }
+  pathname = stripBase(pathname)
 
   const isJsonRequest = pathname.endsWith('.pageContext.json')
 
@@ -216,6 +206,7 @@ export async function renderPage(
     targetPathname = targetPathname.replace(/\.pageContext\.json$/, '')
     if (targetPathname === '/index') targetPathname = '/'
   }
+
   try {
     const resolved = await buildPageContext(targetPathname, req.url, isJsonRequest)
 
@@ -244,10 +235,7 @@ export async function renderPage(
     if (error instanceof AbortRedirect) {
       // Add the base path if the URL is internal
       let redirectUrl = error.url
-      if (redirectUrl.startsWith('/')) {
-        const baseNoSlash = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
-        redirectUrl = baseNoSlash + (redirectUrl === '/' ? '' : redirectUrl)
-      }
+      if (redirectUrl.startsWith('/')) redirectUrl = BASE_URL + (redirectUrl === '/' ? '' : redirectUrl)
 
       // If the user is navigating in SPA mode, tell the Solid router to redirect
       if (isJsonRequest) {
