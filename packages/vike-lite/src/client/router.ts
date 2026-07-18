@@ -1,5 +1,5 @@
 import type { PageContext } from '..'
-import { prependBase } from '../__internal/client'
+import { prependBase } from '../__internal/shared'
 
 /**
  * Change page programmatically on the client without reloading the browser.

@@ -1,6 +1,6 @@
 import { hydrate, render } from 'solid-js/web'
-import { matchRoute } from 'vike-lite/__internal/shared'
-import { loadViewModules, stripBase } from 'vike-lite/__internal/client'
+import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
+import { loadViewModules } from 'vike-lite/__internal/client'
 
 import { RouterApp, type ViewComponents, type RouterProps } from '../shared/RouterApp'
 

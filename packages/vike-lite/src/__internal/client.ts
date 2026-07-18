@@ -1,4 +1,4 @@
-export { BASE_URL, stripBase, prependBase } from './shared'
+import { BASE_URL } from './shared'
 
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {
   if (
