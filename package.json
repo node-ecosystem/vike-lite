@@ -16,6 +16,7 @@
     "lint:react": "eslint packages/vike-lite-react/**/*.{ts,tsx}",
     "lint:solid": "eslint packages/vike-lite-solid/**/*.{ts,tsx}",
     "lint:vue": "eslint packages/vike-lite-vue/**/*.{ts,tsx}",
+    "test": "vitest run",
     "build": "yarn workspaces foreach -A -pv run build",
     "build:core": "cd packages/vike-lite && yarn run build",
     "build:react": "cd packages/vike-lite-react && yarn run build",
@@ -26,14 +27,19 @@
     "od": "yarn outdated"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@types/node": "^26.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "@yarnpkg/sdks": "^3.3.0",
     "eslint": "^10.7.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-solid": "^0.14.5",
     "eslint-plugin-unicorn": "^72.0.0",
     "eslint-plugin-vue": "^10.9.2",
+    "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10",
     "vue-eslint-parser": "^10.4.1"
   },
   "packageManager": "yarn@4.17.1",

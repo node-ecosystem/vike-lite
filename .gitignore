@@ -7,3 +7,5 @@
 !.yarn/versions
 
 dist
+.vite
+coverage
