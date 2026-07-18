@@ -35,7 +35,8 @@ export function RouterApp(props: RouterProps): JSX.Element {
   const matchedRoute = createMemo(() => matchRoute(currentPathname(), props.routes))
 
   // Track if we need to scroll to the top after the next load
-  const scrollState = { toTop: false }
+  // value is passed by reference to the finalizeNavigation function
+  const shouldScrollToTop = { value: false }
 
   let pendingContextOverride: Partial<PageContext> | null = null
 
@@ -54,7 +55,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
     createEffect(() => {
       const handleLinkClick = createLinkClickHandler((url) => {
-        if (!url.hash) scrollState.toTop = true
+        if (!url.hash) shouldScrollToTop.value = true
         batch(() => {
           setCurrentUrl(url.href)
           // Click on a link, we need to remove the base from the pathname
@@ -86,7 +87,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
         const detail = customEvent.detail || {}
 
         // Set the scroll flag only if the user hasn't requested to keep it
-        if (!detail.keepScrollPosition) scrollState.toTop = true
+        if (!detail.keepScrollPosition) shouldScrollToTop.value = true
 
         if (detail.pageContext) pendingContextOverride = detail.pageContext
 
@@ -148,7 +149,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             setView(errorView)
           })
           document.title = is404 ? 'Not Found' : 'Server Error'
-          finalizeNavigation(scrollState.toTop)
+          finalizeNavigation(shouldScrollToTop.value)
         }
 
         //  Native 404 fallback if the route doesn't exist on the Client
@@ -179,7 +180,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
             // Update the URL manually and perform the Solid transition
             globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', ctx._redirect)
-            scrollState.toTop = true
+            shouldScrollToTop.value = true
             batch(() => {
               setCurrentUrl(urlObjRedirect.href)
               setCurrentPathname(stripBase(urlObjRedirect.pathname))
@@ -219,7 +220,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             document.querySelector<HTMLDivElement>('#root')!.focus({ preventScroll: true })
           })
 
-          finalizeNavigation(scrollState.toTop)
+          finalizeNavigation(shouldScrollToTop.value)
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return
