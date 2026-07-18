@@ -1,3 +1,5 @@
+export { BASE_URL, stripBase, prependBase } from './shared'
+
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {
   if (
     !target?.href
@@ -60,4 +62,106 @@ export function finalizeNavigation(shouldScrollToTop: boolean) {
       try { document.querySelector<HTMLElement>(decodeURIComponent(globalThis.location.hash))?.scrollIntoView() } catch { }
     })
   }
+}
+
+export interface ViewComponents {
+  Page: any | null
+  Layout: any | null
+  Head: any | null
+}
+
+interface RouteModuleLoaders {
+  Page: () => Promise<any>
+  Layout?: () => Promise<any>
+  Head?: () => Promise<any>
+}
+
+/**
+ * Load a route's Page/Layout/Head modules in parallel and resolve each
+ * module's export (named export first, falling back to the default export).
+ */
+export async function loadViewModules(route: RouteModuleLoaders): Promise<ViewComponents> {
+  const [PageMod, LayoutMod, HeadMod] = await Promise.all([
+    route.Page(),
+    route.Layout?.() ?? null,
+    route.Head?.() ?? null
+  ])
+  return {
+    Page: PageMod.Page ?? PageMod.default,
+    Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
+    Head: HeadMod?.Head ?? HeadMod?.default ?? null
+  }
+}
+
+/**
+ * Build the URL of the `+data`/`+title` JSON endpoint for a given pathname
+ * (e.g. base "/my-app" and path "/about" → "/my-app/about.pageContext.json").
+ */
+export function buildPageContextJsonUrl(pathname: string, search: string): string {
+  const jsonTarget = pathname === '/' ? '/index' : pathname
+  return `${BASE_URL}${jsonTarget}.pageContext.json${search}`
+}
+
+/**
+ * Fetch and parse a `.pageContext.json` endpoint, throwing a descriptive error
+ * if a proxy/CDN intercepted the request with a non-JSON response.
+ */
+export async function fetchPageContextJson(
+  jsonUrl: string,
+  options: { signal: AbortSignal; cache?: RequestCache }
+): Promise<any> {
+  const res = await fetch(jsonUrl, options)
+  const contentType = res.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Expected JSON but got "${contentType}" for ${jsonUrl}. Check your proxy/CDN configuration.`)
+  }
+  return res.json()
+}
+
+interface PrefetchableRoute {
+  page?: string
+  layout?: string
+  head?: string
+  Page?: () => Promise<any>
+  Layout?: () => Promise<any>
+  Head?: () => Promise<any>
+}
+
+/**
+ * Create a per-router-instance prefetcher that loads a route's modules at most once
+ * (e.g. on link hover/focus), retrying later if the load failed.
+ */
+export function createRoutePrefetcher() {
+  const prefetchedModules = new Set<string>()
+  return function prefetchRoute(route: PrefetchableRoute) {
+    const modules: Array<[string | undefined, (() => Promise<any>) | undefined]> = [
+      [route.page, route.Page],
+      [route.layout, route.Layout],
+      [route.head, route.Head]
+    ]
+    for (const [key, loader] of modules) {
+      if (!key || !loader || prefetchedModules.has(key)) continue
+      prefetchedModules.add(key)
+      void loader().catch(() => { prefetchedModules.delete(key) })
+    }
+  }
+}
+
+const STALE_MODULE_GRAPH_PATTERN = /dynamically imported module|importing a module script failed/i
+const RELOAD_GUARD_KEY = 'vike-lite:reload-guard'
+const RELOAD_GUARD_WINDOW_MS = 10_000
+
+/**
+ * Detect a stale module graph error (dev server restarted / new build deployed) and
+ * force a full browser reload, guarded against reload loops via sessionStorage.
+ * Returns true if a reload was triggered — the caller should stop further error handling.
+ */
+export function tryRecoverFromStaleModuleGraph(message: string, urlToReload: string): boolean {
+  if (!STALE_MODULE_GRAPH_PATTERN.test(message)) return false
+  const last = Number(sessionStorage.getItem(RELOAD_GUARD_KEY) ?? 0)
+  if (Date.now() - last <= RELOAD_GUARD_WINDOW_MS) return false
+  sessionStorage.setItem(RELOAD_GUARD_KEY, String(Date.now()))
+  console.warn('App update detected, forcing reload…')
+  globalThis.location.assign(urlToReload)
+  return true
 }

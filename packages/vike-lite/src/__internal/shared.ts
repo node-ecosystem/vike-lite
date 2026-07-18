@@ -61,14 +61,28 @@ export function matchRoute(
   return null
 }
 
+// Normalized once at module load: no trailing slash, '' when the app is served from the root.
 export const BASE_URL = (() => {
   const { BASE_URL } = import.meta.env
   return BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
 })()
 
+/**
+ * Remove the base path from a pathname (e.g. `location.pathname` on the client,
+ * or the incoming request pathname on the server).
+ * Returns the pathname unchanged if it doesn't match the base.
+ */
 export function stripBase(pathname: string): string {
   if (BASE_URL === '') return pathname
   if (pathname === BASE_URL) return '/'
   if (pathname.startsWith(BASE_URL + '/')) return pathname.slice(BASE_URL.length)
   return pathname
 }
+
+/**
+ * Prepend the base path to an absolute, root-relative path (e.g. '/about').
+ */
+export function prependBase(pathname: string): string {
+  return BASE_URL + (pathname === '/' ? '' : pathname)
+}
+

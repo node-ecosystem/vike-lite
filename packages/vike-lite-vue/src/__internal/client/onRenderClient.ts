@@ -1,7 +1,17 @@
 import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
 import type { PageContextClient } from 'vike-lite'
-import { BASE_URL, matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { createLinkClickHandler, createLinkPrefetchHandler, finalizeNavigation } from 'vike-lite/__internal/client'
+import { matchRoute } from 'vike-lite/__internal/shared'
+import {
+  buildPageContextJsonUrl,
+  createLinkClickHandler,
+  createLinkPrefetchHandler,
+  createRoutePrefetcher,
+  fetchPageContextJson,
+  finalizeNavigation,
+  loadViewModules,
+  stripBase,
+  tryRecoverFromStaleModuleGraph
+} from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { pageContextInjectionKey } from '../../hooks/globalContext'
@@ -64,22 +74,14 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
     const renderErrorPage = async (is404: boolean, message?: string) => {
       if (!props.errorRoute) return
-      const [ErrorPageMod, ErrorLayoutMod, ErrorHeadMod] = await Promise.all([
-        props.errorRoute.Page(),
-        props.errorRoute.Layout?.() ?? null,
-        props.errorRoute.Head?.() ?? null
-      ])
+      const errorView = await loadViewModules(props.errorRoute)
       if (signal.aborted) return
       setPageContext({
         ...pageContext,
         urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
         is404, is500: !is404, errorMessage: message
       } as PageContextClient)
-      view.value = {
-        Page: ErrorPageMod.Page ?? ErrorPageMod.default,
-        Layout: ErrorLayoutMod?.Layout ?? ErrorLayoutMod?.default ?? null,
-        Head: ErrorHeadMod?.Head ?? ErrorHeadMod?.default ?? null
-      }
+      view.value = errorView
       document.title = is404 ? 'Not Found' : 'Server Error'
       finalizeNavigation(shouldScrollToTop.value)
     }
@@ -89,17 +91,11 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     const { route, routeParams } = matched
     try {
       const urlObj = new URL(urlFull)
-      const jsonTarget = pathname === '/' ? '/index' : pathname
-      const jsonUrl = `${BASE_URL}${jsonTarget}.pageContext.json${urlObj.search}`
+      const jsonUrl = buildPageContextJsonUrl(pathname, urlObj.search)
 
       let ctx: any = null
       if (route.data || route.title) {
-        const res = await fetch(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
-        const contentType = res.headers.get('content-type') ?? ''
-        if (!contentType.includes('application/json')) {
-          throw new Error(`Expected JSON but got "${contentType}" for ${jsonUrl}. Check your proxy/CDN configuration.`)
-        }
-        ctx = await res.json()
+        ctx = await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
       }
 
       if (signal.aborted) return
@@ -121,11 +117,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         return renderErrorPage(ctx.is404, ctx.reason || 'Server Error')
       }
 
-      const [PageMod, LayoutMod, HeadMod] = await Promise.all([
-        route.Page(),
-        route.Layout?.() ?? null,
-        route.Head?.() ?? null
-      ])
+      const newView = await loadViewModules(route)
 
       if (signal.aborted) return
 
@@ -138,11 +130,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         ...(ctx?.title && { title: ctx.title }),
         ...contextOverride
       } as PageContextClient)
-      view.value = {
-        Page: PageMod.Page ?? PageMod.default,
-        Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
-        Head: HeadMod?.Head ?? HeadMod?.default ?? null
-      }
+      view.value = newView
 
       if (ctx?.title) document.title = ctx.title
 
@@ -156,17 +144,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       if ((error as Error).name === 'AbortError') return
 
       const message = (error as Error).message || ''
-      const isStaleModuleGraph = /dynamically imported module|importing a module script failed/i.test(message)
-      if (isStaleModuleGraph) {
-        const GUARD_KEY = 'vike-lite:reload-guard'
-        const last = Number(sessionStorage.getItem(GUARD_KEY) ?? 0)
-        if (Date.now() - last > 10_000) {
-          sessionStorage.setItem(GUARD_KEY, String(Date.now()))
-          console.warn('App update detected, forcing reload…')
-          globalThis.location.assign(urlFull)
-          return
-        }
-      }
+      if (tryRecoverFromStaleModuleGraph(message, urlFull)) return
 
       console.error('Router Error:', error)
       renderErrorPage(false, message)
@@ -191,17 +169,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       currentPathname.value = stripBase(url.pathname)
     })
 
-    const prefetchedModules = new Set<string>()
-    function prefetchRoute(route: VikeState['routes'][number]) {
-      const modules: Array<[string | undefined, (() => Promise<any>) | undefined]> = [
-        [route.page, route.Page], [route.layout, route.Layout], [route.head, route.Head]
-      ]
-      for (const [key, loader] of modules) {
-        if (!key || !loader || prefetchedModules.has(key)) continue
-        prefetchedModules.add(key)
-        void loader().catch(() => { prefetchedModules.delete(key) })
-      }
-    }
+    const prefetchRoute = createRoutePrefetcher()
 
     const handleLinkPrefetch = createLinkPrefetchHandler((url) => {
       const pathname = stripBase(url.pathname)
@@ -276,31 +244,11 @@ export async function onRenderClient(clientOptions: { routes: VikeState['routes'
 
   if (isHydration)
     if ((initialContext.is404 || initialContext.is500) && clientOptions.errorRoute) {
-      const [PageMod, LayoutMod, HeadMod] = await Promise.all([
-        clientOptions.errorRoute.Page(),
-        clientOptions.errorRoute.Layout?.() ?? null,
-        clientOptions.errorRoute.Head?.() ?? null
-      ])
-      initialView = {
-        Page: PageMod.Page ?? PageMod.default,
-        Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
-        Head: HeadMod?.Head ?? HeadMod?.default ?? null
-      }
+      initialView = await loadViewModules(clientOptions.errorRoute)
     } else {
       const pathname = initialContext.urlPathname ?? globalThis.location.pathname
       const matched = matchRoute(pathname, clientOptions.routes)
-      if (matched) {
-        const [PageMod, LayoutMod, HeadMod] = await Promise.all([
-          matched.route.Page(),
-          matched.route.Layout?.() ?? null,
-          matched.route.Head?.() ?? null
-        ])
-        initialView = {
-          Page: PageMod.Page ?? PageMod.default,
-          Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
-          Head: HeadMod?.Head ?? HeadMod?.default ?? null
-        }
-      }
+      if (matched) initialView = await loadViewModules(matched.route)
     }
 
   const app = createSSRApp(RouterApp, {

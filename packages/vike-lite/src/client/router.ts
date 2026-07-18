@@ -1,5 +1,5 @@
 import type { PageContext } from '..'
-import { BASE_URL } from '../__internal/shared'
+import { prependBase } from '../__internal/client'
 
 /**
  * Change page programmatically on the client without reloading the browser.
@@ -19,7 +19,7 @@ export function navigate(
 
   let finalUrl = url
   if (finalUrl.startsWith('/')) {
-    finalUrl = BASE_URL + (finalUrl === '/' ? '' : finalUrl)
+    finalUrl = prependBase(finalUrl)
   }
 
   // Change the URL in the address bar
