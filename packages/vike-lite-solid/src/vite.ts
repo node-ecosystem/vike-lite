@@ -1,5 +1,5 @@
-import { createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
-import { mergeConfig, type Plugin, type PluginOption } from 'vite'
+import { createDepsConfigPlugin, createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
+import { mergeConfig, type PluginOption } from 'vite'
 import solidPlugin, { type Options as SolidOptions } from 'vite-plugin-solid'
 
 export default function vikeLiteSolid({
@@ -17,29 +17,9 @@ export default function vikeLiteSolid({
    */
   solid?: Partial<SolidOptions>
 } = {}): PluginOption[] {
-  const vikeLiteSolidPlugin: Plugin = {
-    name: 'vike-lite-solid-config',
-    // Execute this before vike-lite so the virtual module is ready
-    enforce: 'pre',
-    config() {
-      return {
-        // OptimizeDeps is for the Vite Dev Server
-        optimizeDeps: {
-          include: ['solid-js'],
-          // Ensure Vite doesn't try to pre-bundle the whole package as standard JS,
-          // allowing JSX/TSX to be processed correctly if imported directly.
-          exclude: ['vike-lite-solid']
-        },
-        // SSR config is for the Server Build
-        ssr: {
-          // Tell Vite NOT to externalize this package.
-          // This forces Vite to process our components through vite-plugin-solid
-          // during the SSR build, otherwise Node.js will choke on raw JSX.
-          noExternal: ['vike-lite-solid']
-        }
-      }
-    }
-  }
+  // Ensures Vite pre-bundles solid-js in dev and processes our raw .tsx source
+  // through vite-plugin-solid instead of externalizing it during the SSR build
+  const depsConfig = createDepsConfigPlugin({ packageName: 'vike-lite-solid', optimizeDepsInclude: ['solid-js'] })
 
   // Provide a virtual module that vike-lite will read to discover the renderers
   const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-solid', hydration })
@@ -53,7 +33,7 @@ export default function vikeLiteSolid({
       },
       solidUserOptions
     )),
-    vikeLiteSolidPlugin,
+    depsConfig,
     adapter
   ]
 }

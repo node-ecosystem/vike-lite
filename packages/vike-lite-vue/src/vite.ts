@@ -1,6 +1,6 @@
 import vuePlugin, { type Options as VueOptions } from '@vitejs/plugin-vue'
-import { createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
-import { mergeConfig, type Plugin, type PluginOption } from 'vite'
+import { createDepsConfigPlugin, createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
+import { mergeConfig, type PluginOption } from 'vite'
 
 export default function vikeLiteVue({
   hydration = true,
@@ -17,25 +17,9 @@ export default function vikeLiteVue({
    */
   vue?: Partial<VueOptions>
 } = {}): PluginOption[] {
-  const vikeLiteVuePlugin: Plugin = {
-    name: 'vike-lite-vue-config',
-    enforce: 'pre',
-    config() {
-      return {
-        optimizeDeps: {
-          include: ['vue'],
-          // Prevent Vite from pre-bundling the entire package as standard JS,
-          // so that .vue/.tsx files are processed correctly if imported directly
-          exclude: ['vike-lite-vue']
-        },
-        ssr: {
-          // Force Vite to process this package through @vitejs/plugin-vue
-          // during the SSR build, instead of externalizing it
-          noExternal: ['vike-lite-vue']
-        }
-      }
-    }
-  }
+  // Ensures Vite pre-bundles vue in dev and processes our raw source through
+  // @vitejs/plugin-vue instead of externalizing it during the SSR build
+  const depsConfig = createDepsConfigPlugin({ packageName: 'vike-lite-vue', optimizeDepsInclude: ['vue'] })
 
   const adapter = createFrameworkAdapterPlugin({
     packageName: 'vike-lite-vue',
@@ -50,7 +34,7 @@ export default function vikeLiteVue({
       { ssr: true },
       vueUserOptions
     )),
-    vikeLiteVuePlugin,
+    depsConfig,
     adapter
   ]
 }
