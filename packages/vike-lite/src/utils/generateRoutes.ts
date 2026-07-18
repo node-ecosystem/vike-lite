@@ -18,7 +18,8 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
   let errorRoute: Route | undefined
 
   function walk(dir: string, routePath: string, parentLayout?: string, parentHead?: string) {
-    const files = fs.readdirSync(dir)
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    const files = entries.map(entry => entry.name)
 
     const importPath = path.relative(viteRoot, dir).replaceAll('\\', '/')
 
@@ -47,10 +48,12 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
       routes.push(route)
     }
 
-    // Explore subfolders
-    for (const file of files) {
+    // Explore subfolders (dirent.isDirectory() is already known from readdirSync above,
+    // avoiding an extra statSync syscall per entry)
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue
+      const file = entry.name
       const fullPath = path.join(dir, file)
-      if (!fs.statSync(fullPath).isDirectory()) continue
 
       // _error is reserved: register it separately and do not add it to the normal routes
       if (file === '_error') {
