@@ -159,9 +159,10 @@ function RouterApp(props: RouterProps) {
         const urlObj = new URL(urlFull)
         const jsonUrl = buildPageContextJsonUrl(pathname, urlObj.search)
 
-        const ctx = (route.data || route.title)
-          ? await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
-          : null
+        let ctx: any = null
+        if (route.data || route.title) {
+          ctx = await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
+        }
 
         if (signal.aborted) return
 
