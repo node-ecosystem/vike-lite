@@ -148,7 +148,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             setView(errorView)
           })
           document.title = is404 ? 'Not Found' : 'Server Error'
-          finalizeNavigation(scrollState, 'toTop')
+          finalizeNavigation(scrollState.toTop)
         }
 
         //  Native 404 fallback if the route doesn't exist on the Client
@@ -219,7 +219,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             document.querySelector<HTMLDivElement>('#root')!.focus({ preventScroll: true })
           })
 
-          finalizeNavigation(scrollState, 'toTop')
+          finalizeNavigation(scrollState.toTop)
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return

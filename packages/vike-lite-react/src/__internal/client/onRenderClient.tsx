@@ -134,7 +134,7 @@ function RouterApp(props: RouterProps) {
       } as PageContextClient))
       setView(errorView)
       document.title = is404 ? 'Not Found' : 'Server Error'
-      finalizeNavigation(shouldScrollToTop, 'current')
+      finalizeNavigation(shouldScrollToTop.current)
     }
 
     const loadRoute = async () => {
@@ -195,7 +195,7 @@ function RouterApp(props: RouterProps) {
           document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
         })
 
-        finalizeNavigation(shouldScrollToTop, 'current')
+        finalizeNavigation(shouldScrollToTop.current)
       } catch (error) {
         if ((error as Error).name === 'AbortError') return
 

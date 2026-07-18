@@ -51,10 +51,10 @@ export function createLinkPrefetchHandler(onPrefetch: (url: URL) => void) {
 }
 
 // Scroll only when the content is ready
-export function finalizeNavigation(scrollState: { [key: string]: boolean }, key: string) {
-  if (scrollState[key] === true) {
+export function finalizeNavigation(scrollStateSetState: boolean) {
+  if (scrollStateSetState) {
     globalThis.scrollTo(0, 0)
-    scrollState[key] = false
+    scrollStateSetState = false
   } else if (globalThis.location.hash) {
     // If there's a hash in the URL, wait for the new DOM to be physically on screen
     // and try to scroll to the element

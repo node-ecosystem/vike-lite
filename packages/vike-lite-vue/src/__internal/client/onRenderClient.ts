@@ -73,7 +73,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       } as PageContextClient)
       view.value = errorView
       document.title = is404 ? 'Not Found' : 'Server Error'
-      finalizeNavigation(shouldScrollToTop, 'value')
+      finalizeNavigation(shouldScrollToTop.value)
     }
 
     if (!matched) return renderErrorPage(true)
@@ -128,7 +128,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
       })
 
-      finalizeNavigation(shouldScrollToTop, 'value')
+      finalizeNavigation(shouldScrollToTop.value)
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
 
