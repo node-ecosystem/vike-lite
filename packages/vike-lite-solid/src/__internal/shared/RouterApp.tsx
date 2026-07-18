@@ -3,7 +3,7 @@ import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from './PageContextProvider'
@@ -35,7 +35,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
   const matchedRoute = createMemo(() => matchRoute(currentPathname(), props.routes))
 
   // Track if we need to scroll to the top after the next load
-  let shouldScrollToTop = false
+  const scrollState = { toTop: false }
 
   let pendingContextOverride: Partial<PageContext> | null = null
 
@@ -54,8 +54,8 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
     createEffect(() => {
       const handleLinkClick = createLinkClickHandler((url) => {
-        if (!url.hash) shouldScrollToTop = true
-        startTransition(() => {
+        if (!url.hash) scrollState.toTop = true
+        batch(() => {
           setCurrentUrl(url.href)
           // Click on a link, we need to remove the base from the pathname
           setCurrentPathname(stripBase(url.pathname))
@@ -71,7 +71,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
       })
 
       const handlePopState = () => {
-        startTransition(() => {
+        batch(() => {
           setCurrentUrl(globalThis.location.href)
           // Remove the base from the pathname when using the back button
           setCurrentPathname(stripBase(globalThis.location.pathname))
@@ -86,11 +86,11 @@ export function RouterApp(props: RouterProps): JSX.Element {
         const detail = customEvent.detail || {}
 
         // Set the scroll flag only if the user hasn't requested to keep it
-        if (!detail.keepScrollPosition) shouldScrollToTop = true
+        if (!detail.keepScrollPosition) scrollState.toTop = true
 
         if (detail.pageContext) pendingContextOverride = detail.pageContext
 
-        startTransition(() => {
+        batch(() => {
           setCurrentUrl(globalThis.location.href)
           setCurrentPathname(stripBase(globalThis.location.pathname))
         })
@@ -138,6 +138,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
           // Fetch the error page components instead of the normal ones
           const errorView = await loadViewModules(props.errorRoute)
           if (signal.aborted) return
+
           batch(() => {
             setPageContext(reconcile({
               ...pageContext,
@@ -147,7 +148,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             setView(errorView)
           })
           document.title = is404 ? 'Not Found' : 'Server Error'
-          finalizeNavigation(shouldScrollToTop)
+          finalizeNavigation(scrollState, 'toTop')
         }
 
         //  Native 404 fallback if the route doesn't exist on the Client
@@ -178,8 +179,8 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
             // Update the URL manually and perform the Solid transition
             globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', ctx._redirect)
-            shouldScrollToTop = true
-            startTransition(() => {
+            scrollState.toTop = true
+            batch(() => {
               setCurrentUrl(urlObjRedirect.href)
               setCurrentPathname(stripBase(urlObjRedirect.pathname))
             })
@@ -218,7 +219,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
             document.querySelector<HTMLDivElement>('#root')!.focus({ preventScroll: true })
           })
 
-          finalizeNavigation(shouldScrollToTop)
+          finalizeNavigation(scrollState, 'toTop')
         } catch (error) {
           // Handle Network or Import Errors
           if ((error as Error).name === 'AbortError') return
@@ -253,7 +254,6 @@ export function RouterApp(props: RouterProps): JSX.Element {
         {import.meta.env.DEV ? (
           <div style={{ 'text-align': 'left', background: '#fee2e2', padding: '1rem', 'border-radius': '4px' }}>
             <h2 style={{ color: '#991b1b', 'margin-top': 0 }}><strong>{err.name}:</strong> {err.message}</h2>
-
             <pre style={{ background: '#222', color: '#fff', padding: '1rem', 'overflow-x': 'auto', 'margin-top': '1rem' }}>
               {err.stack}
             </pre>
@@ -261,7 +261,6 @@ export function RouterApp(props: RouterProps): JSX.Element {
         ) : (
           <>
             <h1>500 | Internal Error</h1>
-
             <p>An unexpected error occurred. Please try again later.</p>
           </>
         )}

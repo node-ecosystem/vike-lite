@@ -1,17 +1,7 @@
 import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import {
-  buildPageContextJsonUrl,
-  createLinkClickHandler,
-  createLinkPrefetchHandler,
-  createRoutePrefetcher,
-  fetchPageContextJson,
-  finalizeNavigation,
-  loadViewModules,
-  stripBase,
-  tryRecoverFromStaleModuleGraph
-} from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, stripBase, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { pageContextInjectionKey } from '../../hooks/globalContext'
@@ -83,7 +73,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       } as PageContextClient)
       view.value = errorView
       document.title = is404 ? 'Not Found' : 'Server Error'
-      finalizeNavigation(shouldScrollToTop.value)
+      finalizeNavigation(shouldScrollToTop, 'value')
     }
 
     if (!matched) return renderErrorPage(true)
@@ -138,7 +128,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
       })
 
-      finalizeNavigation(shouldScrollToTop.value)
+      finalizeNavigation(shouldScrollToTop, 'value')
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
 

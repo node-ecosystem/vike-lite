@@ -2,18 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, type Reac
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute } from 'vike-lite/__internal/shared'
-import {
-  buildPageContextJsonUrl,
-  createLinkClickHandler,
-  createLinkPrefetchHandler,
-  createRoutePrefetcher,
-  fetchPageContextJson,
-  finalizeNavigation,
-  loadViewModules,
-  stripBase,
-  tryRecoverFromStaleModuleGraph,
-  type ViewComponents
-} from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, stripBase, tryRecoverFromStaleModuleGraph, type ViewComponents } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../../hooks/PageContextProvider'
@@ -145,7 +134,7 @@ function RouterApp(props: RouterProps) {
       } as PageContextClient))
       setView(errorView)
       document.title = is404 ? 'Not Found' : 'Server Error'
-      finalizeNavigation(shouldScrollToTop.current)
+      finalizeNavigation(shouldScrollToTop, 'current')
     }
 
     const loadRoute = async () => {
@@ -206,7 +195,7 @@ function RouterApp(props: RouterProps) {
           document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
         })
 
-        finalizeNavigation(shouldScrollToTop.current)
+        finalizeNavigation(shouldScrollToTop, 'current')
       } catch (error) {
         if ((error as Error).name === 'AbortError') return
 
