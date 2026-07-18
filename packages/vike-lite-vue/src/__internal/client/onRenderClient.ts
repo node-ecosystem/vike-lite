@@ -93,10 +93,9 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       const urlObj = new URL(urlFull)
       const jsonUrl = buildPageContextJsonUrl(pathname, urlObj.search)
 
-      let ctx: any = null
-      if (route.data || route.title) {
-        ctx = await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
-      }
+      const ctx = (route.data || route.title)
+        ? await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
+        : null
 
       if (signal.aborted) return
 
