@@ -67,6 +67,10 @@
     "./__internal/server": {
       "types": "./dist/__internal/server.d.mts",
       "import": "./dist/__internal/server.mjs"
+    },
+    "./__internal/vite": {
+      "types": "./dist/__internal/vite.d.mts",
+      "import": "./dist/__internal/vite.mjs"
     }
   },
   "files": [

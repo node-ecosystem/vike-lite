@@ -1,3 +1,4 @@
+import { createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
 import { mergeConfig, type Plugin, type PluginOption } from 'vite'
 import solidPlugin, { type Options as SolidOptions } from 'vite-plugin-solid'
 
@@ -16,13 +17,8 @@ export default function vikeLiteSolid({
    */
   solid?: Partial<SolidOptions>
 } = {}): PluginOption[] {
-  const virtualClientId = 'virtual:vike-lite/client'
-  const virtualServerId = 'virtual:vike-lite/server'
-  const resolvedVirtualClientId = '\0' + virtualClientId
-  const resolvedVirtualServerId = '\0' + virtualServerId
-
-  const vikeLiteSolidPlugin = {
-    name: 'vike-lite-solid',
+  const vikeLiteSolidPlugin: Plugin = {
+    name: 'vike-lite-solid-config',
     // Execute this before vike-lite so the virtual module is ready
     enforce: 'pre',
     config() {
@@ -42,22 +38,11 @@ export default function vikeLiteSolid({
           noExternal: ['vike-lite-solid']
         }
       }
-    },
-    // Provide a virtual module that vike-lite will read to discover the renderers
-    resolveId(id) {
-      if (id === virtualClientId) return resolvedVirtualClientId
-      if (id === virtualServerId) return resolvedVirtualServerId
-    },
-    load(id) {
-      if (id === resolvedVirtualClientId) {
-        return `export const onRenderClient=async(options)=>(await import("vike-lite-solid/__internal/client/onRenderClient")).onRenderClient({...options,hydration:${hydration}});`
-      }
-      if (id === resolvedVirtualServerId) {
-        return `import { onRenderHtml as _onRenderHtml } from 'vike-lite-solid/__internal/server/onRenderHtml';`
-          + `export const onRenderHtml = (ctx) => _onRenderHtml({ ...ctx, hydration: ${hydration} });`
-      }
     }
-  } satisfies Plugin
+  }
+
+  // Provide a virtual module that vike-lite will read to discover the renderers
+  const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-solid', hydration })
 
   return [
     solidPlugin(mergeConfig(
@@ -68,6 +53,7 @@ export default function vikeLiteSolid({
       },
       solidUserOptions
     )),
-    vikeLiteSolidPlugin
+    vikeLiteSolidPlugin,
+    adapter
   ]
 }

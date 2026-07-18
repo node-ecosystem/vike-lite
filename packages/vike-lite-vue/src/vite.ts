@@ -1,4 +1,5 @@
 import vuePlugin, { type Options as VueOptions } from '@vitejs/plugin-vue'
+import { createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
 import { mergeConfig, type Plugin, type PluginOption } from 'vite'
 
 export default function vikeLiteVue({
@@ -16,13 +17,8 @@ export default function vikeLiteVue({
    */
   vue?: Partial<VueOptions>
 } = {}): PluginOption[] {
-  const virtualClientId = 'virtual:vike-lite/client'
-  const virtualServerId = 'virtual:vike-lite/server'
-  const resolvedVirtualClientId = '\0' + virtualClientId
-  const resolvedVirtualServerId = '\0' + virtualServerId
-
-  const vikeLiteVuePlugin = {
-    name: 'vike-lite-vue',
+  const vikeLiteVuePlugin: Plugin = {
+    name: 'vike-lite-vue-config',
     enforce: 'pre',
     config() {
       return {
@@ -38,26 +34,23 @@ export default function vikeLiteVue({
           noExternal: ['vike-lite-vue']
         }
       }
-    },
-    resolveId(id) {
-      if (id === virtualClientId) return resolvedVirtualClientId
-      if (id === virtualServerId) return resolvedVirtualServerId
-    },
-    load(id) {
-      if (id === resolvedVirtualClientId) {
-        return `export const onRenderClient=async(options)=>(await import("vike-lite-vue/__internal/client/onRenderClient")).onRenderClient({...options,hydration:${hydration}});`
-      }
-      if (id === resolvedVirtualServerId) {
-        return `export{onRenderHtml}from'vike-lite-vue/__internal/server/onRenderHtml';`
-      }
     }
-  } satisfies Plugin
+  }
+
+  const adapter = createFrameworkAdapterPlugin({
+    packageName: 'vike-lite-vue',
+    hydration,
+    // Vue's onRenderHtml doesn't need the hydration flag: hydration vs. client
+    // takeover is decided entirely client-side in onRenderClient.
+    wrapServerHydration: false
+  })
 
   return [
     vuePlugin(mergeConfig(
       { ssr: true },
       vueUserOptions
     )),
-    vikeLiteVuePlugin
+    vikeLiteVuePlugin,
+    adapter
   ]
 }
