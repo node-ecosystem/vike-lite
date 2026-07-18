@@ -1,5 +1,5 @@
 import { describe, it } from 'vitest'
-import { strictEqual, ok } from 'node:assert/strict'
+import { strictEqual } from 'node:assert/strict'
 import { createRoutePrefetcher, buildPageContextJsonUrl } from '../src/__internal/client'
 
 describe('vike-lite client utils', () => {

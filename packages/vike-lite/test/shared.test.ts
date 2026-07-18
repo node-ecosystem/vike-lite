@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest'
 import { strictEqual, ok } from 'node:assert/strict'
-import { BASE_URL, stripBase, matchRoute, prependBase } from '../src/__internal/shared'
+import { stripBase, matchRoute, prependBase } from '../src/__internal/shared'
 
 describe('vike-lite shared utils', () => {
   describe('stripBase', () => {
