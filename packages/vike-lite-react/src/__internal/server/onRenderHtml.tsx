@@ -19,9 +19,11 @@ export function onRenderHtml({
   pageTitleTag,
   serializedContext,
   assets,
-  hydration
+  hydration,
+  nonce
 }: ReactRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
 
   const providerValue = { pageContext, setPageContext: () => { } }
 
@@ -52,11 +54,11 @@ ${pageTitleTag}
 ${cssLinks}
 ${jsPreloads}
 ${headHtml}
-<script>window.__PAGE_CONTEXT__=${serializedContext}</script>
+<script${nonceAttr}>window.__PAGE_CONTEXT__=${serializedContext}</script>
 </head>
 <body>
 <div id="root" tabindex="-1">${appHtml}</div>
-<script type="module" src="${entryClient}"></script>
+<script type="module" src="${entryClient}"${nonceAttr}></script>
 </body>
 </html>`
 }

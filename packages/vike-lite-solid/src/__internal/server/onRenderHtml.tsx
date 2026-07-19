@@ -55,7 +55,7 @@ ${hydrationScript}
 </head>
 <body>
 <div id="root" tabindex="-1">${appHtml}</div>
-<script type="module" src="${entryClient}"></script>
+<script type="module" src="${entryClient}"${nonceAttr}></script>
 </body>
 </html>`
 }

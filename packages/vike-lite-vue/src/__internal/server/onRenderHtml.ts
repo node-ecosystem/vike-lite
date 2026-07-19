@@ -17,9 +17,11 @@ export async function onRenderHtml({
   Layout,
   pageTitleTag,
   serializedContext,
-  assets
+  assets,
+  nonce
 }: VueRenderContext) {
   const { cssLinks, jsPreloads, entryClient } = assets
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
 
   // Head: renderizzato separatamente, staticamente — non fa parte
   // dell'albero idratato dal client (stesso principio di Solid/React)
@@ -48,11 +50,11 @@ ${pageTitleTag}
 ${cssLinks}
 ${jsPreloads}
 ${headHtml}
-<script>window.__PAGE_CONTEXT__=${serializedContext}</script>
+<script${nonceAttr}>window.__PAGE_CONTEXT__=${serializedContext}</script>
 </head>
 <body>
 <div id="root">${appHtml}</div>
-<script type="module" src="${entryClient}"></script>
+<script type="module" src="${entryClient}"${nonceAttr}></script>
 </body>
 </html>`
 }
