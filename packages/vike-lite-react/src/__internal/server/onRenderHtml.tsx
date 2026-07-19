@@ -27,23 +27,17 @@ export function onRenderHtml({
 
   const providerValue = { pageContext, setPageContext: () => { } }
 
-  // Head: renderizzato separatamente, staticamente — non fa parte
-  // dell'albero idratato dal client (stesso principio applicato in Solid)
-  const headHtml = Head
-    ? renderToString(
-      <PageContextProvider value={providerValue}>
-        <Head />
-      </PageContextProvider>
-    )
-    : ''
+  const headHtml = Head ? renderToString(
+    <PageContextProvider value={providerValue}>
+      <Head />
+    </PageContextProvider>
+  ) : ''
 
-  const appHtml = hydration
-    ? renderToString(
-      <PageContextProvider value={providerValue}>
-        {Layout ? <Layout><Page /></Layout> : <Page />}
-      </PageContextProvider>
-    )
-    : ''  // Client Takeover: no server-side rendering of the app, only the shell
+  const appHtml = hydration ? renderToString(
+    <PageContextProvider value={providerValue}>
+      {Layout ? <Layout><Page /></Layout> : <Page />}
+    </PageContextProvider>
+  ) : ''  // Client Takeover: no server-side rendering of the app, only the shell
 
   return `<!DOCTYPE html>
 <html lang="en">
