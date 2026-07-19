@@ -120,9 +120,10 @@ export function RouterApp(props: RouterProps): JSX.Element {
       const isReload = reloadTick() > 0
 
       if (!isReload && globalThis.__PAGE_CONTEXT__ && globalThis.__PAGE_CONTEXT__.urlPathname === pathname) {
-        // @ts-expect-error - Internal framework hydration hack: we consume the pathname
-        // to prevent false positives on subsequent navigations
-        globalThis.__PAGE_CONTEXT__.urlPathname = undefined
+        // The initial context injected by the server has already been used for the first render:
+        // we clear it so that a possible remount with the same pathname no longer recognizes it
+        // as "matching" and proceeds to a real fetch.
+        globalThis.__PAGE_CONTEXT__ = undefined
         return
       }
 

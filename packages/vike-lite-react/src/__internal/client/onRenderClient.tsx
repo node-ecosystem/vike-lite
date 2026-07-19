@@ -107,7 +107,10 @@ function RouterApp(props: RouterProps) {
 
     if (!isReload && isFirstRun.current && globalThis.__PAGE_CONTEXT__?.urlPathname === pathname) {
       isFirstRun.current = false
-      globalThis.__PAGE_CONTEXT__!.urlPathname = undefined as any
+      // The initial context injected by the server has already been used for the first render:
+      // we clear it so that a possible remount (e.g. React StrictMode in DEV) with the same
+      // pathname no longer recognizes it as "matching" and proceeds to a real fetch.
+      globalThis.__PAGE_CONTEXT__ = undefined
       return
     }
     isFirstRun.current = false

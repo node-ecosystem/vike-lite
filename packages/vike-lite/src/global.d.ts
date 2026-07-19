@@ -39,4 +39,6 @@ declare module 'virtual:vike-lite/client-manifest' {
   export default manifest
 }
 
-declare var __PAGE_CONTEXT__: import('./index').PageContextClient
+// `undefined` because client adapters reset this reference once
+// the initial context injected by the server is consumed (see onRenderClient in each adapter).
+declare var __PAGE_CONTEXT__: import('./index').PageContextClient | undefined

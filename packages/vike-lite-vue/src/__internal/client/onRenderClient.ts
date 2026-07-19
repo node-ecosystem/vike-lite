@@ -204,7 +204,10 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     const pathname = currentPathname.value
     if (isFirstRun && reloadTick.value === 0 && globalThis.__PAGE_CONTEXT__?.urlPathname === pathname) {
       isFirstRun = false
-      globalThis.__PAGE_CONTEXT__!.urlPathname = undefined as any
+      // The initial context injected by the server has already been used for the first render:
+      // we clear it so that a possible remount with the same pathname no longer recognizes it
+      // as "matching" and proceeds to a real fetch.
+      globalThis.__PAGE_CONTEXT__ = undefined
       return
     }
     isFirstRun = false
