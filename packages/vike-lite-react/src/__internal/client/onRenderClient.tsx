@@ -5,7 +5,7 @@ import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
 import { buildInitialClientContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph, type ViewComponents } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
-import { PageContextProvider } from '../../hooks/PageContextProvider'
+import { PageContextProvider } from '../shared/PageContextProvider'
 
 interface RouterProps {
   routes: VikeState['routes']

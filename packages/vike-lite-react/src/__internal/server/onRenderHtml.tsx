@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import type { RenderContext } from 'vike-lite/__internal/shared'
 
-import { PageContextProvider } from '../../hooks/PageContextProvider'
+import { PageContextProvider } from '../shared/PageContextProvider'
 
 export interface ReactRenderContext extends RenderContext {
   Page: ComponentType
