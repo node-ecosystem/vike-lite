@@ -182,8 +182,7 @@ export default function vikeLite({
                   : VIRTUAL.entryServer,
                 output: {
                   format: 'esm',
-                  // Entry point as dist/server/index.mjs
-                  entryFileNames: 'index.mjs',
+                  entryFileNames: '[name].mjs',
                   chunkFileNames: (chunkInfo) => {
                     // If the chunk belongs to a page, put it in entries
                     if (chunkInfo.facadeModuleId?.includes(`/${pagesDir}/`)) {
