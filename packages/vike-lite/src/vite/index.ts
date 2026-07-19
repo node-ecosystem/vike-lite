@@ -179,7 +179,7 @@ export default function vikeLite({
               rolldownOptions: {
                 input: hasAnyPrerender
                   ? { index: VIRTUAL.entryServer, prerender: VIRTUAL.entryPrerender }
-                  : VIRTUAL.entryServer,
+                  : { index: VIRTUAL.entryServer },
                 output: {
                   format: 'esm',
                   entryFileNames: '[name].mjs',
