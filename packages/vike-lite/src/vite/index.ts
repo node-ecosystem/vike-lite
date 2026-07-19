@@ -359,7 +359,7 @@ export default function vikeLite({
       }
 
       if (urlsToPrerender.size === 0) {
-        console.warn('⚠️ No static routes to generate. If you don\'t want to use SSG, in the \'vite.config\', set "prerender" option as "false" or remove.')
+        console.warn('⚠️ No static routes to generate: if you don\'t want to use SSG, in the \'vite.config\' set the "prerender" option as "false" or remove it.')
         return
       }
 
