@@ -1,6 +1,6 @@
 import { computed, inject, type ComputedRef } from 'vue'
 
-import { pageContextInjectionKey } from './globalContext'
+import { pageContextInjectionKey } from '../shared/globalContext'
 
 export function useData<Data = unknown>(): [ComputedRef<Data>, (updater: Data | ((prev: Data) => Data)) => void] {
   const ctx = inject(pageContextInjectionKey)

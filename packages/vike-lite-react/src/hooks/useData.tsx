@@ -1,6 +1,6 @@
 import { useContext, useCallback } from 'react'
 
-import { PageContextReactContext } from './globalContext'
+import { PageContextReactContext } from '../shared/globalContext'
 
 export function useData<Data = unknown>(): [Data, (updater: Data | ((prev: Data) => Data)) => void] {
   const ctx = useContext(PageContextReactContext)

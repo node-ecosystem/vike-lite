@@ -2,7 +2,7 @@ import type { RenderContext } from 'vike-lite/__internal/shared'
 import { createSSRApp, h, type Component } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { pageContextInjectionKey } from '../../hooks/globalContext'
+import { pageContextInjectionKey } from '../../shared/globalContext'
 
 export interface VueRenderContext extends RenderContext {
   Page: Component

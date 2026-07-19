@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { PageContextReactContext, type PageContextValue } from '../../hooks/globalContext'
+import { PageContextReactContext, type PageContextValue } from '../../shared/globalContext'
 
 export function PageContextProvider({
   value,

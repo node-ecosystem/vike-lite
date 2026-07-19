@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import type { PageContext } from 'vike-lite'
 
-import { PageContextReactContext } from './globalContext'
+import { PageContextReactContext } from '../shared/globalContext'
 
 export function usePageContext(): PageContext {
   const ctx = useContext(PageContextReactContext)

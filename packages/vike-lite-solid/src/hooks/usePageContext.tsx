@@ -1,6 +1,6 @@
 import { useContext } from 'solid-js'
 import type { PageContext } from 'vike-lite'
-import { globalContext, type InternalContextValue } from './globalContext'
+import { globalContext, type InternalContextValue } from '../shared/globalContext'
 /**
  * Hook to access the full page context.
  * In SolidJS there is no need to omit `data` for performance reasons:
