@@ -369,7 +369,7 @@ export default function vikeLite({
       for (const urlPath of urlsToPrerender) {
         const htmlReq = new Request(`http://localhost${baseUrl}${urlPath}`)
         const htmlRes = await renderPage(htmlReq)
-        if (htmlRes?.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
+        if (htmlRes.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
           fs.mkdirSync(outDirRoute, { recursive: true })
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
@@ -378,7 +378,7 @@ export default function vikeLite({
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
         const jsonReq = new Request(`http://localhost${baseUrl}${jsonTarget}.pageContext.json`)
         const jsonRes = await renderPage(jsonReq)
-        if (jsonRes?.ok) {
+        if (jsonRes.ok) {
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
           fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
