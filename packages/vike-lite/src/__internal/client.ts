@@ -1,4 +1,5 @@
-import { BASE_URL } from './shared'
+import type { VikeState } from '../server/store'
+import { BASE_URL, matchRoute } from './shared'
 
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {
   if (
@@ -164,5 +165,67 @@ export function tryRecoverFromStaleModuleGraph(message: string, urlToReload: str
   sessionStorage.setItem(RELOAD_GUARD_KEY, String(Date.now()))
   console.warn('App update detected, forcing reload…')
   globalThis.location.assign(urlToReload)
+  return true
+}
+
+/**
+ * Stamp the client-only flags that every `PageContextClient` requires (`isClientSide`,
+ * `isHydration`) onto the raw context blob the server injected via `window.__PAGE_CONTEXT__`.
+ * Centralized so every adapter sets these consistently instead of some silently omitting them.
+ */
+export function buildInitialClientContext<T extends Record<string, any>>(
+  rawContext: T | undefined,
+  isHydration: boolean
+): T & { isClientSide: true; isHydration: boolean } {
+  return {
+    ...(rawContext ?? {} as T),
+    isClientSide: true,
+    isHydration
+  }
+}
+
+interface HydrationInitialContext {
+  urlPathname?: string
+  is404?: boolean
+  is500?: boolean
+  errorMessage?: string
+}
+
+/**
+ * Resolve the Page/Layout/Head modules to hydrate with, matching what the server
+ * actually rendered into the HTML: the error route's modules when the server
+ * reported a 404/500/error, otherwise the modules of the route matching the
+ * initial pathname. Returns a null view when hydration isn't happening (client
+ * takeover) — the router's own first-load effect performs the initial load instead.
+ */
+export async function resolveHydrationView(
+  initialContext: HydrationInitialContext,
+  isHydration: boolean,
+  routes: VikeState['routes'],
+  errorRoute: VikeState['errorRoute']
+): Promise<ViewComponents> {
+  const emptyView: ViewComponents = { Page: null, Layout: null, Head: null }
+  if (!isHydration) return emptyView
+
+  if ((initialContext.is404 || initialContext.is500 || initialContext.errorMessage) && errorRoute) {
+    return loadViewModules(errorRoute)
+  }
+
+  const pathname = initialContext.urlPathname ?? globalThis.location.pathname
+  const matched = matchRoute(pathname, routes)
+  return matched ? loadViewModules(matched.route) : emptyView
+}
+
+/**
+ * Consume the server-injected initial context if it still matches the given pathname
+ * (i.e. this is the very first client-side route load, right after SSR hydration/render).
+ * Clears the global reference so a later remount at the same pathname (e.g. React
+ * StrictMode double-invoke in dev) triggers a real fetch instead of being mistaken
+ * for the original initial load. Returns true if consumed — the caller should skip
+ * loading for this run.
+ */
+export function consumeMatchingInitialContext(pathname: string): boolean {
+  if (globalThis.__PAGE_CONTEXT__?.urlPathname !== pathname) return false
+  globalThis.__PAGE_CONTEXT__ = undefined
   return true
 }

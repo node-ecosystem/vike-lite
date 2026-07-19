@@ -3,7 +3,7 @@ import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules } from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from './PageContextProvider'
@@ -119,11 +119,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
       // Makes the effect reactive to reload
       const isReload = reloadTick() > 0
 
-      if (!isReload && globalThis.__PAGE_CONTEXT__ && globalThis.__PAGE_CONTEXT__.urlPathname === pathname) {
-        // The initial context injected by the server has already been used for the first render:
-        // we clear it so that a possible remount with the same pathname no longer recognizes it
-        // as "matching" and proceeds to a real fetch.
-        globalThis.__PAGE_CONTEXT__ = undefined
+      if (!isReload && consumeMatchingInitialContext(pathname)) {
         return
       }
 

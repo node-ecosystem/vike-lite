@@ -1,6 +1,6 @@
 import { hydrate, render } from 'solid-js/web'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { loadViewModules } from 'vike-lite/__internal/client'
+import { buildInitialClientContext, loadViewModules } from 'vike-lite/__internal/client'
 
 import { RouterApp, type ViewComponents, type RouterProps } from '../shared/RouterApp'
 
@@ -9,8 +9,11 @@ export async function onRenderClient(clientOptions: Omit<RouterProps, 'initialVi
 
   let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
 
-  // Clone or initialize the context safely
-  const initialContext = globalThis.__PAGE_CONTEXT__ ?? {}
+  const isHydration = !!(clientOptions.hydration && globalThis.__PAGE_CONTEXT__ && globalThis._$HY)
+
+  // Clone or initialize the context safely, stamping the client-only flags every
+  // PageContextClient requires (isClientSide, isHydration) — in linea con gli altri adapter.
+  const initialContext = buildInitialClientContext(globalThis.__PAGE_CONTEXT__, isHydration)
 
   // Clean up the fallback and assign to the context
   const pathname = initialContext.urlPathname ?? stripBase(globalThis.location.pathname)
@@ -45,7 +48,7 @@ export async function onRenderClient(clientOptions: Omit<RouterProps, 'initialVi
     />
   )
 
-  if (clientOptions.hydration && globalThis.__PAGE_CONTEXT__ && globalThis._$HY) {
+  if (isHydration) {
     hydrate(App, container)
   } else {
     container.replaceChildren()

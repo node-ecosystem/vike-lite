@@ -1,7 +1,7 @@
 import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { buildPageContextJsonUrl, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
+import { buildInitialClientContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { pageContextInjectionKey } from '../../hooks/globalContext'
@@ -202,12 +202,8 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
   watch([currentPathname, currentUrl, reloadTick], () => {
     const pathname = currentPathname.value
-    if (isFirstRun && reloadTick.value === 0 && globalThis.__PAGE_CONTEXT__?.urlPathname === pathname) {
+    if (isFirstRun && reloadTick.value === 0 && consumeMatchingInitialContext(pathname)) {
       isFirstRun = false
-      // The initial context injected by the server has already been used for the first render:
-      // we clear it so that a possible remount with the same pathname no longer recognizes it
-      // as "matching" and proceeds to a real fetch.
-      globalThis.__PAGE_CONTEXT__ = undefined
       return
     }
     isFirstRun = false
@@ -229,19 +225,9 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
 export async function onRenderClient(clientOptions: { routes: VikeState['routes'], errorRoute: VikeState['errorRoute'], hydration: boolean }) {
   const container = document.querySelector('#root') as HTMLDivElement
-  const initialContext = globalThis.__PAGE_CONTEXT__ ?? ({} as PageContextClient)
   const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__
-
-  let initialView: ViewComponents = { Page: null, Layout: null, Head: null }
-
-  if (isHydration)
-    if ((initialContext.is404 || initialContext.is500) && clientOptions.errorRoute) {
-      initialView = await loadViewModules(clientOptions.errorRoute)
-    } else {
-      const pathname = initialContext.urlPathname ?? globalThis.location.pathname
-      const matched = matchRoute(pathname, clientOptions.routes)
-      if (matched) initialView = await loadViewModules(matched.route)
-    }
+  const initialContext = buildInitialClientContext(globalThis.__PAGE_CONTEXT__, isHydration) as PageContextClient
+  const initialView = await resolveHydrationView(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute) as ViewComponents
 
   const app = createSSRApp(RouterApp, {
     ...clientOptions,
