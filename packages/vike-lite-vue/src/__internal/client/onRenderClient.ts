@@ -208,7 +208,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     }
     isFirstRun = false
     loadRoute()
-  })
+  }, { immediate: true })
 
   onErrorCaptured((err) => {
     renderError.value = err as Error
