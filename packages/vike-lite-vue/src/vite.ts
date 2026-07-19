@@ -1,5 +1,5 @@
 import vuePlugin, { type Options as VueOptions } from '@vitejs/plugin-vue'
-import { createDepsConfigPlugin, createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
+import { createFrameworkAdapterPlugin } from 'vike-lite/__internal/vite'
 import { mergeConfig, type PluginOption } from 'vite'
 
 export default function vikeLiteVue({
@@ -17,10 +17,6 @@ export default function vikeLiteVue({
    */
   vue?: Partial<VueOptions>
 } = {}): PluginOption[] {
-  // Ensures Vite pre-bundles vue in dev and processes our raw source through
-  // @vitejs/plugin-vue instead of externalizing it during the SSR build
-  const depsConfig = createDepsConfigPlugin({ packageName: 'vike-lite-vue', optimizeDepsInclude: ['vue'] })
-
   const adapter = createFrameworkAdapterPlugin({
     packageName: 'vike-lite-vue',
     hydration,
@@ -34,7 +30,6 @@ export default function vikeLiteVue({
       { ssr: true },
       vueUserOptions
     )),
-    depsConfig,
     adapter
   ]
 }
