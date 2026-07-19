@@ -1,9 +1,9 @@
 import { renderToStringAsync, NoHydration, generateHydrationScript, renderToString } from 'solid-js/web'
+import { Dynamic } from 'solid-js/web'
 import type { Component, ParentComponent } from 'solid-js'
 import type { RenderContext } from 'vike-lite/__internal/shared'
 
 import { PageContextProvider } from '../shared/PageContextProvider'
-import { RouterApp } from '../shared/RouterApp'
 
 export interface SolidRenderContext extends RenderContext {
   Page: Component
@@ -19,8 +19,8 @@ export async function onRenderHtml({
 
   const headHtml = Head ? renderToString(() => (
     <NoHydration>
-      <PageContextProvider pageContext={pageContext} setPageContext={() => { }}>
-        <Head />
+      <PageContextProvider pageContext={pageContext as any} setPageContext={() => { }}>
+        <Dynamic component={Head} />
       </PageContextProvider>
     </NoHydration>
   )) : ''
@@ -29,15 +29,17 @@ export async function onRenderHtml({
 
   const nonceAttr = nonce ? ` nonce="${nonce}"` : ''
 
-  const appHtml = await renderToStringAsync(() => (
-    <RouterApp
-      routes={[]}
-      errorRoute={null}
-      initialUrl={pageContext.urlOriginal}
-      initialContext={pageContext}
-      initialView={{ Page, Layout: Layout ?? null, Head: null }}
-    />
-  ))
+  const appHtml = hydration ? await renderToStringAsync(() => (
+    <PageContextProvider pageContext={pageContext as any} setPageContext={() => { }}>
+      {Layout ? (
+        <Dynamic component={Layout}>
+          <Dynamic component={Page} />
+        </Dynamic>
+      ) : (
+        <Dynamic component={Page} />
+      )}
+    </PageContextProvider>
+  )) : '' // Client Takeover: not rendering the appHTML
 
   return `<!DOCTYPE html>
 <html lang="en">
