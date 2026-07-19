@@ -49,6 +49,6 @@ export default defineConfig(
   },
   {
     plugins: { vue },
-    files: ['packages/vike-lite-vue/**/*.ts']
+    files: ['packages/vike-lite-vue/**/*.{ts,vue}']
   }
 )
