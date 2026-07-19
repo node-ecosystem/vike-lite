@@ -203,7 +203,7 @@ export default function vikeLite({
         plugin => plugin.name?.startsWith('vike-lite-') && SUPPORTED_RENDERERS.includes(plugin.name.replace('vike-lite-', '') as any)
       )
       if (!hasUIRenderer) {
-        throw new Error(`[vike-lite] No UI renderer plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
+        throw new Error(`❌ No UI adapter plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
       }
     },
     resolveId(id) {
@@ -285,7 +285,7 @@ export default function vikeLite({
               break
             }
           }
-          if (!serverEntryPath) throw new Error(`[vike-lite] serverEntry '${serverEntry}' file not found`)
+          if (!serverEntryPath) throw new Error(`❌ serverEntry ${serverEntry} file not found`)
           serverEntryPath = serverEntryPath.replaceAll('\\', '/')
           return importSetup
             + `export*from'${serverEntryPath}';`
@@ -347,7 +347,7 @@ export default function vikeLite({
 
         if (shouldPrerender) {
           if (route.path.includes(':') && dynamicUrls.length === 0) {
-            console.warn(`[vike-lite] ⚠️ Skipping dynamic route "${route.path}": no URLs provided by +prerender. Return an array of URLs to prerender it.`)
+            console.warn(`⚠️ Skipping dynamic route ${route.path}: no URLs provided by +prerender. Return an array of URLs to prerender it.`)
             continue
           }
           // Skip dynamic routes without explicit URLs (they need +prerender.ts returning URLs)
@@ -360,7 +360,7 @@ export default function vikeLite({
 
       if (urlsToPrerender.size === 0) return
 
-      console.log('[vike-lite] 📦 Starting Static Site Generation (SSG)…')
+      console.log('📦 Starting Static Site Generation (SSG)…')
 
       let generatedCount = 0
       const clientDir = path.join(viteConfigRoot, outDir, 'client')
@@ -373,7 +373,7 @@ export default function vikeLite({
           const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
           fs.mkdirSync(outDirRoute, { recursive: true })
           fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
-        } else throw new Error(`[vike-lite] ❌ SSG HTML Error for "${urlPath}"`)
+        } else throw new Error(`❌ SSG HTML Error for "${urlPath}"`)
 
         const jsonTarget = urlPath === '/' ? '/index' : urlPath
         const jsonReq = new Request(`http://localhost${baseUrl}${jsonTarget}.pageContext.json`)
@@ -382,12 +382,17 @@ export default function vikeLite({
           const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
           fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
-        } else throw new Error(`[vike-lite] ❌ SSG JSON Error for "${jsonTarget}"`)
+        } else throw new Error(`❌ SSG JSON Error for "${jsonTarget}"`)
 
-        console.log(`  → ${urlPath}`)
+        console.log(`  route → ${urlPath}`)
         generatedCount++
       }
-      console.log(`[vike-lite] ✨ SSG Completed! Generated ${generatedCount} static routes`)
+
+      if (urlsToPrerender.size === 0) {
+        console.warn('ℹ️  No static routes to generate. If you don\'t want to use SSG, in the \'vite.config\', set "prerender" option as "false" or remove.')
+        return
+      }
+      console.log(`✨ SSG Completed! Generated ${generatedCount} static routes`)
     },
     configureServer(server) {
       // Return a callback to run this middleware as last
