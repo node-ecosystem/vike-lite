@@ -1,5 +1,6 @@
 import type { Plugin } from 'vite'
 
+// TODO only used by vike-lite-solid, but not by vike-lite-react and vike-lite-vue (that uses unplugin-vue). Should we move this to vike-lite-solid/vite?
 /**
  * Creates the Vite plugin that configures dev-server pre-bundling and SSR externalization
  * for framework adapters (e.g. vike-lite-solid, vike-lite-vue) that export raw, uncompiled
