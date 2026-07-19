@@ -5,9 +5,7 @@ const nonPageExtensions = ['.ts', '.js']
 const pageExtensions = ['.tsx', '.jsx', '.vue']
 
 function findFile(files: string[], basename: string, extensions: string[]): string | undefined {
-  return files.find(file =>
-    extensions.some(ext => file === `${basename}${ext}`)
-  )
+  return files.find(file => extensions.some(ext => file === `${basename}${ext}`))
 }
 
 export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Route[]; errorRoute?: Route } {
