@@ -4,6 +4,6 @@ import { usePageContext } from './usePageContext'
 
 export function useUrl(): Accessor<URL> {
   const ctx = usePageContext()
-  const url = createMemo(() => new URL(ctx.urlOriginal, 'http://localhost'))
+  const url = createMemo(() => new URL(ctx.urlOriginal))
   return url
 }
