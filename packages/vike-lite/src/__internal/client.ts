@@ -28,7 +28,7 @@ function isSamePage(url: URL): boolean {
 
 export function createLinkClickHandler(onNavigate: (url: URL) => void) {
   return (e: MouseEvent) => {
-    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !(e.target instanceof Element)) return
 
     const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('a')
     const url = getClientSideUrl(target)
