@@ -422,9 +422,13 @@ export default function vikeLite({
             const requestInit = { method: req.method, headers } as RequestInit
             if (req.url!.startsWith(apiPrefix)) {
               server.config.logger.info(`⚡ API: ${req.method} ${req.url}`, { timestamp: true })
-              requestInit.body = Readable.toWeb(req) as any
-              // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
-              requestInit.duplex = 'half'
+              // GET/HEAD requests must not have a body — the Fetch API's Request
+              // constructor throws otherwise ("Request with GET/HEAD method cannot have body")
+              if (req.method !== 'GET' && req.method !== 'HEAD') {
+                requestInit.body = Readable.toWeb(req) as any
+                // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
+                requestInit.duplex = 'half'
+              }
             } else if (req.url!.endsWith('.pageContext.json')) {
               server.config.logger.info(`🔄 SPA Navigation: ${req.url}`, { timestamp: true })
             }
