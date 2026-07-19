@@ -30,7 +30,8 @@ const RouterApp = defineComponent<RouterProps>((props) => {
   const currentPathname = ref(props.initialContext.urlPathname)
   const reloadTick = ref(0)
 
-  const shouldScrollToTop = { value: false }
+  // Plain mutable object (NOT a Vue ref / Solid signal — intentionally non-reactive)
+  const shouldScrollToTop = { current: false }
   const pendingContextOverride = { value: null as Partial<PageContextClient> | null }
   const reloadResolvers: Array<() => void> = []
   let isFirstRun = true
@@ -73,7 +74,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       } as PageContextClient)
       view.value = errorView
       document.title = is404 ? 'Not Found' : 'Server Error'
-      finalizeNavigation(shouldScrollToTop.value)
+      finalizeNavigation(shouldScrollToTop)
     }
 
     if (!matched) return renderErrorPage(true)
@@ -96,7 +97,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
           return
         }
         globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', ctx._redirect)
-        shouldScrollToTop.value = true
+        shouldScrollToTop.current = true
         currentUrl.value = urlObjRedirect.href
         currentPathname.value = stripBase(urlObjRedirect.pathname)
         return
@@ -128,7 +129,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         document.querySelector<HTMLDivElement>('#root')?.focus({ preventScroll: true })
       })
 
-      finalizeNavigation(shouldScrollToTop.value)
+      finalizeNavigation(shouldScrollToTop)
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
 
@@ -153,7 +154,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
   onMounted(() => {
     const handleLinkClick = createLinkClickHandler((url) => {
-      if (!url.hash) shouldScrollToTop.value = true
+      if (!url.hash) shouldScrollToTop.current = true
       currentUrl.value = url.href
       currentPathname.value = stripBase(url.pathname)
     })
@@ -173,7 +174,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
     const handleProgrammaticNavigate = (e: Event) => {
       const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContextClient> }>).detail || {}
-      if (!detail.keepScrollPosition) shouldScrollToTop.value = true
+      if (!detail.keepScrollPosition) shouldScrollToTop.current = true
       if (detail.pageContext) pendingContextOverride.value = detail.pageContext
       currentUrl.value = globalThis.location.href
       currentPathname.value = stripBase(globalThis.location.pathname)
