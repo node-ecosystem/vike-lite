@@ -42,6 +42,7 @@ export function createLinkClickHandler(onNavigate: (url: URL) => void) {
 
 export function createLinkPrefetchHandler(onPrefetch: (url: URL) => void) {
   return (e: Event) => {
+    if (!(e.target instanceof Element)) return
     const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('a')
     const url = getClientSideUrl(target)
     if (!url || isSamePage(url)) return
