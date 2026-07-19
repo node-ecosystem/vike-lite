@@ -63,7 +63,7 @@ By this way you access at the context only 1 time.
 export const Page: Component = () => {
   const pageContext = usePageContext()
 -  const [myQueryParam, setMyQueryParam] = createSignal(pageContext.urlParsed.search.myQueryParam)
-+  const url = createMemo(() => new URL(pageContext.urlOriginal, 'http://localhost'))
++  const url = createMemo(() => new URL(pageContext.urlOriginal))
 +  const [myQueryParam, setMyQueryParam] = createSignal(url().searchParams.get('myQueryParam'))
 }
 ```

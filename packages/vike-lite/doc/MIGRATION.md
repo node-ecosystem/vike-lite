@@ -61,7 +61,7 @@ export const data = (pageContext) => {
 -  const { search } = pageContext.urlParsed
 -  const { page } = search
 +  // Note: the second argument is a fallback base needed for relative URLs (SSR)
-+  const url = new URL(pageContext.urlOriginal, 'http://localhost')
++  const url = new URL(pageContext.urlOriginal)
 +
 +  // Get a single query parameter
 +  const page = url.searchParams.get('page')
