@@ -386,7 +386,7 @@ export default function vikeLite({
           fs.writeFileSync(jsonOutPath, await jsonRes.text())
         } else throw new Error(`❌ SSG JSON Error for "${jsonTarget}"`)
 
-        console.log(`  route → ${urlPath}`)
+        console.log(`   → route ${urlPath}`)
       }
       console.log(`✨ SSG Completed! Generated ${urlsToPrerender.size} static routes`)
     },
