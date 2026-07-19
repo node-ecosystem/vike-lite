@@ -207,7 +207,7 @@ export async function resolveHydrationView(
   const emptyView: ViewComponents = { Page: null, Layout: null, Head: null }
   if (!isHydration) return emptyView
 
-  if ((initialContext.is404 || initialContext.is500 || initialContext.errorMessage) && errorRoute) {
+  if (errorRoute && (initialContext.is404 || initialContext.is500 || initialContext.errorMessage)) {
     return loadViewModules(errorRoute)
   }
 
