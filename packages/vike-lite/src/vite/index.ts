@@ -358,11 +358,13 @@ export default function vikeLite({
         }
       }
 
-      if (urlsToPrerender.size === 0) return
+      if (urlsToPrerender.size === 0) {
+        console.warn('⚠️ No static routes to generate. If you don\'t want to use SSG, in the \'vite.config\', set "prerender" option as "false" or remove.')
+        return
+      }
 
       console.log('📦 Starting Static Site Generation (SSG)…')
 
-      let generatedCount = 0
       const clientDir = path.join(viteConfigRoot, outDir, 'client')
 
       // Simulate requests and save HTML/JSON
@@ -385,14 +387,8 @@ export default function vikeLite({
         } else throw new Error(`❌ SSG JSON Error for "${jsonTarget}"`)
 
         console.log(`  route → ${urlPath}`)
-        generatedCount++
       }
-
-      if (urlsToPrerender.size === 0) {
-        console.warn('⚠️ No static routes to generate. If you don\'t want to use SSG, in the \'vite.config\', set "prerender" option as "false" or remove.')
-      } else {
-        console.log(`✨ SSG Completed! Generated ${generatedCount} static routes`)
-      }
+      console.log(`✨ SSG Completed! Generated ${urlsToPrerender.size} static routes`)
     },
     configureServer(server) {
       // Return a callback to run this middleware as last
