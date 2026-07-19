@@ -1,6 +1,6 @@
 export const SUPPORTED_RENDERERS = [
   'react',
   'solid',
+  'svelte',
   'vue'
-  // 'svelte' ? TODO
 ] as const
