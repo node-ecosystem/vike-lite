@@ -9,7 +9,8 @@ import { globalContext } from '../shared/globalContext'
  * @link https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/useData.tsx
  */
 export function useData<Data extends PageContext['data']>(): [Data, SetStoreFunction<Data>] {
-  const context = useContext(globalContext.solidContext)!
+  const context = useContext(globalContext.solidContext)
+  if (!context) throw new Error('useData() must be called inside a page rendered by vike-lite-solid')
 
   const setData: SetStoreFunction<Data> = (...args: any[]) => {
     // @ts-expect-error - pass args directly to 'data'

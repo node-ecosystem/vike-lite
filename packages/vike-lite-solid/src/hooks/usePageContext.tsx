@@ -9,5 +9,7 @@ import { globalContext, type InternalContextValue } from '../shared/globalContex
  * @link https://github.com/vikejs/vike-solid/blob/main/packages/vike-solid/hooks/usePageContext.tsx
  */
 export function usePageContext<Data = unknown>(): PageContext<Data> {
-  return (useContext(globalContext.solidContext) as InternalContextValue<Data>).state
+  const ctx = useContext(globalContext.solidContext) as InternalContextValue<Data> | undefined
+  if (!ctx) throw new Error('usePageContext() must be called inside a page rendered by vike-lite-solid')
+  return ctx.state
 }
