@@ -118,7 +118,9 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         search: urlObj.search,
         ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
         ...(ctx?.title ? { title: ctx.title } : {}),
-        ...contextOverride
+        ...contextOverride,
+        isClientSide: true,
+        isHydration: false
       } as PageContextClient)
       view.value = newView
 
