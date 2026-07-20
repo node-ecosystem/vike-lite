@@ -45,3 +45,16 @@ export default async function prerender() {
   return posts.map(post => `/post/${post.slug}`)
 }
 ```
+
+> 💡 **Note:** if you use [standaloner](https://github.com/nitedani/standaloner), with the `bundle` option, you must include both `index` and `prerender` in the bundle array instead of `true`:
+```ts
+// vite.config
+export default {
+  plugins: [
+    standaloner({
+      bundle: ['index', 'prerender']
+    })
+  ]
+}
+```
+This ensures that in `dist/server` folder, `prerender.mjs` is bundled correctly alongside `index.mjs` and remains available for the SSG phase.
