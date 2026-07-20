@@ -77,7 +77,7 @@
     "@vitejs/plugin-vue": ">=6",
     "vike-lite": "*",
     "vite": ">=8",
-    "vue": "*"
+    "vue": ">=3"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

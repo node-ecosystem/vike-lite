@@ -6631,8 +6631,8 @@ __metadata:
     vitest: "npm:^4.1.10"
   peerDependencies:
     "@vitejs/plugin-react": ">=6"
-    react: "*"
-    react-dom: "*"
+    react: ">=19"
+    react-dom: ">=19"
     vike-lite: "*"
     vite: ">=8"
   languageName: unknown
@@ -6653,7 +6653,7 @@ __metadata:
     vite-plugin-solid: "npm:^2.11.13"
     vitest: "npm:^4.1.10"
   peerDependencies:
-    solid-js: "*"
+    solid-js: ">=1"
     vike-lite: "*"
     vite: ">=8"
     vite-plugin-solid: ">=2"
@@ -6676,7 +6676,7 @@ __metadata:
     vitest: "npm:^4.1.10"
   peerDependencies:
     "@sveltejs/vite-plugin-svelte": ">=7"
-    svelte: "*"
+    svelte: ">=5"
     vike-lite: "*"
     vite: ">=8"
   languageName: unknown
@@ -6706,7 +6706,7 @@ __metadata:
     "@vitejs/plugin-vue": ">=6"
     vike-lite: "*"
     vite: ">=8"
-    vue: "*"
+    vue: ">=3"
   languageName: unknown
   linkType: soft
 

@@ -69,7 +69,7 @@
   },
   "peerDependencies": {
     "@sveltejs/vite-plugin-svelte": ">=7",
-    "svelte": "*",
+    "svelte": ">=5",
     "vike-lite": "*",
     "vite": ">=8"
   },

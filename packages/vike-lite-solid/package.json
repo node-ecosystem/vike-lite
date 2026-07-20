@@ -69,7 +69,7 @@
     "vitest": "^4.1.10"
   },
   "peerDependencies": {
-    "solid-js": "*",
+    "solid-js": ">=1",
     "vike-lite": "*",
     "vite": ">=8",
     "vite-plugin-solid": ">=2"
