@@ -30,7 +30,6 @@
     "od": "yarn outdated"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "@yarnpkg/sdks": "^3.3.0",
