@@ -1,6 +1,7 @@
 import { describe, it } from 'vitest'
-import { strictEqual } from 'node:assert/strict'
-import { createRoutePrefetcher, buildPageContextJsonUrl } from '../src/__internal/client'
+import { strictEqual, deepStrictEqual, ok, rejects } from 'node:assert/strict'
+
+import { createRoutePrefetcher, buildPageContextJsonUrl, loadViewModules, fetchPageContextJson, buildInitialClientContext, resolveHydrationView } from '../src/__internal/client'
 
 describe('vike-lite client utils', () => {
   describe('buildPageContextJsonUrl', () => {
@@ -37,6 +38,131 @@ describe('vike-lite client utils', () => {
       prefetcher(dummyRoute)
       await new Promise(r => setTimeout(r, 0))
       strictEqual(count, 1)
+    })
+  })
+
+  describe('loadViewModules', () => {
+    it('prefers the named export over the default export', async () => {
+      const PageNamed = () => 'page-named'
+      const PageDefault = () => 'page-default'
+      const view = await loadViewModules({
+        Page: async () => ({ Page: PageNamed, default: PageDefault })
+      })
+      strictEqual(view.Page, PageNamed)
+    })
+
+    it('falls back to the default export when no named export is present', async () => {
+      const PageDefault = () => 'page-default'
+      const view = await loadViewModules({
+        Page: async () => ({ default: PageDefault })
+      })
+      strictEqual(view.Page, PageDefault)
+    })
+
+    it('resolves Layout/Head to null when the route has no loader for them', async () => {
+      const view = await loadViewModules({
+        Page: async () => ({ default: () => null })
+      })
+      strictEqual(view.Layout, null)
+      strictEqual(view.Head, null)
+    })
+
+    it('resolves Layout/Head to null when their loader resolves to an empty module', async () => {
+      const view = await loadViewModules({
+        Page: async () => ({ default: () => null }),
+        Layout: async () => ({}),
+        Head: async () => ({})
+      })
+      strictEqual(view.Layout, null)
+      strictEqual(view.Head, null)
+    })
+
+    it('loads Page/Layout/Head in parallel, not sequentially', async () => {
+      const order: string[] = []
+      await loadViewModules({
+        Page: async () => { order.push('page-start'); await new Promise(r => setTimeout(r, 10)); order.push('page-end'); return { default: () => null } },
+        Layout: async () => { order.push('layout-start'); return { default: () => null } },
+        Head: async () => { order.push('head-start'); return { default: () => null } }
+      })
+      // All three loaders should have started before the slow Page loader finished
+      ok(order.indexOf('page-end') === order.length - 1, `expected page-end last, got: ${order.join(',')}`)
+    })
+  })
+
+  describe('fetchPageContextJson', () => {
+    it('parses and returns a JSON response', async () => {
+      const originalFetch = globalThis.fetch
+      globalThis.fetch = (async () => new Response(JSON.stringify({ title: 'Hello' }), {
+        headers: { 'content-type': 'application/json' }
+      })) as typeof fetch
+      try {
+        const controller = new AbortController()
+        const result = await fetchPageContextJson('/about.pageContext.json', { signal: controller.signal })
+        deepStrictEqual(result, { title: 'Hello' })
+      } finally {
+        globalThis.fetch = originalFetch
+      }
+    })
+
+    it('throws a descriptive error when a proxy/CDN returns non-JSON', async () => {
+      const originalFetch = globalThis.fetch
+      globalThis.fetch = (async () => new Response('<html>Not Found</html>', {
+        headers: { 'content-type': 'text/html' }
+      })) as typeof fetch
+      try {
+        const controller = new AbortController()
+        await rejects(
+          () => fetchPageContextJson('/about.pageContext.json', { signal: controller.signal }),
+          /Expected JSON but got "text\/html"/
+        )
+      } finally {
+        globalThis.fetch = originalFetch
+      }
+    })
+  })
+
+  describe('buildInitialClientContext', () => {
+    it('stamps isClientSide:true and the given isHydration flag onto the raw context', () => {
+      const raw = { urlPathname: '/about', routeParams: {} }
+      const result = buildInitialClientContext(raw, true)
+      strictEqual(result.isClientSide, true)
+      strictEqual(result.isHydration, true)
+      strictEqual(result.urlPathname, '/about')
+    })
+
+    it('defaults to an empty object when rawContext is undefined', () => {
+      const result = buildInitialClientContext(undefined, false)
+      strictEqual(result.isClientSide, true)
+      strictEqual(result.isHydration, false)
+    })
+  })
+
+  describe('resolveHydrationView', () => {
+    const routes = [
+      { path: '/', page: 'index', Page: async () => ({ default: () => 'home' }) }
+    ] as any[]
+    const errorRoute = { page: 'error', Page: async () => ({ default: () => 'error-page' }) } as any
+
+    it('returns an empty view when not hydrating (client takeover)', async () => {
+      const view = await resolveHydrationView({ urlPathname: '/' }, false, routes, errorRoute)
+      deepStrictEqual(view, { Page: null, Layout: null, Head: null })
+    })
+
+    it('loads the error route view when the server reported a 404', async () => {
+      const view = await resolveHydrationView({ urlPathname: '/', is404: true }, true, routes, errorRoute)
+      ok(view.Page)
+      strictEqual((view.Page as () => string)(), 'error-page')
+    })
+
+    it('loads the matched route view when hydrating a normal page', async () => {
+      const view = await resolveHydrationView({ urlPathname: '/' }, true, routes, errorRoute)
+      ok(view.Page)
+      strictEqual((view.Page as () => string)(), 'home')
+    })
+
+    it('returns an empty view when hydrating a pathname that matches no route', async () => {
+      const view = await resolveHydrationView({ urlPathname: '/nope' }, true, routes, null)
+      deepStrictEqual(view, { Page: null, Layout: null, Head: null })
     })
   })
 })
