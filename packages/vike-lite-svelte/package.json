@@ -61,7 +61,7 @@
     "@testing-library/svelte": "^5.4.2",
     "@types/node": "^26.1.1",
     "jsdom": "^29.1.1",
-    "svelte": "^5.56.6",
+    "svelte": "^5.56.7",
     "tsdown": "^0.22.12",
     "vike-lite": "workspace:*",
     "vite": "^8.1.5",
