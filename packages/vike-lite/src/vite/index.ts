@@ -75,6 +75,8 @@ export default function vikeLite({
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
+      const serverInput: Record<string, string> = { index: VIRTUAL.entryServer }
+      if (hasAnyPrerender) serverInput.prerender = VIRTUAL.entryPrerender
 
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware
@@ -177,9 +179,7 @@ export default function vikeLite({
               minify,
               sourcemap,
               rolldownOptions: {
-                input: hasAnyPrerender
-                  ? { index: VIRTUAL.entryServer, prerender: VIRTUAL.entryPrerender }
-                  : { index: VIRTUAL.entryServer },
+                input: serverInput,
                 output: {
                   format: 'esm',
                   entryFileNames: '[name].mjs',
