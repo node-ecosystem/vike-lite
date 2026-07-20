@@ -1,10 +1,10 @@
-import { type JSX, createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, batch, createMemo, type ParentComponent } from 'solid-js'
+import { createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, batch, createMemo, type JSX, type ParentComponent } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
-import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
 import { buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
+import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
 
 import { PageContextProvider } from './PageContextProvider'
 
