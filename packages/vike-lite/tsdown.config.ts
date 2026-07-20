@@ -1,5 +1,7 @@
 import type { UserConfig } from 'tsdown'
 
+import { assertExternal } from '../../scripts/tsdown-utils.ts'
+
 export default {
   entry: {
     'index': 'src/index.ts',
@@ -14,5 +16,6 @@ export default {
   },
   copy: [
     { from: 'src/vite/defaultServerEntry.mjs', to: 'dist/__internal/vite' }
-  ]
+  ],
+  plugins: [assertExternal()]
 } satisfies UserConfig
