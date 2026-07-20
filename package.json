@@ -10,6 +10,7 @@
   "bugs": {
     "url": "https://github.com/node-ecosystem/vike-lite/issues"
   },
+  "description": "Lite version of Vike web framework",
   "scripts": {
     "lint": "eslint packages/**/*.ts",
     "lint:core": "eslint packages/vike-lite/**/*.ts",
