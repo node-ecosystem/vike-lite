@@ -5,6 +5,7 @@ import { renderHtmlShell } from 'vike-lite/__internal/server'
 import type { RenderContext } from 'vike-lite/__internal/shared'
 
 import { PageContextProvider } from '../shared/PageContextProvider'
+import { RootErrorBoundary } from '../shared/RootErrorBoundary'
 
 interface SolidRenderContext extends RenderContext {
   Page: Component
@@ -35,15 +36,17 @@ export async function onRenderHtml({
   const hydrationScript = hydration ? generateHydrationScript() : ''
 
   const appHtml = hydration ? await renderToStringAsync(() => (
-    <PageContextProvider pageContext={pageContext as any} setPageContext={() => { }}>
-      {Layout ? (
-        <Dynamic component={Layout}>
+    <RootErrorBoundary>
+      <PageContextProvider pageContext={pageContext as any} setPageContext={() => { }}>
+        {Layout ? (
+          <Dynamic component={Layout}>
+            <Dynamic component={Page} />
+          </Dynamic>
+        ) : (
           <Dynamic component={Page} />
-        </Dynamic>
-      ) : (
-        <Dynamic component={Page} />
-      )}
-    </PageContextProvider>
+        )}
+      </PageContextProvider>
+    </RootErrorBoundary>
   )) : '' // Client Takeover: not rendering the appHTML
 
   return renderHtmlShell({
