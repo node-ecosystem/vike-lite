@@ -59,7 +59,7 @@ export default {
 #### `useData`
 Access the data fetched by your `+data` functions directly inside your Vue components.
 
-```vue
+```html
 <!-- /pages/+Page.vue -->
 <script setup lang="ts">
 import { useData } from 'vike-lite-vue'
@@ -84,7 +84,7 @@ const [data, setData] = useData<MyData>()
 #### `usePageContext`
 Access the current page context, including URL parameters, original pathname, and route information.
 
-```vue
+```html
 <!-- /pages/+Page.vue -->
 <script setup lang="ts">
 import { usePageContext } from 'vike-lite-vue'
@@ -102,7 +102,7 @@ const pageContext = usePageContext()
 #### `useHydrated`
 Detect whether the application has successfully hydrated on the client. Essential for wrapping client-only libraries (like chart tools or window-dependent logic) to avoid SSR hydration mismatches.
 
-```vue
+```html
 <!-- /pages/+Page.vue -->
 <script setup lang="ts">
 import { useHydrated } from 'vike-lite-vue'
@@ -121,7 +121,7 @@ const hydrated = useHydrated()
 ```
 
 #### `useUrl`
-```vue
+```html
 <!-- /pages/+Page.vue -->
 <script setup lang="ts">
 import { useUrl } from 'vike-lite-vue'
