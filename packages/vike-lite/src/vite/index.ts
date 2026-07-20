@@ -327,6 +327,12 @@ export default function vikeLite({
           renderPage: typeof import('vike-lite/server').renderPage
         }
 
+        // prerender.mjs only exists to let us run SSG here at build time — the running
+        // server never imports it (it uses server/index.mjs). Once Node has loaded it
+        // into memory above, the file on disk has done its job, so remove it from the
+        // shipped output. Best-effort: a leftover file here isn't harmful, just noise.
+        try { fs.unlinkSync(prerenderPath) } catch { }
+
         // Import renderPage directly, bypassing the user's custom server:
         // this avoids middleware/side-effects (CORS, DB connections, etc.)
         // that shouldn't run during static generation
