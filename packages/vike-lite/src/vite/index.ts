@@ -306,89 +306,97 @@ export default function vikeLite({
           + `export{routes}from'${VIRTUAL.routes}';`
           + `export{renderPage}from'vike-lite/server';`
     },
-    // Run SSG at end of the build
-    async closeBundle() {
-      if (!isProd || !hasAnyPrerender || this.environment.name !== 'ssr') return
+    // Run SSG at end of the build.
+    // `order: 'pre'` ensures this runs BEFORE other plugins' closeBundle hooks —
+    // in particular, standalone/single-file bundling plugins that inline dist/server/index.mjs
+    // and then delete the shared chunks directory. Since dist/server/prerender.mjs is a
+    // separate entry that still imports from those shared chunks, if it were deleted first
+    // the dynamic import() below would fail with ERR_MODULE_NOT_FOUND.
+    closeBundle: {
+      order: 'pre',
+      async handler() {
+        if (!isProd || !hasAnyPrerender || this.environment.name !== 'ssr') return
 
-      const { pathToFileURL } = await import('node:url')
-      const prerenderPath = path.join(viteConfigRoot, outDir, 'server/prerender.mjs')
+        const { pathToFileURL } = await import('node:url')
+        const prerenderPath = path.join(viteConfigRoot, outDir, 'server/prerender.mjs')
 
-      // Import the built server module — this triggers setVikeState() as side-effect,
-      // which is required for renderPage to know about routes/config
-      const { routes, renderPage } = await import(pathToFileURL(prerenderPath).href) as {
-        routes: typeof import('virtual:vike-lite/routes').routes
-        renderPage: typeof import('vike-lite/server').renderPage
-      }
+        // Import the built server module — this triggers setVikeState() as side-effect,
+        // which is required for renderPage to know about routes/config
+        const { routes, renderPage } = await import(pathToFileURL(prerenderPath).href) as {
+          routes: typeof import('virtual:vike-lite/routes').routes
+          renderPage: typeof import('vike-lite/server').renderPage
+        }
 
-      // Import renderPage directly, bypassing the user's custom server:
-      // this avoids middleware/side-effects (CORS, DB connections, etc.)
-      // that shouldn't run during static generation
-      const urlsToPrerender = new Set<string>()
+        // Import renderPage directly, bypassing the user's custom server:
+        // this avoids middleware/side-effects (CORS, DB connections, etc.)
+        // that shouldn't run during static generation
+        const urlsToPrerender = new Set<string>()
 
-      // Determine which URLs to generate by evaluating +prerender.ts files
-      for (const route of routes) {
-        // Default: use the global plugin option
-        let shouldPrerender = prerender
-        let dynamicUrls: string[] = []
+        // Determine which URLs to generate by evaluating +prerender.ts files
+        for (const route of routes) {
+          // Default: use the global plugin option
+          let shouldPrerender = prerender
+          let dynamicUrls: string[] = []
 
-        // Per-route override: +prerender always takes priority
-        if (route.Prerender) {
-          const mod = await route.Prerender()
-          const prerenderFn = mod.default ?? mod.prerender
-          const result = typeof prerenderFn === 'function' ? await prerenderFn() : prerenderFn
+          // Per-route override: +prerender always takes priority
+          if (route.Prerender) {
+            const mod = await route.Prerender()
+            const prerenderFn = mod.default ?? mod.prerender
+            const result = typeof prerenderFn === 'function' ? await prerenderFn() : prerenderFn
 
-          if (result === false) shouldPrerender = false
-          else if (result === true) shouldPrerender = true
-          else if (Array.isArray(result)) {
-            shouldPrerender = true
-            dynamicUrls = result
+            if (result === false) shouldPrerender = false
+            else if (result === true) shouldPrerender = true
+            else if (Array.isArray(result)) {
+              shouldPrerender = true
+              dynamicUrls = result
+            }
+          }
+
+          if (shouldPrerender) {
+            if (route.path.includes(':') && dynamicUrls.length === 0) {
+              console.warn(`⚠️ Skipping dynamic route ${route.path}: no URLs provided by +prerender. Return an array of URLs to prerender it.`)
+              continue
+            }
+            // Skip dynamic routes without explicit URLs (they need +prerender.ts returning URLs)
+            if (!route.path.includes(':')) {
+              urlsToPrerender.add(route.path)
+            }
+            for (const url of dynamicUrls) urlsToPrerender.add(url)
           }
         }
 
-        if (shouldPrerender) {
-          if (route.path.includes(':') && dynamicUrls.length === 0) {
-            console.warn(`⚠️ Skipping dynamic route ${route.path}: no URLs provided by +prerender. Return an array of URLs to prerender it.`)
-            continue
-          }
-          // Skip dynamic routes without explicit URLs (they need +prerender.ts returning URLs)
-          if (!route.path.includes(':')) {
-            urlsToPrerender.add(route.path)
-          }
-          for (const url of dynamicUrls) urlsToPrerender.add(url)
+        if (urlsToPrerender.size === 0) {
+          console.warn('⚠️ No static routes to generate: if you don\'t want to use SSG, in the \'vite.config\' set the "prerender" option as "false" or remove it.')
+          return
         }
+
+        console.log('📦 Starting Static Site Generation (SSG)…')
+
+        const clientDir = path.join(viteConfigRoot, outDir, 'client')
+
+        // Simulate requests and save HTML/JSON
+        for (const urlPath of urlsToPrerender) {
+          const htmlReq = new Request(`http://localhost${baseUrl}${urlPath}`)
+          const htmlRes = await renderPage(htmlReq)
+          if (htmlRes.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
+            const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
+            fs.mkdirSync(outDirRoute, { recursive: true })
+            fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
+          } else throw new Error(`❌ SSG HTML Error for "${urlPath}"`)
+
+          const jsonTarget = urlPath === '/' ? '/index' : urlPath
+          const jsonReq = new Request(`http://localhost${baseUrl}${jsonTarget}.pageContext.json`)
+          const jsonRes = await renderPage(jsonReq)
+          if (jsonRes.ok) {
+            const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
+            fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
+            fs.writeFileSync(jsonOutPath, await jsonRes.text())
+          } else throw new Error(`❌ SSG JSON Error for "${jsonTarget}"`)
+
+          console.log(`   → route ${urlPath}`)
+        }
+        console.log(`✨ SSG Completed! Generated ${urlsToPrerender.size} static routes`)
       }
-
-      if (urlsToPrerender.size === 0) {
-        console.warn('⚠️ No static routes to generate: if you don\'t want to use SSG, in the \'vite.config\' set the "prerender" option as "false" or remove it.')
-        return
-      }
-
-      console.log('📦 Starting Static Site Generation (SSG)…')
-
-      const clientDir = path.join(viteConfigRoot, outDir, 'client')
-
-      // Simulate requests and save HTML/JSON
-      for (const urlPath of urlsToPrerender) {
-        const htmlReq = new Request(`http://localhost${baseUrl}${urlPath}`)
-        const htmlRes = await renderPage(htmlReq)
-        if (htmlRes.ok && htmlRes.headers.get('content-type')?.includes('text/html')) {
-          const outDirRoute = path.join(clientDir, urlPath === '/' ? '' : urlPath)
-          fs.mkdirSync(outDirRoute, { recursive: true })
-          fs.writeFileSync(path.join(outDirRoute, 'index.html'), await htmlRes.text())
-        } else throw new Error(`❌ SSG HTML Error for "${urlPath}"`)
-
-        const jsonTarget = urlPath === '/' ? '/index' : urlPath
-        const jsonReq = new Request(`http://localhost${baseUrl}${jsonTarget}.pageContext.json`)
-        const jsonRes = await renderPage(jsonReq)
-        if (jsonRes.ok) {
-          const jsonOutPath = path.join(clientDir, `${jsonTarget}.pageContext.json`)
-          fs.mkdirSync(path.dirname(jsonOutPath), { recursive: true })
-          fs.writeFileSync(jsonOutPath, await jsonRes.text())
-        } else throw new Error(`❌ SSG JSON Error for "${jsonTarget}"`)
-
-        console.log(`   → route ${urlPath}`)
-      }
-      console.log(`✨ SSG Completed! Generated ${urlsToPrerender.size} static routes`)
     },
     configureServer(server) {
       // Return a callback to run this middleware as last
