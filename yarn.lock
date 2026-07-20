@@ -6288,9 +6288,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.22.11":
-  version: 0.22.11
-  resolution: "tsdown@npm:0.22.11"
+"tsdown@npm:^0.22.12":
+  version: 0.22.12
+  resolution: "tsdown@npm:0.22.12"
   dependencies:
     ansis: "npm:^4.3.1"
     cac: "npm:^7.0.0"
@@ -6302,15 +6302,15 @@ __metadata:
     picomatch: "npm:^4.0.5"
     rolldown: "npm:~1.2.0"
     rolldown-plugin-dts: "npm:^0.27.9"
-    semver: "npm:^7.8.5"
     tinyexec: "npm:^1.2.4"
     tinyglobby: "npm:^0.2.17"
     tree-kill: "npm:^1.2.2"
     unconfig-core: "npm:^7.5.0"
+    verkit: "npm:^0.1.0"
   peerDependencies:
     "@arethetypeswrong/core": ^0.18.1
-    "@tsdown/css": 0.22.11
-    "@tsdown/exe": 0.22.11
+    "@tsdown/css": 0.22.12
+    "@tsdown/exe": 0.22.12
     "@vitejs/devtools": "*"
     publint: ^0.3.8
     tsx: "*"
@@ -6338,7 +6338,7 @@ __metadata:
       optional: true
   bin:
     tsdown: ./dist/run.mjs
-  checksum: 10c0/6a2bb5a39e884c28d09b785c3b31aeb865e0ff350eff1766a9559046e1415a99a601f77587f34f7da5cfbc8a990e9ba6f5cb38f2d2fca62750c6b62a1a28ad8c
+  checksum: 10c0/6dc1d79cd7a7531e088aafc556fe476ccafb7e009be7f6780624d78d0171de67bdb5093d947e5d2ae1f3b4c5afeb0c1db7d5ac31191750f0c8e011c18c95b5b5
   languageName: node
   linkType: hard
 
@@ -6589,6 +6589,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"verkit@npm:^0.1.0":
+  version: 0.1.2
+  resolution: "verkit@npm:0.1.2"
+  checksum: 10c0/84d3978df9007326caf86dde354467189224c2864ae5d03111af7f112ca64a47d50f40a113f853284e4c90475b35dc4ccab47db2a3be7fe02fc1d81eca4361b6
+  languageName: node
+  linkType: hard
+
 "vike-lite-monorepo@workspace:.":
   version: 0.0.0-use.local
   resolution: "vike-lite-monorepo@workspace:."
@@ -6625,7 +6632,7 @@ __metadata:
     jsdom: "npm:^29.1.1"
     react: "npm:^19.2.7"
     react-dom: "npm:^19.2.7"
-    tsdown: "npm:^0.22.11"
+    tsdown: "npm:^0.22.12"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
@@ -6647,7 +6654,7 @@ __metadata:
     "@types/node": "npm:^26.1.1"
     jsdom: "npm:^29.1.1"
     solid-js: "npm:^1.9.14"
-    tsdown: "npm:^0.22.11"
+    tsdown: "npm:^0.22.12"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vite-plugin-solid: "npm:^2.11.13"
@@ -6670,7 +6677,7 @@ __metadata:
     "@types/node": "npm:^26.1.1"
     jsdom: "npm:^29.1.1"
     svelte: "npm:^5.56.6"
-    tsdown: "npm:^0.22.11"
+    tsdown: "npm:^0.22.12"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
@@ -6694,7 +6701,7 @@ __metadata:
     "@vue/server-renderer": "npm:^3.5.40"
     "@vue/test-utils": "npm:^2.4.11"
     jsdom: "npm:^29.1.1"
-    tsdown: "npm:^0.22.11"
+    tsdown: "npm:^0.22.12"
     typescript: "npm:^6.0.3"
     unplugin-vue: "npm:^7.2.0"
     vike-lite: "workspace:*"
@@ -6715,7 +6722,7 @@ __metadata:
   resolution: "vike-lite@workspace:packages/vike-lite"
   dependencies:
     "@types/node": "npm:^26.1.1"
-    tsdown: "npm:^0.22.11"
+    tsdown: "npm:^0.22.12"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
   peerDependencies:

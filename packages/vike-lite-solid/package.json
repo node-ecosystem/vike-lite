@@ -62,7 +62,7 @@
     "@types/node": "^26.1.1",
     "jsdom": "^29.1.1",
     "solid-js": "^1.9.14",
-    "tsdown": "^0.22.11",
+    "tsdown": "^0.22.12",
     "vike-lite": "workspace:*",
     "vite": "^8.1.5",
     "vite-plugin-solid": "^2.11.13",
