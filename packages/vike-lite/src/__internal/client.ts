@@ -66,32 +66,47 @@ export function finalizeNavigation(shouldScrollToTop: { current: boolean }) {
   }
 }
 
-export interface ViewComponents {
-  Page: any | null
-  Layout: any | null
-  Head: any | null
+export interface ViewComponents<TComponent = unknown> {
+  Page: TComponent | null
+  Layout: TComponent | null
+  Head: TComponent | null
+}
+
+/**
+ * Shape of a dynamically-imported `+Page`/`+Layout`/`+Head` module. The actual
+ * component type isn't statically known here (it's whatever the framework
+ * adapter's JSX/template runtime expects) — callers of `loadViewModules`
+ * specify it via the `TComponent` type param instead.
+ */
+interface ViewModule {
+  default?: unknown
+  Page?: unknown
+  Layout?: unknown
+  Head?: unknown
 }
 
 interface RouteModuleLoaders {
-  Page: () => Promise<any>
-  Layout?: () => Promise<any>
-  Head?: () => Promise<any>
+  Page: () => Promise<ViewModule>
+  Layout?: () => Promise<ViewModule>
+  Head?: () => Promise<ViewModule>
 }
 
 /**
  * Load a route's Page/Layout/Head modules in parallel and resolve each
  * module's export (named export first, falling back to the default export).
  */
-export async function loadViewModules(route: RouteModuleLoaders): Promise<ViewComponents> {
+export async function loadViewModules<TComponent = unknown>(
+  route: RouteModuleLoaders
+): Promise<ViewComponents<TComponent>> {
   const [PageMod, LayoutMod, HeadMod] = await Promise.all([
     route.Page(),
     route.Layout?.() ?? null,
     route.Head?.() ?? null
   ])
   return {
-    Page: PageMod.Page ?? PageMod.default,
-    Layout: LayoutMod?.Layout ?? LayoutMod?.default ?? null,
-    Head: HeadMod?.Head ?? HeadMod?.default ?? null
+    Page: (PageMod.Page ?? PageMod.default ?? null) as TComponent | null,
+    Layout: (LayoutMod?.Layout ?? LayoutMod?.default ?? null) as TComponent | null,
+    Head: (HeadMod?.Head ?? HeadMod?.default ?? null) as TComponent | null
   }
 }
 
@@ -104,6 +119,17 @@ export function buildPageContextJsonUrl(pathname: string, search: string): strin
   return `${BASE_URL}${jsonTarget}.pageContext.json${search}`
 }
 
+/** Shape of a `.pageContext.json` payload as produced by the server-side `+data`/`+title` hooks. */
+export interface PageContextJson {
+  data?: unknown
+  title?: string
+  is404?: boolean
+  is500?: boolean
+  isError?: boolean
+  reason?: string
+  _redirect?: string
+}
+
 /**
  * Fetch and parse a `.pageContext.json` endpoint, throwing a descriptive error
  * if a proxy/CDN intercepted the request with a non-JSON response.
@@ -111,7 +137,7 @@ export function buildPageContextJsonUrl(pathname: string, search: string): strin
 export async function fetchPageContextJson(
   jsonUrl: string,
   options: { signal: AbortSignal; cache?: RequestCache }
-): Promise<any> {
+): Promise<PageContextJson> {
   const res = await fetch(jsonUrl, options)
   const contentType = res.headers.get('content-type') ?? ''
   if (!contentType.includes('application/json')) {
@@ -124,9 +150,9 @@ interface PrefetchableRoute {
   page?: string
   layout?: string
   head?: string
-  Page?: () => Promise<any>
-  Layout?: () => Promise<any>
-  Head?: () => Promise<any>
+  Page?: () => Promise<unknown>
+  Layout?: () => Promise<unknown>
+  Head?: () => Promise<unknown>
 }
 
 /**
@@ -136,7 +162,7 @@ interface PrefetchableRoute {
 export function createRoutePrefetcher() {
   const prefetchedModules = new Set<string>()
   return function prefetchRoute(route: PrefetchableRoute) {
-    const modules: Array<[string | undefined, (() => Promise<any>) | undefined]> = [
+    const modules: Array<[string | undefined, (() => Promise<unknown>) | undefined]> = [
       [route.page, route.Page],
       [route.layout, route.Layout],
       [route.head, route.Head]
@@ -173,7 +199,7 @@ export function tryRecoverFromStaleModuleGraph(message: string, urlToReload: str
  * `isHydration`) onto the raw context blob the server injected via `window.__PAGE_CONTEXT__`.
  * Centralized so every adapter sets these consistently instead of some silently omitting them.
  */
-export function buildInitialClientContext<T extends Record<string, any>>(
+export function buildInitialClientContext<T extends object>(
   rawContext: T | undefined,
   isHydration: boolean
 ): T & { isClientSide: true; isHydration: boolean } {
@@ -198,22 +224,22 @@ interface HydrationInitialContext {
  * initial pathname. Returns a null view when hydration isn't happening (client
  * takeover) — the router's own first-load effect performs the initial load instead.
  */
-export async function resolveHydrationView(
+export async function resolveHydrationView<TComponent = unknown>(
   initialContext: HydrationInitialContext,
   isHydration: boolean,
   routes: VikeState['routes'],
   errorRoute: VikeState['errorRoute']
-): Promise<ViewComponents> {
-  const emptyView: ViewComponents = { Page: null, Layout: null, Head: null }
+): Promise<ViewComponents<TComponent>> {
+  const emptyView: ViewComponents<TComponent> = { Page: null, Layout: null, Head: null }
   if (!isHydration) return emptyView
 
   if (errorRoute && (initialContext.is404 || initialContext.is500 || initialContext.errorMessage)) {
-    return loadViewModules(errorRoute)
+    return loadViewModules<TComponent>(errorRoute)
   }
 
   const pathname = initialContext.urlPathname ?? globalThis.location.pathname
   const matched = matchRoute(pathname, routes)
-  return matched ? loadViewModules(matched.route) : emptyView
+  return matched ? loadViewModules<TComponent>(matched.route) : emptyView
 }
 
 /**

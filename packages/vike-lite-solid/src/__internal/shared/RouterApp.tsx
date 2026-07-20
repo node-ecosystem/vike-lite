@@ -1,17 +1,17 @@
-import { createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, batch, createMemo, type JSX, type ParentComponent } from 'solid-js'
+import { createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, batch, createMemo, type JSX, type ParentComponent, type ValidComponent } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
-import { buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules } from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules, type PageContextJson } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
 
 import { PageContextProvider } from './PageContextProvider'
 
 export interface ViewComponents {
-  Page: any | null
-  Layout: any | null
-  Head: any | null
+  Page: ValidComponent | null
+  Layout: ValidComponent | null
+  Head: ValidComponent | null
 }
 
 export interface RouterProps {
@@ -137,7 +137,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
 
         const renderErrorPage = async (is404: boolean, message?: string) => {
           if (!props.errorRoute) return
-          const errorView = await loadViewModules(props.errorRoute)
+          const errorView = await loadViewModules<ValidComponent>(props.errorRoute)
           if (signal.aborted) return
 
           batch(() => {
@@ -159,7 +159,7 @@ export function RouterApp(props: RouterProps): JSX.Element {
           const urlObj = new URL(urlFull)
           const jsonUrl = buildPageContextJsonUrl(pathname, urlObj.search)
 
-          const ctx: any = (route.data || route.title)
+          const ctx: PageContextJson | null = (route.data || route.title)
             ? await fetchPageContextJson(jsonUrl, { signal, cache: isReload ? 'no-cache' : 'default' })
             : null
 
@@ -182,10 +182,10 @@ export function RouterApp(props: RouterProps): JSX.Element {
           }
 
           if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-            return renderErrorPage(ctx.is404, ctx.reason || 'Server Error')
+            return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
           }
 
-          const newView = await loadViewModules(route)
+          const newView = await loadViewModules<ValidComponent>(route)
 
           if (signal.aborted) return
 
@@ -195,10 +195,12 @@ export function RouterApp(props: RouterProps): JSX.Element {
               urlOriginal: urlObj.href,
               urlPathname: pathname,
               search: urlObj.search,
-              ...(ctx?.data && { data: ctx.data }),
-              ...(ctx?.title && { title: ctx.title }),
-              ...contextOverride
-            }))
+              ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
+              ...(ctx?.title ? { title: ctx.title } : {}),
+              ...contextOverride,
+              isClientSide: true,
+              isHydration: false
+            } as PageContext))
             setView(newView)
           })
           if (ctx?.title) document.title = ctx.title
@@ -232,11 +234,11 @@ export function RouterApp(props: RouterProps): JSX.Element {
     <RootErrorBoundary>
       <PageContextProvider pageContext={pageContext} setPageContext={setPageContext}>
         {view().Layout ? (
-          <Dynamic component={view().Layout}>
-            <Dynamic component={view().Page} />
+          <Dynamic component={view().Layout ?? undefined}>
+            <Dynamic component={view().Page ?? undefined} />
           </Dynamic>
         ) : (
-          <Dynamic component={view().Page} />
+          <Dynamic component={view().Page ?? undefined} />
         )}
       </PageContextProvider>
     </RootErrorBoundary>

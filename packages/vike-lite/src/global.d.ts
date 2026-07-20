@@ -1,13 +1,7 @@
 /* eslint-disable no-var */
 
 declare module 'virtual:vike-lite/routes' {
-  type Config = {
-    onRenderClient: () => Promise<{ default: (opts: { routes: any[]; errorRoute: any }) => void }>
-    onRenderHtml: (ctx: RenderContext) => Promise<string>
-  }
-  type PageContext = import('./index').PageContext
-
-  export const config: Config
+  type RenderContext = import('./__internal/shared').RenderContext
 
   type Imported<Name extends string, T> = () => Promise<
     | ({ [K in Name]: T } & { default?: T })
@@ -24,6 +18,14 @@ declare module 'virtual:vike-lite/routes' {
       | (() => boolean | string[] | Promise<boolean | string[]>)
     >
   }
+
+  type Config = {
+    onRenderClient: () => Promise<{ default: (opts: { routes: RouteBase[]; errorRoute: RouteBase | null }) => void }>
+    onRenderHtml: (ctx: RenderContext) => Promise<string>
+  }
+  type PageContext = import('./index').PageContext
+
+  export const config: Config
 
   export const routes: Array<RouteBase & {
     Data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>

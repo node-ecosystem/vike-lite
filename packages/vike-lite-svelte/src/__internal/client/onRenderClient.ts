@@ -1,4 +1,4 @@
-import { mount, hydrate } from 'svelte'
+import { mount, hydrate, type Component } from 'svelte'
 import type { PageContextClient } from 'vike-lite'
 import { buildInitialClientContext, resolveHydrationView } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
@@ -9,7 +9,7 @@ export async function onRenderClient(clientOptions: { routes: VikeState['routes'
   const container = document.querySelector('#root') as HTMLDivElement
   const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__
   const initialContext = buildInitialClientContext(globalThis.__PAGE_CONTEXT__, isHydration) as PageContextClient
-  const initialView = await resolveHydrationView(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute)
+  const initialView = await resolveHydrationView<Component>(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute)
 
   const props = {
     ...clientOptions,

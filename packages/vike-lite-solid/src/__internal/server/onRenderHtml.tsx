@@ -27,7 +27,7 @@ export async function onRenderHtml({
 }: SolidRenderContext) {
   const headHtml = Head ? renderToString(() => (
     <NoHydration>
-      <PageContextProvider pageContext={pageContext as any} setPageContext={() => { }}>
+      <PageContextProvider pageContext={pageContext} setPageContext={() => { }}>
         <Dynamic component={Head} />
       </PageContextProvider>
     </NoHydration>
@@ -40,7 +40,7 @@ export async function onRenderHtml({
       routes={[]}
       errorRoute={null}
       initialUrl={pageContext.urlOriginal}
-      initialContext={pageContext as any}
+      initialContext={pageContext}
       initialView={{ Page, Layout: Layout ?? null, Head: null }}
     />
   )) : ''

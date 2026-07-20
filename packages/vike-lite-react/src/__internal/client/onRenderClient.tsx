@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback, Component, type ReactNode } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, Component, type ReactNode, type ComponentType } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
@@ -10,12 +10,12 @@ import { PageContextProvider } from '../shared/PageContextProvider'
 interface RouterProps {
   routes: VikeState['routes']
   errorRoute: VikeState['errorRoute']
-  initialView: ViewComponents
+  initialView: ViewComponents<ComponentType<any>>
   initialContext: PageContextClient
   initialUrl: string
 }
 
-// React non ha un ErrorBoundary funzionale nativo — richiede una class component
+// React does not have a native functional ErrorBoundary — requires a class component
 class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   static getDerivedStateFromError(error: Error) { return { error } }
 
@@ -29,7 +29,7 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
 
 function RouterApp(props: RouterProps) {
   const [pageContext, setPageContextState] = useState<PageContextClient>(props.initialContext)
-  const [view, setView] = useState<ViewComponents>(props.initialView)
+  const [view, setView] = useState<ViewComponents<ComponentType<any>>>(props.initialView)
   const [currentUrl, setCurrentUrl] = useState(props.initialUrl)
   const [currentPathname, setCurrentPathname] = useState(props.initialContext.urlPathname)
   const [reloadTick, setReloadTick] = useState(0)
@@ -48,7 +48,7 @@ function RouterApp(props: RouterProps) {
     [currentPathname, props.routes]
   )
 
-  // Link interception, prefetch, popstate, eventi programmatici
+  // Link interception, prefetch, popstate, programmatic events
   useEffect(() => {
     const handleLinkClick = createLinkClickHandler((url) => {
       if (!url.hash) shouldScrollToTop.current = true
@@ -118,7 +118,7 @@ function RouterApp(props: RouterProps) {
 
     const renderErrorPage = async (is404: boolean, message?: string) => {
       if (!props.errorRoute) return
-      const errorView = await loadViewModules(props.errorRoute)
+      const errorView = await loadViewModules<ComponentType<any>>(props.errorRoute)
       if (signal.aborted) return
       setPageContext(() => ({
         ...pageContext,
@@ -167,10 +167,10 @@ function RouterApp(props: RouterProps) {
         }
 
         if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-          return renderErrorPage(ctx.is404, ctx.reason || 'Server Error')
+          return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
         }
 
-        const newView = await loadViewModules(route)
+        const newView = await loadViewModules<ComponentType<any>>(route)
 
         if (signal.aborted) return
 
@@ -179,8 +179,8 @@ function RouterApp(props: RouterProps) {
           urlOriginal: urlObj.href,
           urlPathname: pathname,
           search: urlObj.search,
-          ...(ctx?.data && { data: ctx.data }),
-          ...(ctx?.title && { title: ctx.title }),
+          ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
+          ...(ctx?.title ? { title: ctx.title } : {}),
           ...contextOverride,
           isClientSide: true,
           isHydration: false
@@ -222,6 +222,8 @@ function RouterApp(props: RouterProps) {
     [pageContext, setPageContext]
   )
 
+  if (!Page) return null
+
   return (
     <RootErrorBoundary>
       <PageContextProvider value={contextValue}>
@@ -239,7 +241,7 @@ export async function onRenderClient(clientOptions: {
   const container = document.querySelector('#root') as HTMLDivElement
   const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__
   const initialContext = buildInitialClientContext(globalThis.__PAGE_CONTEXT__, isHydration) as PageContextClient
-  const initialView = await resolveHydrationView(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute)
+  const initialView = await resolveHydrationView<ComponentType<any>>(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute)
 
   const app = (
     <RouterApp

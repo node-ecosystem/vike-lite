@@ -1,5 +1,7 @@
+import type { PageContextServer } from '../index'
+
 export interface RenderContext {
-  pageContext: any
+  pageContext: PageContextServer
   Page: unknown
   Head?: unknown
   Layout?: unknown
@@ -85,4 +87,3 @@ export function stripBase(pathname: string): string {
 export function prependBase(pathname: string): string {
   return BASE_URL + (pathname === '/' ? '' : pathname)
 }
-

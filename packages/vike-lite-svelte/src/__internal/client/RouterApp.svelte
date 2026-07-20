@@ -53,7 +53,7 @@
     // Optimization: only remove old keys that are not in the new state, so we don't
     // temporarily delete keys and break dependents reading the reactive object
     for (const key of Object.keys(pageContext)) {
-      if (!(Object.hasOwn(next, key))) delete (pageContext as any)[key]
+      if (!(Object.hasOwn(next, key))) delete (pageContext as Record<string, unknown>)[key]
     }
     Object.assign(pageContext, next)
   }
@@ -74,7 +74,7 @@
 
     const renderErrorPage = async (is404: boolean, message?: string) => {
       if (!errorRoute) return
-      const errorView = await loadViewModules(errorRoute)
+      const errorView = await loadViewModules<Component>(errorRoute)
       if (signal.aborted) return
       setPageContext({
         ...pageContext,
@@ -113,10 +113,10 @@
       }
 
       if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-        return renderErrorPage(ctx.is404, ctx.reason || 'Server Error')
+        return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
       }
 
-      const newView = await loadViewModules(route) as ViewComponents
+      const newView = await loadViewModules<Component>(route)
 
       if (signal.aborted) return
 
@@ -125,8 +125,8 @@
         urlOriginal: urlObj.href,
         urlPathname: pathname,
         search: urlObj.search,
-        ...(ctx?.data && { data: ctx.data }),
-        ...(ctx?.title && { title: ctx.title }),
+        ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
+        ...(ctx?.title ? { title: ctx.title } : {}),
         ...contextOverride
       } as PageContextClient)
       view = newView

@@ -12,7 +12,7 @@ export function useData<Data extends PageContext['data']>(): [Data, SetStoreFunc
   const context = useContext(globalContext.solidContext)
   if (!context) throw new Error('useData() must be called inside a page rendered by vike-lite-solid')
 
-  const setData: SetStoreFunction<Data> = (...args: any[]) => {
+  const setData: SetStoreFunction<Data> = (...args: unknown[]) => {
     // @ts-expect-error - pass args directly to 'data'
     context.setState('data', ...args)
   }

@@ -44,7 +44,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     // Optimization: We only remove old keys that are not in the new state
     // This prevents temporarily deleting keys and breaking child computed properties
     for (const key of Object.keys(pageContext)) {
-      if (!(Object.hasOwn(next, key))) delete (pageContext as any)[key]
+      if (!(Object.hasOwn(next, key))) delete (pageContext as Record<string, unknown>)[key]
     }
     Object.assign(pageContext, next)
   }
@@ -65,7 +65,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
     const renderErrorPage = async (is404: boolean, message?: string) => {
       if (!props.errorRoute) return
-      const errorView = await loadViewModules(props.errorRoute)
+      const errorView = await loadViewModules<Component>(props.errorRoute)
       if (signal.aborted) return
       setPageContext({
         ...pageContext,
@@ -104,10 +104,10 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       }
 
       if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-        return renderErrorPage(ctx.is404, ctx.reason || 'Server Error')
+        return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
       }
 
-      const newView = await loadViewModules(route)
+      const newView = await loadViewModules<Component>(route)
 
       if (signal.aborted) return
 
@@ -116,8 +116,8 @@ const RouterApp = defineComponent<RouterProps>((props) => {
         urlOriginal: urlObj.href,
         urlPathname: pathname,
         search: urlObj.search,
-        ...(ctx?.data && { data: ctx.data }),
-        ...(ctx?.title && { title: ctx.title }),
+        ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
+        ...(ctx?.title ? { title: ctx.title } : {}),
         ...contextOverride
       } as PageContextClient)
       view.value = newView
@@ -228,7 +228,7 @@ export async function onRenderClient(clientOptions: { routes: VikeState['routes'
   const container = document.querySelector('#root') as HTMLDivElement
   const isHydration = clientOptions.hydration && !!globalThis.__PAGE_CONTEXT__
   const initialContext = buildInitialClientContext(globalThis.__PAGE_CONTEXT__, isHydration) as PageContextClient
-  const initialView = await resolveHydrationView(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute) as ViewComponents
+  const initialView = await resolveHydrationView<Component>(initialContext, isHydration, clientOptions.routes, clientOptions.errorRoute)
 
   const app = createSSRApp(RouterApp, {
     ...clientOptions,

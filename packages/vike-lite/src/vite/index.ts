@@ -200,7 +200,7 @@ export default function vikeLite({
     },
     configResolved(config) {
       const hasUIRenderer = config.plugins.some(
-        plugin => plugin.name?.startsWith('vike-lite-') && SUPPORTED_RENDERERS.includes(plugin.name.replace('vike-lite-', '') as any)
+        plugin => plugin.name?.startsWith('vike-lite-') && (SUPPORTED_RENDERERS as readonly string[]).includes(plugin.name.replace('vike-lite-', ''))
       )
       if (!hasUIRenderer) {
         throw new Error(`❌ No UI adapter plugin found in 'vite.config': please install and configure one of ${SUPPORTED_RENDERERS.map(r => `vike-lite-${r}`).join(', ')}`)
@@ -425,7 +425,7 @@ export default function vikeLite({
               // GET/HEAD requests must not have a body — the Fetch API's Request
               // constructor throws otherwise ("Request with GET/HEAD method cannot have body")
               if (req.method !== 'GET' && req.method !== 'HEAD') {
-                requestInit.body = Readable.toWeb(req) as any
+                requestInit.body = Readable.toWeb(req) as BodyInit
                 // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
                 requestInit.duplex = 'half'
               }
@@ -463,7 +463,7 @@ export default function vikeLite({
               await response.body.cancel()
               return
             }
-            try { await pipeline(Readable.fromWeb(response.body as any), res) } catch { }
+            try { await pipeline(Readable.fromWeb(response.body as import('node:stream/web').ReadableStream<Uint8Array>), res) } catch { }
           } catch (error) {
             next(error)
           }

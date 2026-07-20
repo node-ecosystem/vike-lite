@@ -1,8 +1,8 @@
-import type { PageContextClient } from 'vike-lite'
+import type { PageContext } from 'vike-lite'
 import type { InjectionKey, Reactive } from 'vue'
 
 export interface PageContextValue {
-  pageContext: Reactive<PageContextClient>
+  pageContext: Reactive<PageContext>
 }
 
 const KEY = Symbol.for('vike-lite-vue:context')

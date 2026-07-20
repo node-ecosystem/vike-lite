@@ -1,4 +1,4 @@
-import type { PageContext } from '..'
+import type { PageContextServer } from '..'
 import { BASE_URL, matchRoute, stripBase } from '../__internal/shared'
 import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
@@ -97,7 +97,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, isJson
   if (!matched) return null
 
   const { route, routeParams } = matched
-  const pageContext = { routeParams, urlOriginal, urlPathname } as PageContext
+  const pageContext = { routeParams, urlOriginal, urlPathname, isClientSide: false } as PageContextServer
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
     route.Data?.() ?? null,
@@ -164,8 +164,9 @@ async function renderErrorPage(
       routeParams: {},
       is404: status === 404,
       is500,
-      errorMessage
-    } as PageContext
+      errorMessage,
+      isClientSide: false
+    } as PageContextServer
 
     const html = await store.config!.onRenderHtml({
       pageContext,
@@ -191,7 +192,7 @@ export async function renderPage(
   // (e.g. { params: ... }) when you export GET/POST.
   { nonce }: {
     nonce?: string
-    [key: string]: any
+    [key: string]: unknown
   } = {}
 ): Promise<Response> {
   let { pathname } = new URL(req.url)
