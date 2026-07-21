@@ -52,7 +52,8 @@ export default {
 | Option | Type | Default | Description
 | - | - | - | -
 | `hydration` | `boolean` | `true` | When `true`, the server renders the page to HTML and the client hydrates it. When `false`, the client discards the server-rendered HTML on load and mounts a fresh tree — useful for highly interactive pages where paying the hydration-mismatch tax isn't worth it.
-| `solid` | `Options` (from `vite-plugin-solid`) | `{}` | Passed through to the underlying `vite-plugin-solid` instance. Use this for custom Babel plugins or any other low-level Solid compiler setting.
+| `streaming` | `boolean` | `false` | When `true`, streams the server-rendered app markup via the Web Streams API (`ReadableStream`, using `@vue/server-renderer`'s `renderToWebStream`) instead of buffering it into a single string before sending the response. Works identically on Node.js, Deno, Bun and Edge runtimes.
+| `vue` | `Options` (from `@vitejs/plugin-vue`) | `{}` | Passed through to the underlying `@vitejs/plugin-vue` instance. Use this for custom compiler options or any other low-level Vue SFC compiler setting.
 
 ### 🪝 Hooks
 

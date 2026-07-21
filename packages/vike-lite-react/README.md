@@ -51,6 +51,7 @@ export default {
 | Option | Type | Default | Description
 | - | - | - | -
 | `hydration` | `boolean` | `true` | When `true`, the server renders the page to HTML and the client hydrates it (`hydrateRoot`). When `false`, the client discards the server-rendered HTML on load and mounts a fresh tree (`createRoot`) — useful for highly interactive pages where paying the hydration-mismatch tax isn't worth it.
+| `streaming` | `boolean` | `false` | When `true`, streams the server-rendered app markup via the Web Streams API (`ReadableStream`, using `react-dom/server.edge`'s `renderToReadableStream`) instead of buffering it into a single string before sending the response. Works identically on Node.js, Deno, Bun and Edge runtimes. Ignored when `hydration: false`. See [HTTP Streaming](../vike-lite/doc/differences/STREAMING.md).
 | `react` | `Options` (from `@vitejs/plugin-react`) | `{}` | Passed through to the underlying `@vitejs/plugin-react` instance. Use this for `jsxImportSource` (e.g. Emotion), custom Babel plugins, or `jsxRuntime: 'classic'`.
 
 ### 🪝 Hooks

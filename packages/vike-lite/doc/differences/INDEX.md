@@ -19,6 +19,7 @@
 | Hook | [+data](https://vike.dev/data) | ✅ | ✅
 | Hook | [+onBeforeRoute](https://vike.dev/onBeforeRoute) | ✅ | ⏳
 | Client/Server | CSP | [+csp](https://vike.dev/csp) | [CSP](./CSP.md)
+| Client/Server | HTTP Streaming (SSR) | [Streaming](https://vike.dev/streaming) | [Streaming](./STREAMING.md)
 | Client/Server | [Internationalization (i18n)](https://vike.dev/i18n) with `+onBeforeRoute` and `modifyUrl()` | ✅ | ⏳
 | Client/Server | pageContext | [pageContext](https://vike.dev/pageContext) | [pageContext](./PAGE_CONTEXT.md)
 | Server | [pageContext.req & pageContext.res](https://vike.dev/server#pagecontext-req-pagecontext-res) | ✅ | ⏳
