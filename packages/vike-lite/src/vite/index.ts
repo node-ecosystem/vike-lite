@@ -460,7 +460,10 @@ export default function vikeLite({
               res.removeHeader('content-length')
               server.config.logger.info(`📄 Page: ${req.url}`, { timestamp: true })
 
-              if (req.method === 'HEAD' || !response.body) return res.end()
+              if (req.method === 'HEAD' || !response.body) {
+                await response.body?.cancel()
+                return res.end()
+              }
               if (res.destroyed || res.closed) {
                 await response.body.cancel()
                 return
