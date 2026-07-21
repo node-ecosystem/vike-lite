@@ -14,7 +14,7 @@ export interface VikeLiteReactOptions {
    * Uses `react-dom/server.edge`'s `renderToReadableStream`, so it works the same
    * way on Node.js, Deno, Bun and Edge runtimes. Ignored when `hydration: false`
    * (Client Takeover has no server-rendered app markup to stream).
-   * @default false
+   * @default true
    */
   streaming?: boolean
   /**
@@ -23,7 +23,7 @@ export interface VikeLiteReactOptions {
   react?: ReactPluginOptions
 }
 
-export default function vikeLiteReact({ hydration = true, streaming = false, react: reactOptions }: VikeLiteReactOptions = {}): Plugin[] {
+export default function vikeLiteReact({ hydration = true, streaming = true, react: reactOptions }: VikeLiteReactOptions = {}): Plugin[] {
   const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-react', hydration, streaming })
 
   return [...react(reactOptions), adapter]

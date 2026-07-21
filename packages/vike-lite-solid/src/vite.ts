@@ -4,7 +4,7 @@ import solidPlugin, { type Options as SolidOptions } from 'vite-plugin-solid'
 
 export default function vikeLiteSolid({
   hydration = true,
-  streaming = false,
+  streaming = true,
   solid: solidUserOptions = {}
 }: {
   /** 
@@ -19,7 +19,7 @@ export default function vikeLiteSolid({
    * Uses `solid-js/web`'s `renderToStream`, so it works the same way on Node.js,
    * Deno, Bun and Edge runtimes. Ignored when `hydration: false` (Client Takeover
    * has no server-rendered app markup to stream).
-   * @default false
+   * @default true
    */
   streaming?: boolean
   /** 

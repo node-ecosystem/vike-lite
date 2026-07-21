@@ -36,6 +36,8 @@ export default {
     // Default is `true` that enables Vue Hydration
     // Set to `false` for Client Takeover (SPA mode)
     hydration: true,
+    // Default is `true` that enables HTML Streaming
+    streaming: true
     // Advanced: pass options directly to the underlying @vitejs/plugin-vue
     vue: {
       template: {
@@ -52,7 +54,7 @@ export default {
 | Option | Type | Default | Description
 | - | - | - | -
 | `hydration` | `boolean` | `true` | When `true`, the server renders the page to HTML and the client hydrates it. When `false`, the client discards the server-rendered HTML on load and mounts a fresh tree — useful for highly interactive pages where paying the hydration-mismatch tax isn't worth it.
-| `streaming` | `boolean` | `false` | When `true`, streams the server-rendered app markup via the Web Streams API (`ReadableStream`, using `@vue/server-renderer`'s `renderToWebStream`) instead of buffering it into a single string before sending the response. Works identically on Node.js, Deno, Bun and Edge runtimes.
+| `streaming` | `boolean` | `true` | When `true`, streams the server-rendered app markup via the Web Streams API (`ReadableStream`, using `@vue/server-renderer`'s `renderToWebStream`) instead of buffering it into a single string before sending the response. Works identically on Node.js, Deno, Bun and Edge runtimes.
 | `vue` | `Options` (from `@vitejs/plugin-vue`) | `{}` | Passed through to the underlying `@vitejs/plugin-vue` instance. Use this for custom compiler options or any other low-level Vue SFC compiler setting.
 
 ### 🪝 Hooks

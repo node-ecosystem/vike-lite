@@ -4,7 +4,7 @@ import { mergeConfig, type PluginOption } from 'vite'
 
 export default function vikeLiteVue({
   hydration = true,
-  streaming = false,
+  streaming = true,
   vue: vueUserOptions = {}
 }: {
   /**
@@ -18,7 +18,7 @@ export default function vikeLiteVue({
    * instead of buffering it into a single string before sending the response.
    * Uses `@vue/server-renderer`'s `renderToWebStream`, so it works the same way
    * on Node.js, Deno, Bun and Edge runtimes.
-   * @default false
+   * @default true
    */
   streaming?: boolean
   /**
