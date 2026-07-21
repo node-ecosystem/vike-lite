@@ -1,6 +1,6 @@
 ### Differences
 | Category | Functionality | `vike` | `vike-lite` | Migration
-| - | - | - | -
+| - | - | - | - | -
 | Routing | [Filesystem Routing](https://vike.dev/routing) | ✅ | ✅
 | Routing | [Routing group](https://vike.dev/routing#groups) | ✅ | ❌/⏳
 | Routing | [Base URL](https://vike.dev/base-url) | ✅ | ✅
