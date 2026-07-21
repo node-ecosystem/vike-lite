@@ -1,7 +1,7 @@
-import { renderHtmlShell } from 'vike-lite/__internal/server'
+import { renderHtmlShell, renderHtmlShellStream } from 'vike-lite/__internal/server'
 import type { RenderContext } from 'vike-lite/__internal/shared'
 import { createSSRApp, h, type Component } from 'vue'
-import { renderToString } from 'vue/server-renderer'
+import { renderToString, renderToWebStream } from 'vue/server-renderer'
 
 import { pageContextInjectionKey } from '../../shared/globalContext'
 
@@ -9,6 +9,12 @@ interface VueRenderContext extends RenderContext {
   Page: Component
   Head?: Component
   Layout?: Component
+  /**
+   * Stream the app markup via the Web Streams API (`ReadableStream`) instead of
+   * buffering it into a single string before sending it.
+   * @default false
+   */
+  streaming?: boolean
 }
 
 export async function onRenderHtml({
@@ -19,7 +25,8 @@ export async function onRenderHtml({
   pageTitleTag,
   serializedContext,
   assets: { cssLinks, jsPreloads, entryClient },
-  nonce
+  nonce,
+  streaming
 }: VueRenderContext) {
   let headHtml = ''
   if (Head) {
@@ -34,7 +41,14 @@ export async function onRenderHtml({
       : h(Page)
   })
   app.provide(pageContextInjectionKey, { pageContext })
-  const appHtml = await renderToString(app)
 
+  if (streaming) {
+    // `renderToWebStream` relies only on the standard Web Streams API (`ReadableStream`),
+    // so it streams identically on Node.js, Deno, Bun and Edge runtimes.
+    const appStream = renderToWebStream(app)
+    return renderHtmlShellStream({ pageTitleTag, cssLinks, jsPreloads, headHtml, appStream, serializedContext, entryClient, nonce })
+  }
+
+  const appHtml = await renderToString(app)
   return renderHtmlShell({ pageTitleTag, cssLinks, jsPreloads, headHtml, appHtml, serializedContext, entryClient, nonce })
 }

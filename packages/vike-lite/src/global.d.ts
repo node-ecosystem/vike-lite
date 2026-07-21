@@ -21,7 +21,7 @@ declare module 'virtual:vike-lite/routes' {
 
   type Config = {
     onRenderClient: () => Promise<{ default: (opts: { routes: RouteBase[]; errorRoute: RouteBase | null }) => void }>
-    onRenderHtml: (ctx: RenderContext) => Promise<string>
+    onRenderHtml: (ctx: RenderContext) => Promise<string | ReadableStream<Uint8Array>>
   }
   type PageContext = import('./index').PageContext
 

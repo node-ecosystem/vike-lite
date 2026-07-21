@@ -4,6 +4,7 @@ import solidPlugin, { type Options as SolidOptions } from 'vite-plugin-solid'
 
 export default function vikeLiteSolid({
   hydration = true,
+  streaming = false,
   solid: solidUserOptions = {}
 }: {
   /** 
@@ -12,6 +13,15 @@ export default function vikeLiteSolid({
    * @default true
    */
   hydration?: boolean
+  /**
+   * Stream the server-rendered app markup via the Web Streams API (`ReadableStream`)
+   * instead of buffering it into a single string before sending the response.
+   * Uses `solid-js/web`'s `renderToStream`, so it works the same way on Node.js,
+   * Deno, Bun and Edge runtimes. Ignored when `hydration: false` (Client Takeover
+   * has no server-rendered app markup to stream).
+   * @default false
+   */
+  streaming?: boolean
   /** 
    * Advanced options passed directly to vite-plugin-solid 
    */
@@ -22,7 +32,7 @@ export default function vikeLiteSolid({
   const depsConfig = createDepsConfigPlugin({ packageName: 'vike-lite-solid', optimizeDepsInclude: ['solid-js'] })
 
   // Provide a virtual module that vike-lite will read to discover the renderers
-  const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-solid', hydration })
+  const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-solid', hydration, streaming })
 
   return [
     solidPlugin(mergeConfig(
