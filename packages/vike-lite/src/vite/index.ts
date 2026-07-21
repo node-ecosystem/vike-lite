@@ -458,14 +458,12 @@ export default function vikeLite({
 
               if (req.method === 'HEAD' || !response.body) return res.end()
 
-              res.setHeader('Content-Type', 'text/html')
-
               let headBuffered = ''
               let headInjected = false
               const decoder = new TextDecoder()
               const encoder = new TextEncoder()
 
-              const transform = new TransformStream({
+              const transform = new TransformStream<Uint8Array, Uint8Array>({
                 async transform(chunk, controller) {
                   // If HMR and styles have already been injected, let the chunks pass through (real streaming)
                   if (headInjected) {
@@ -475,6 +473,10 @@ export default function vikeLite({
 
                   headBuffered += decoder.decode(chunk, { stream: true })
                   // Wait for the closing of the head to pass the first half of the document to Vite
+                  // NOTE: this relies on renderHtmlShellStream() emitting the entire "start"
+                  // shell (head + body-open) as a single enqueue() call, so it always arrives
+                  // here as one atomic chunk containing both </head> and <body>. If that
+                  // invariant changes, the 8192-byte fallback below becomes load-bearing.
                   if (headBuffered.includes('</head>') || headBuffered.includes('<body') || headBuffered.length > 8192) {
                     headInjected = true
                     // Fix FOUC: Inspect the Module Graph populated earlier,
