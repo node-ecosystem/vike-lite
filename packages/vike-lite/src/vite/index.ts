@@ -434,29 +434,37 @@ export default function vikeLite({
             }
 
             const requestInit = { method: req.method, headers } as RequestInit
-            if (req.url!.startsWith(apiPrefix)) {
-              server.config.logger.info(`⚡ API: ${req.method} ${req.url}`, { timestamp: true })
-              // GET/HEAD requests must not have a body — the Fetch API's Request
-              // constructor throws otherwise ("Request with GET/HEAD method cannot have body")
-              if (req.method !== 'GET' && req.method !== 'HEAD') {
-                requestInit.body = Readable.toWeb(req) as BodyInit
-                // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
-                requestInit.duplex = 'half'
-              }
-            } else if (req.url!.endsWith('.pageContext.json')) {
-              server.config.logger.info(`🔄 SPA Navigation: ${req.url}`, { timestamp: true })
+
+            // The body must be passed for all POST/PUT requests, not just for the APIs!
+            // Otherwise, forms submitted in SSR will not work.
+            if (req.method !== 'GET' && req.method !== 'HEAD') {
+              requestInit.body = Readable.toWeb(req) as BodyInit
+              // @ts-expect-error Property 'duplex' does not exist on type 'RequestInit'
+              requestInit.duplex = 'half'
             }
 
-            // The frontend code is evaluated and the styles imports are registered internally in the ssrEnv.moduleGraph
-            const response = await app.fetch(new Request(`http://${req.headers.host}${req.url}`, requestInit))
+            if (req.url!.startsWith(apiPrefix)) server.config.logger.info(`⚡ API: ${req.method} ${req.url}`, { timestamp: true })
+            else if (req.url!.endsWith('.pageContext.json')) server.config.logger.info(`🔄 SPA Navigation: ${req.url}`, { timestamp: true })
+
+            const host = req.headers.host || 'localhost'
+            const response = await app.fetch(new Request(`http://${host}${req.url}`, requestInit))
+
             res.statusCode = response.status
-            for (const [key, value] of response.headers) res.setHeader(key, value)
+            // Handle multiple Set-Cookie
+            for (const [key, value] of response.headers) if (key.toLowerCase() !== 'set-cookie') res.setHeader(key, value)
+            const cookies = response.headers.getSetCookie()
+            if (cookies.length > 0) res.setHeader('Set-Cookie', cookies)  // Node accepts an array of strings for cookies
 
             // Handle HTML Streaming in Vite DEV server
             if (response.headers.get('content-type')?.includes('text/html')) {
+              res.removeHeader('content-length')
               server.config.logger.info(`📄 Page: ${req.url}`, { timestamp: true })
 
               if (req.method === 'HEAD' || !response.body) return res.end()
+              if (res.destroyed || res.closed) {
+                await response.body.cancel()
+                return
+              }
 
               let headBuffered = ''
               let headInjected = false
