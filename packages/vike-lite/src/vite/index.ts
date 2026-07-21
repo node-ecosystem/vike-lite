@@ -450,24 +450,64 @@ export default function vikeLite({
             // The frontend code is evaluated and the styles imports are registered internally in the ssrEnv.moduleGraph
             const response = await app.fetch(new Request(`http://${req.headers.host}${req.url}`, requestInit))
             res.statusCode = response.status
+            for (const [key, value] of response.headers) res.setHeader(key, value)
 
+            // Handle HTML Streaming in Vite DEV server
             if (response.headers.get('content-type')?.includes('text/html')) {
               server.config.logger.info(`📄 Page: ${req.url}`, { timestamp: true })
-              let html = await response.text()
 
-              // Fix FOUC: Inspect the Module Graph populated earlier,
-              // extract the raw styles via ClientEnv and inject them
-              html = await injectFOUCStyles(server, html)
+              if (req.method === 'HEAD' || !response.body) return res.end()
 
-              // Vite injects CSS styles and client scripts
-              html = await server.transformIndexHtml(req.url!, html)
               res.setHeader('Content-Type', 'text/html')
-              res.end(html)
+
+              let headBuffered = ''
+              let headInjected = false
+              const decoder = new TextDecoder()
+              const encoder = new TextEncoder()
+
+              const transform = new TransformStream({
+                async transform(chunk, controller) {
+                  // If HMR and styles have already been injected, let the chunks pass through (real streaming)
+                  if (headInjected) {
+                    controller.enqueue(chunk)
+                    return
+                  }
+
+                  headBuffered += decoder.decode(chunk, { stream: true })
+                  // Wait for the closing of the head to pass the first half of the document to Vite
+                  if (headBuffered.includes('</head>') || headBuffered.includes('<body') || headBuffered.length > 8192) {
+                    headInjected = true
+                    // Fix FOUC: Inspect the Module Graph populated earlier,
+                    // extract the raw styles via ClientEnv and inject them
+                    let html = await injectFOUCStyles(server, headBuffered)
+                    // Vite injects CSS styles and client scripts
+                    html = await server.transformIndexHtml(req.url!, html)
+                    controller.enqueue(encoder.encode(html))
+                  }
+                },
+                async flush(controller) {
+                  // If the document ends before injecting (e.g., early error or very short page)
+                  if (!headInjected) {
+                    headBuffered += decoder.decode()
+                    // Fix FOUC: Inspect the Module Graph populated earlier,
+                    // extract the raw styles via ClientEnv and inject them
+                    let html = await injectFOUCStyles(server, headBuffered)
+                    // Vite injects CSS styles and client scripts
+                    html = await server.transformIndexHtml(req.url!, html)
+                    controller.enqueue(encoder.encode(html))
+                  }
+                }
+              })
+
+              try {
+                await pipeline(Readable.fromWeb(response.body.pipeThrough(transform) as import('node:stream/web').ReadableStream<Uint8Array>), res)
+              } catch (err) {
+                if ((err as NodeJS.ErrnoException).code !== 'ERR_STREAM_PREMATURE_CLOSE') throw err
+              }
               return
             }
 
-            // Use the original pipeline with /api and /*.pageContext.json responses
-            for (const [key, value] of response.headers) res.setHeader(key, value)
+            // Non-HTML responses (e.g. /api and /*.pageContext.json)
             if (req.method === 'HEAD' || !response.body) {
               await response.body?.cancel()
               if (!res.destroyed && !res.closed) res.end()
@@ -477,7 +517,11 @@ export default function vikeLite({
               await response.body.cancel()
               return
             }
-            try { await pipeline(Readable.fromWeb(response.body as import('node:stream/web').ReadableStream<Uint8Array>), res) } catch { }
+            try {
+              await pipeline(Readable.fromWeb(response.body as import('node:stream/web').ReadableStream<Uint8Array>), res)
+            } catch (err) {
+              if ((err as NodeJS.ErrnoException).code !== 'ERR_STREAM_PREMATURE_CLOSE') throw err
+            }
           } catch (error) {
             next(error)
           }
