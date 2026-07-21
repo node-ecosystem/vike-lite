@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { render, cleanup } from '@testing-library/react'
-import { RouterApp } from '../src/__internal/client/onRenderClient'
+import { RouterApp } from '../src/__internal/client/RouterApp'
 
 afterEach(cleanup)
 
