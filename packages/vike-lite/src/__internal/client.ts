@@ -210,6 +210,19 @@ export function buildInitialClientContext<T extends object>(
   }
 }
 
+/**
+ * Build the pageContext object for a completed client-side navigation. Centralized
+ * here (rather than each adapter constructing its own object literal) so the
+ * required `isClientSide`/`isHydration` flags can never be silently omitted —
+ * every adapter previously had to remember to add them by hand, and more than
+ * one forgot, silently dropping the flags from `pageContext` on every navigation.
+ */
+export function buildNavigationPageContext<T extends object>(
+  fields: T
+): T & { isClientSide: true; isHydration: false } {
+  return { ...fields, isClientSide: true, isHydration: false }
+}
+
 interface HydrationInitialContext {
   urlPathname?: string
   is404?: boolean

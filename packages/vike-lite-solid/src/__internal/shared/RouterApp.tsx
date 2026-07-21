@@ -2,7 +2,7 @@ import { createSignal, createEffect, onCleanup, ErrorBoundary, startTransition, 
 import { createStore, reconcile } from 'solid-js/store'
 import { Dynamic, isServer } from 'solid-js/web'
 import type { PageContext } from 'vike-lite'
-import { buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules, type PageContextJson } from 'vike-lite/__internal/client'
+import { buildPageContextJsonUrl, buildNavigationPageContext, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, tryRecoverFromStaleModuleGraph, loadViewModules, type PageContextJson } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
 
@@ -190,17 +190,15 @@ export function RouterApp(props: RouterProps): JSX.Element {
           if (signal.aborted) return
 
           batch(() => {
-            setPageContext(reconcile({
+            setPageContext(reconcile(buildNavigationPageContext({
               routeParams,
               urlOriginal: urlObj.href,
               urlPathname: pathname,
               search: urlObj.search,
               ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
               ...(ctx?.title ? { title: ctx.title } : {}),
-              ...contextOverride,
-              isClientSide: true,
-              isHydration: false
-            } as PageContext))
+              ...contextOverride
+            }) as PageContext))
             setView(newView)
           })
           if (ctx?.title) document.title = ctx.title

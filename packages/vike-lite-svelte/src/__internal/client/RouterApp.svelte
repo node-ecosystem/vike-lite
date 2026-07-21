@@ -3,7 +3,7 @@
   import type { PageContextClient } from 'vike-lite'
   import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
   import {
-    buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler,
+    buildPageContextJsonUrl, buildNavigationPageContext, consumeMatchingInitialContext, createLinkClickHandler,
     createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation,
     loadViewModules, tryRecoverFromStaleModuleGraph
   } from 'vike-lite/__internal/client'
@@ -120,17 +120,15 @@
 
       if (signal.aborted) return
 
-      setPageContext({
+      setPageContext(buildNavigationPageContext({
         routeParams,
         urlOriginal: urlObj.href,
         urlPathname: pathname,
         search: urlObj.search,
         ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
         ...(ctx?.title ? { title: ctx.title } : {}),
-        ...contextOverride,
-        isClientSide: true,
-        isHydration: false
-      } as PageContextClient)
+        ...contextOverride
+      }) as PageContextClient)
       view = newView
 
       if (ctx?.title) document.title = ctx.title

@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest'
 import { strictEqual, deepStrictEqual, ok, rejects } from 'node:assert/strict'
 
-import { createRoutePrefetcher, buildPageContextJsonUrl, loadViewModules, fetchPageContextJson, buildInitialClientContext, resolveHydrationView } from '../src/__internal/client'
+import { buildInitialClientContext, buildNavigationPageContext, createRoutePrefetcher, buildPageContextJsonUrl, loadViewModules, fetchPageContextJson, resolveHydrationView } from '../src/__internal/client'
 
 describe('vike-lite client utils', () => {
   describe('buildPageContextJsonUrl', () => {
@@ -134,6 +134,42 @@ describe('vike-lite client utils', () => {
       const result = buildInitialClientContext(undefined, false)
       strictEqual(result.isClientSide, true)
       strictEqual(result.isHydration, false)
+    })
+  })
+
+  describe('buildNavigationPageContext', () => {
+    // Regression test: the Solid, Vue, and Svelte adapters each construct a fresh
+    // pageContext object on every successful client-side navigation. Three of the
+    // four adapters independently forgot to include isClientSide/isHydration in
+    // that fresh object — and because their reactive store-update helpers
+    // replace/prune the previous state, this silently *deleted* those flags from
+    // pageContext after every navigation. This helper centralizes construction so
+    // that bug class can't reoccur: no adapter can build a "next" pageContext
+    // without these flags being set correctly.
+    it('always stamps isClientSide:true and isHydration:false', () => {
+      const result = buildNavigationPageContext({ urlPathname: '/about', routeParams: {} })
+      strictEqual(result.isClientSide, true)
+      strictEqual(result.isHydration, false)
+    })
+
+    it('cannot have isClientSide/isHydration overridden by the caller-supplied fields', () => {
+      // Even if a caller's spread accidentally includes these keys (e.g. from a
+      // stale ...contextOverride), the navigation flags set by this helper win,
+      // since they're applied last.
+      const result = buildNavigationPageContext({ isClientSide: false, isHydration: true } as any)
+      strictEqual(result.isClientSide, true)
+      strictEqual(result.isHydration, false)
+    })
+
+    it('preserves all caller-supplied fields alongside the navigation flags', () => {
+      const result = buildNavigationPageContext({ urlPathname: '/about', data: { id: 1 }, title: 'About' })
+      deepStrictEqual(result, {
+        urlPathname: '/about',
+        data: { id: 1 },
+        title: 'About',
+        isClientSide: true,
+        isHydration: false
+      })
     })
   })
 

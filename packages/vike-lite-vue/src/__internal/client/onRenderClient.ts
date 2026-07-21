@@ -1,7 +1,7 @@
 import { createSSRApp, reactive, ref, computed, h, defineComponent, onMounted, onUnmounted, type Component, watch, onErrorCaptured, provide } from 'vue'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { buildInitialClientContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
+import { buildInitialClientContext, buildNavigationPageContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { pageContextInjectionKey } from '../../shared/globalContext'
@@ -111,17 +111,15 @@ const RouterApp = defineComponent<RouterProps>((props) => {
 
       if (signal.aborted) return
 
-      setPageContext({
+      setPageContext(buildNavigationPageContext({
         routeParams,
         urlOriginal: urlObj.href,
         urlPathname: pathname,
         search: urlObj.search,
         ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
         ...(ctx?.title ? { title: ctx.title } : {}),
-        ...contextOverride,
-        isClientSide: true,
-        isHydration: false
-      } as PageContextClient)
+        ...contextOverride
+      }) as PageContextClient)
       view.value = newView
 
       if (ctx?.title) document.title = ctx.title

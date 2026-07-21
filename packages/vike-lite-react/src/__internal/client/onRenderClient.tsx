@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, type Reac
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import type { PageContextClient } from 'vike-lite'
 import { matchRoute, stripBase } from 'vike-lite/__internal/shared'
-import { buildInitialClientContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph, type ViewComponents } from 'vike-lite/__internal/client'
+import { buildInitialClientContext, buildNavigationPageContext, buildPageContextJsonUrl, consumeMatchingInitialContext, createLinkClickHandler, createLinkPrefetchHandler, createRoutePrefetcher, fetchPageContextJson, finalizeNavigation, loadViewModules, resolveHydrationView, tryRecoverFromStaleModuleGraph, type ViewComponents } from 'vike-lite/__internal/client'
 import type { VikeState } from 'vike-lite/__internal/server'
 
 import { PageContextProvider } from '../shared/PageContextProvider'
@@ -27,7 +27,7 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
   }
 }
 
-function RouterApp(props: RouterProps) {
+export function RouterApp(props: RouterProps) {
   const [pageContext, setPageContextState] = useState<PageContextClient>(props.initialContext)
   const [view, setView] = useState<ViewComponents<ComponentType<any>>>(props.initialView)
   const [currentUrl, setCurrentUrl] = useState(props.initialUrl)
@@ -174,17 +174,15 @@ function RouterApp(props: RouterProps) {
 
         if (signal.aborted) return
 
-        setPageContext(() => ({
+        setPageContext(() => buildNavigationPageContext({
           routeParams,
           urlOriginal: urlObj.href,
           urlPathname: pathname,
           search: urlObj.search,
           ...(ctx?.data !== undefined ? { data: ctx.data } : {}),
           ...(ctx?.title ? { title: ctx.title } : {}),
-          ...contextOverride,
-          isClientSide: true,
-          isHydration: false
-        } as PageContextClient))
+          ...contextOverride
+        }) as PageContextClient)
         setView(newView)
 
         if (ctx?.title) document.title = ctx.title
