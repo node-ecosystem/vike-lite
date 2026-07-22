@@ -455,17 +455,28 @@ export default function vikeLite({
             const cookies = response.headers.getSetCookie()
             if (cookies.length > 0) res.setHeader('Set-Cookie', cookies)  // Node accepts an array of strings for cookies
 
+            async function safeCancelBody(body: ReadableStream<Uint8Array> | null | undefined) {
+              if (!body || body.locked) return
+              try {
+                await body.cancel()
+              } catch {
+                // The underlying stream may already be locked/cancelled
+                // internally (e.g. by the SSR renderer's own abort handling) when the
+                // client disconnects mid-stream. Nothing more to clean up here.
+              }
+            }
+
             // Handle HTML Streaming in Vite DEV server
             if (response.headers.get('content-type')?.includes('text/html')) {
               res.removeHeader('content-length')
               server.config.logger.info(`📄 Page: ${req.url}`, { timestamp: true })
 
               if (req.method === 'HEAD' || !response.body) {
-                await response.body?.cancel()
+                await safeCancelBody(response.body)
                 return res.end()
               }
               if (res.destroyed || res.closed) {
-                await response.body.cancel()
+                await safeCancelBody(response.body)
                 return
               }
 
@@ -522,12 +533,12 @@ export default function vikeLite({
 
             // Non-HTML responses (e.g. /api and /*.pageContext.json)
             if (req.method === 'HEAD' || !response.body) {
-              await response.body?.cancel()
+              await safeCancelBody(response.body)
               if (!res.destroyed && !res.closed) res.end()
               return
             }
             if (res.destroyed || res.closed) {
-              await response.body.cancel()
+              await safeCancelBody(response.body)
               return
             }
             try {
