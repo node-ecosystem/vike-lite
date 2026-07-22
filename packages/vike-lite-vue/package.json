@@ -65,7 +65,7 @@
     "@vue/server-renderer": "^3.5.40",
     "@vue/test-utils": "^2.4.11",
     "jsdom": "^29.1.1",
-    "tsdown": "^0.22.12",
+    "tsdown": "^0.22.13",
     "typescript": "^6.0.3",
     "unplugin-vue": "^7.2.0",
     "vike-lite": "workspace:*",
