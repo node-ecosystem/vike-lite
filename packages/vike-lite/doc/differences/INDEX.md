@@ -45,7 +45,7 @@
 | Build | `vike*` as dev dependencies ([see](https://github.com/vikejs/vike/issues/3070)) | ❌ | ✅
 | Build | `vike build` command | ✅ | use `vite build`
 | Required | `vite` version | >=6.3.0 | >=8
-| Required | `Node.js` version | >=20.19.0 | >=20.19.0 || >=22.12.0
+| Required | `Node.js` version | >=20.19.0 | ^20.19.0 || >=22.12.0 (respect node engines of `vite`)
 
 #### Legend
 ✅: Implemented<br>
