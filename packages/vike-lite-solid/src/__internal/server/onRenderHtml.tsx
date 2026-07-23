@@ -17,7 +17,7 @@ interface SolidRenderContext extends RenderContext {
    * buffering it into a single string before sending it. Ignored in Client
    * Takeover mode (`hydration: false`), since there's no server-rendered app
    * markup to stream in the first place.
-   * @default false
+   * @default true
    */
   streaming?: boolean
 }

@@ -15,13 +15,17 @@ interface ReactRenderContext extends RenderContext {
   Page: ComponentType
   Head?: ComponentType
   Layout?: ComponentType<{ children: ReactNode }>
+  /**
+   * Enable client hydration (SSR + hydrate) or full client takeover (SPA mode).
+   * @default true
+   */
   hydration: boolean
   /**
    * Stream the app markup via the Web Streams API (`ReadableStream`) instead of
    * buffering it into a single string before sending it. Ignored in Client
    * Takeover mode (`hydration: false`), since there's no server-rendered app
    * markup to stream in the first place.
-   * @default false
+   * @default true
    */
   streaming?: boolean
 }
