@@ -7,6 +7,7 @@ import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
+import { escapeRegex } from '../__internal/shared'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -77,6 +78,10 @@ export default function vikeLite({
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
       const serverInput: Record<string, string> = { index: VIRTUAL.entryServer }
       if (hasAnyPrerender) serverInput.prerender = VIRTUAL.entryPrerender
+      // Escape once; pagesDir is a stable plugin option, no need to recompute per-module
+      const escapedPagesDir = escapeRegex(pagesDir)
+      const pagesDirRegex = new RegExp(String.raw`[\\/]${escapedPagesDir}[\\/]([^\\/]+)[\\/]`)
+      const pagesDirTest = new RegExp(String.raw`[\\/]${escapedPagesDir}[\\/]`)
 
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware
@@ -149,17 +154,17 @@ export default function vikeLite({
                       // A page = a dedicated chunk, consistent with vike-lite lazy-loading
                       {
                         name(moduleId) {
-                          const match = moduleId.match(new RegExp(String.raw`[\\/]${pagesDir}[\\/]([^\\/]+)[\\/]`))
+                          const match = moduleId.match(pagesDirRegex)
                           return match ? `page-${match[1]}` : 'shared'
                         },
-                        test: new RegExp(String.raw`[\\/]${pagesDir}[\\/]`),
+                        test: pagesDirTest,
                         priority: 10
                       },
                       // CSS: a dedicated chunk per page/module, instead of grouping it
                       // with the JS — prevents a style change from invalidating unrelated JS chunks
                       {
                         name(moduleId) {
-                          const match = moduleId.match(new RegExp(String.raw`[\\/]${pagesDir}[\\/]([^\\/]+)[\\/]`))
+                          const match = moduleId.match(pagesDirRegex)
                           return match ? `css-${match[1]}` : 'css-shared'
                         },
                         test: /\.css$/,

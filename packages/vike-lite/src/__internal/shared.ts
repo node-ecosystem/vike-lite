@@ -17,7 +17,7 @@ export interface RenderContext {
 
 const regexCache = new Map<string, { regex: RegExp; paramNames: string[] }>()
 
-function escapeRegex(str: string) {
+export function escapeRegex(str: string) {
   return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
 }
 
