@@ -64,11 +64,11 @@ export async function onRenderHtml({
     // WHATWG Writable — piping it into a TransformStream gives us a plain `ReadableStream`
     // that reads identically on Node.js, Deno, Bun and Edge runtimes.
     const { readable, writable } = new TransformStream<string, string>()
-    renderToStream(renderApp, { nonce }).pipeTo(writable).catch((error: unknown) => {
+    try { renderToStream(renderApp, { nonce }).pipeTo(writable) } catch (error: unknown) {
       // The shell has already started streaming to the client by this point,
       // so an error page can no longer be swapped in — just report it.
       console.error('[vike-lite-solid] Streaming render error:', error)
-    })
+    }
     return renderHtmlShellStream({
       pageTitleTag, cssLinks, jsPreloads, headHtml, appStream: readable, serializedContext, entryClient, nonce,
       extraHeadHtml: hydrationScript
