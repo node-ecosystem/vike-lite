@@ -15,10 +15,17 @@ interface RouterProps {
 }
 
 // React does not have a native functional ErrorBoundary — requires a class component
-class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+class RootErrorBoundary extends Component<{ children: ReactNode; resetKey: unknown }, { error: Error | null }> {
   static getDerivedStateFromError(error: Error) { return { error } }
 
   override state = { error: null as Error | null }
+
+  override componentDidUpdate(prevProps: { resetKey: unknown }) {
+    // Recover automatically once navigation moves us to a different route
+    if (this.state.error && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ error: null })
+    }
+  }
 
   override render() {
     if (this.state.error) return <div>Error: {this.state.error.message}</div>
@@ -119,8 +126,8 @@ export function RouterApp(props: RouterProps) {
       if (!props.errorRoute) return
       const errorView = await loadViewModules<ComponentType<any>>(props.errorRoute)
       if (signal.aborted) return
-      setPageContext(() => ({
-        ...pageContext,
+      setPageContext(prev => ({
+        ...prev,
         urlOriginal: urlFull,
         urlPathname: pathname,
         routeParams: {},
@@ -222,7 +229,7 @@ export function RouterApp(props: RouterProps) {
   if (!Page) return null
 
   return (
-    <RootErrorBoundary>
+    <RootErrorBoundary resetKey={currentPathname}>
       <PageContextProvider value={contextValue}>
         {Layout ? <Layout><Page /></Layout> : <Page />}
       </PageContextProvider>
