@@ -50,7 +50,9 @@ export default {
 | Option | Type | Default | Description
 | - | - | - | -
 | `hydration` | `boolean` | `true` | When `true`, the server renders the page to HTML and the client hydrates it. When `false`, the client discards the server-rendered HTML on load and mounts a fresh tree — useful for highly interactive pages where paying the hydration-mismatch tax isn't worth it.
-| `solid` | `Options` (from `@sveltejs/vite-plugin-svelte`) | `{}` | Passed through to the underlying `@sveltejs/vite-plugin-svelte` instance. Use this for custom preprocessors or compiler settings.
+| `svelte` | `Options` (from `@sveltejs/vite-plugin-svelte`) | `{}` | Passed through to the underlying `@sveltejs/vite-plugin-svelte` instance. Use this for custom preprocessors or compiler settings.
+
+> 💡 **Note on Streaming:** unlike `vike-lite-react`, `vike-lite-vue`, and `vike-lite-solid`, `vike-lite-svelte` doesn't offer a `streaming` option. `svelte/server`'s `render()` returns fully-buffered markup synchronously — there's no async/streaming SSR API to hook into (SvelteKit's own "streaming" is a different, higher-level mechanism built on deferred `+page.server.ts` data and a client-router runtime, not on a streaming renderer). See [HTTP Streaming](../vike-lite/doc/differences/STREAMING.md) for details and how the other adapters support it.
 
 ### 🪝 Hooks
 
