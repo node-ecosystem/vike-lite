@@ -6,8 +6,8 @@ import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const clientDir = path.resolve(__dirname, '../client')
+const clientDir = path.resolve(import.meta.dirname, '../client')
+const assetsDir = path.join(clientDir, 'assets')
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -29,7 +29,8 @@ const server = createServer(async (req, res) => {
     const { BASE_URL } = import.meta.env
     if (BASE_URL !== '/' && pathname.startsWith(BASE_URL)) fileUrl = '/' + pathname.slice(BASE_URL.length)
     if (fileUrl !== '/') {
-      const filePath = path.resolve(clientDir, '.' + fileUrl)
+      const normalizedUrl = path.normalize(fileUrl)
+      const filePath = path.resolve(clientDir, '.' + normalizedUrl)
       if (!filePath.startsWith(clientDir)) {
         res.statusCode = 403
         res.end('Forbidden')
@@ -41,10 +42,7 @@ const server = createServer(async (req, res) => {
           const ext = path.extname(filePath).toLowerCase()
           const mimeType = MIME_TYPES[ext] || 'application/octet-stream'
           res.setHeader('Content-Type', mimeType)
-          res.setHeader(
-            'Cache-Control',
-            fileUrl.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate'
-          )
+          res.setHeader('Cache-Control', filePath.startsWith(assetsDir) ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate')
           fs.createReadStream(filePath).pipe(res)
           return
         }
