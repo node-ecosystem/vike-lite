@@ -59,17 +59,12 @@ export function createDepsConfigPlugin({
 export function createFrameworkAdapterPlugin({
   packageName,
   hydration = true,
-  // Some frameworks (e.g. Vue) decide hydration entirely on the client and don't
-  // need the flag threaded through the server-rendered HTML.
-  wrapServerHydration = true,
   streaming = false
 }: {
   /** The framework adapter's package name, e.g. 'vike-lite-react'. */
   packageName: string
   /** @default true */
   hydration?: boolean
-  /** @default true */
-  wrapServerHydration?: boolean
   /**
    * Stream the server-rendered app markup via the framework's Web Streams-based
    * SSR API instead of buffering it into a single string. Threaded through to
@@ -96,9 +91,8 @@ export function createFrameworkAdapterPlugin({
         return `export const onRenderClient=async(options)=>(await import("${packageName}/__internal/client/onRenderClient")).onRenderClient({...options,hydration:${hydration}});`
       }
       if (id === resolvedVirtualServerId) {
-        const extraProps = wrapServerHydration ? `hydration:${hydration},streaming:${streaming}` : `streaming:${streaming}`
         return `import { onRenderHtml as _onRenderHtml } from '${packageName}/__internal/server/onRenderHtml';`
-          + `export const onRenderHtml = (ctx) => _onRenderHtml({ ...ctx, ${extraProps} });`
+          + `export const onRenderHtml = (ctx) => _onRenderHtml({ ...ctx, hydration:${hydration},streaming:${streaming} });`
       }
     }
   }
