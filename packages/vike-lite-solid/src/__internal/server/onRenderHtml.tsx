@@ -44,10 +44,9 @@ export async function onRenderHtml({
 
   const hydrationScript = hydration ? generateHydrationScript() : ''
 
-  if (!hydration) {
+  if (!hydration)
     // Client Takeover: no server-side rendering of the app, only the shell
     return renderHtmlShell({ pageTitleTag, cssLinks, jsPreloads, headHtml, appHtml: '', serializedContext, entryClient, nonce })
-  }
 
   const renderApp = () => (
     <RouterApp
