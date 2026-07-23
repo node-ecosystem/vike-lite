@@ -53,6 +53,8 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     abortController?.abort()
     const controller = new AbortController()
     abortController = controller
+    // Clear any error from a previous render attempt before starting a new navigation
+    renderError.value = null
     const signal = controller.signal
 
     const pathname = currentPathname.value
