@@ -58,10 +58,13 @@
     Object.assign(pageContext, next)
   }
 
+  let resetBoundary: (() => void) | undefined
+
   async function loadRoute() {
     abortController?.abort()
     const controller = new AbortController()
     abortController = controller
+    resetBoundary?.()
     const signal = controller.signal
 
     const pathname = currentPathname
@@ -236,7 +239,8 @@
     {/if}
   {/if}
 
-  {#snippet failed(error)}
+  {#snippet failed(error, reset)}
+    {@const _ = (resetBoundary = reset)}
     <div>Error: {(error as Error).message}</div>
   {/snippet}
 </svelte:boundary>
