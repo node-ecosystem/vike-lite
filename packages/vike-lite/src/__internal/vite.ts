@@ -59,7 +59,7 @@ export function createDepsConfigPlugin({
 export function createFrameworkAdapterPlugin({
   packageName,
   hydration = true,
-  streaming = false
+  streaming = true
 }: {
   /** The framework adapter's package name, e.g. 'vike-lite-react'. */
   packageName: string
@@ -70,7 +70,7 @@ export function createFrameworkAdapterPlugin({
    * SSR API instead of buffering it into a single string. Threaded through to
    * `onRenderHtml` the same way `hydration` is. Ignored by adapters whose
    * `onRenderHtml` doesn't accept a `streaming` option.
-   * @default false
+   * @default true
    */
   streaming?: boolean
 }): Plugin {
