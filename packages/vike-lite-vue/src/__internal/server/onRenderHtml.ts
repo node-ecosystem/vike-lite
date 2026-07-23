@@ -17,7 +17,7 @@ interface VueRenderContext extends RenderContext {
   /**
    * Stream the app markup via the Web Streams API (`ReadableStream`) instead of
    * buffering it into a single string before sending it.
-   * @default false
+   * @default true
    */
   streaming?: boolean
 }
