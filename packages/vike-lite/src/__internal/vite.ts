@@ -91,8 +91,8 @@ export function createFrameworkAdapterPlugin({
         return `export const onRenderClient=async(options)=>(await import("${packageName}/__internal/client/onRenderClient")).onRenderClient({...options,hydration:${hydration}});`
       }
       if (id === resolvedVirtualServerId) {
-        return `import { onRenderHtml as _onRenderHtml } from '${packageName}/__internal/server/onRenderHtml';`
-          + `export const onRenderHtml = (ctx) => _onRenderHtml({ ...ctx, hydration:${hydration},streaming:${streaming} });`
+        return `import{onRenderHtml as _onRenderHtml}from'${packageName}/__internal/server/onRenderHtml';`
+          + `export const onRenderHtml =(ctx)=>_onRenderHtml({...ctx,hydration:${hydration},streaming:${streaming}});`
       }
     }
   }
