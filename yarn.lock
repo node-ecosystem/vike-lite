@@ -1565,9 +1565,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/language-core@npm:3.3.7":
-  version: 3.3.7
-  resolution: "@vue/language-core@npm:3.3.7"
+"@vue/language-core@npm:3.3.8":
+  version: 3.3.8
+  resolution: "@vue/language-core@npm:3.3.8"
   dependencies:
     "@volar/language-core": "npm:2.4.28"
     "@vue/compiler-dom": "npm:^3.5.0"
@@ -1576,7 +1576,7 @@ __metadata:
     muggle-string: "npm:^0.4.1"
     path-browserify: "npm:^1.0.1"
     picomatch: "npm:^4.0.4"
-  checksum: 10c0/9f8128c2b71f83750af69d240e898fadcbd825c9749fc7b72b1b68e5c7d231462a9482ae469dbaa66104641adb57314678cbc591bb0a931c57e53af19cf938bd
+  checksum: 10c0/2e321f027dfb10f28cb6052629e1f1fba3e12b659284c68755097aa678ea56c190dd43aad2da1fb237debc399fd7ab2922d7e576a4eb072c5f094cdaea412b2d
   languageName: node
   linkType: hard
 
@@ -5532,9 +5532,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown-plugin-dts@npm:^0.27.12":
-  version: 0.27.12
-  resolution: "rolldown-plugin-dts@npm:0.27.12"
+"rolldown-plugin-dts@npm:^0.27.13":
+  version: 0.27.13
+  resolution: "rolldown-plugin-dts@npm:0.27.13"
   dependencies:
     dts-resolver: "npm:^3.0.0"
     get-tsconfig: "npm:5.0.0-beta.5"
@@ -5557,7 +5557,7 @@ __metadata:
       optional: true
     vue-tsc:
       optional: true
-  checksum: 10c0/346b18e937c2ee6dbddfdc0e0890d871cb84f98e5790a46a036bbe93e8ad908d3fa4c20a27f0d6a59a2518161e1aa1dba97edb368e862e0d6e730621c0547691
+  checksum: 10c0/a3e6b6ef8ae3b607c8db453714a15f7ffd3e5c8568fc978b8bef4ad1d3d6f85a387e9391c0ef7da49de75e2cde25109f514ddf7b61584a6343ddb0ccd3d93203
   languageName: node
   linkType: hard
 
@@ -6290,9 +6290,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.22.13":
-  version: 0.22.13
-  resolution: "tsdown@npm:0.22.13"
+"tsdown@npm:^0.22.14":
+  version: 0.22.14
+  resolution: "tsdown@npm:0.22.14"
   dependencies:
     ansis: "npm:^4.3.1"
     cac: "npm:^7.0.0"
@@ -6303,16 +6303,16 @@ __metadata:
     obug: "npm:^2.1.4"
     picomatch: "npm:^4.0.5"
     rolldown: "npm:~1.2.0"
-    rolldown-plugin-dts: "npm:^0.27.12"
+    rolldown-plugin-dts: "npm:^0.27.13"
     tinyexec: "npm:^1.2.4"
     tinyglobby: "npm:^0.2.17"
     tree-kill: "npm:^1.2.2"
     unconfig-core: "npm:^7.5.0"
-    verkit: "npm:^0.1.2"
+    verkit: "npm:^0.3.0"
   peerDependencies:
     "@arethetypeswrong/core": ^0.18.1
-    "@tsdown/css": 0.22.13
-    "@tsdown/exe": 0.22.13
+    "@tsdown/css": 0.22.14
+    "@tsdown/exe": 0.22.14
     "@vitejs/devtools": "*"
     publint: ^0.3.8
     tsx: "*"
@@ -6340,7 +6340,7 @@ __metadata:
       optional: true
   bin:
     tsdown: ./dist/run.mjs
-  checksum: 10c0/c41cfe1885d3f303c5b07572f9a22c84657594ea52be993edcdb32913418184bee70acbc0dfcf6df3c8e39aea9bc5ca059571573fea599fea0db26c489c03e87
+  checksum: 10c0/d29951647247fac54539a5d97278065a9d7877c4011bc9baa976d08e3a15ce48f8f7ff308bbedf507b3a1f3acd6aecfa1b71d3284239eb9b8a5c4b27afbce35a
   languageName: node
   linkType: hard
 
@@ -6591,10 +6591,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"verkit@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "verkit@npm:0.1.2"
-  checksum: 10c0/84d3978df9007326caf86dde354467189224c2864ae5d03111af7f112ca64a47d50f40a113f853284e4c90475b35dc4ccab47db2a3be7fe02fc1d81eca4361b6
+"verkit@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "verkit@npm:0.3.0"
+  checksum: 10c0/4ef036210a6bedf2ad7ae861bea46702038cd592d89236e09912402b537ebb2d0915051814c29fa0e50363e955153ac3daf8b50308d6d0930a165d6c0e06d0a8
   languageName: node
   linkType: hard
 
@@ -6633,7 +6633,7 @@ __metadata:
     jsdom: "npm:^29.1.1"
     react: "npm:^19.2.8"
     react-dom: "npm:^19.2.8"
-    tsdown: "npm:^0.22.13"
+    tsdown: "npm:^0.22.14"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
@@ -6656,7 +6656,7 @@ __metadata:
     "@types/node": "npm:^26.1.1"
     jsdom: "npm:^29.1.1"
     solid-js: "npm:^1.9.14"
-    tsdown: "npm:^0.22.13"
+    tsdown: "npm:^0.22.14"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vite-plugin-solid: "npm:^2.11.13"
@@ -6680,7 +6680,7 @@ __metadata:
     "@types/node": "npm:^26.1.1"
     jsdom: "npm:^29.1.1"
     svelte: "npm:^5.56.7"
-    tsdown: "npm:^0.22.13"
+    tsdown: "npm:^0.22.14"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
@@ -6705,14 +6705,14 @@ __metadata:
     "@vue/server-renderer": "npm:^3.5.40"
     "@vue/test-utils": "npm:^2.4.11"
     jsdom: "npm:^29.1.1"
-    tsdown: "npm:^0.22.13"
+    tsdown: "npm:^0.22.14"
     typescript: "npm:^6.0.3"
     unplugin-vue: "npm:^7.2.0"
     vike-lite: "workspace:*"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
     vue: "npm:^3.5.40"
-    vue-tsc: "npm:^3.3.7"
+    vue-tsc: "npm:^3.3.8"
   peerDependencies:
     "@vitejs/plugin-vue": ">=6"
     vike-lite: "*"
@@ -6726,7 +6726,7 @@ __metadata:
   resolution: "vike-lite@workspace:packages/vike-lite"
   dependencies:
     "@types/node": "npm:^26.1.1"
-    tsdown: "npm:^0.22.13"
+    tsdown: "npm:^0.22.14"
     vite: "npm:^8.1.5"
     vitest: "npm:^4.1.10"
   peerDependencies:
@@ -6922,17 +6922,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-tsc@npm:^3.3.7":
-  version: 3.3.7
-  resolution: "vue-tsc@npm:3.3.7"
+"vue-tsc@npm:^3.3.8":
+  version: 3.3.8
+  resolution: "vue-tsc@npm:3.3.8"
   dependencies:
     "@volar/typescript": "npm:2.4.28"
-    "@vue/language-core": "npm:3.3.7"
+    "@vue/language-core": "npm:3.3.8"
   peerDependencies:
     typescript: ">=5.0.0"
   bin:
     vue-tsc: bin/vue-tsc.js
-  checksum: 10c0/35bbda9142e0b2212826ef77e9cdf49dd90fe82c40e909ea228dc100e9a10b179edda814938b0237c981e5688a419bd2f557f643a05675379c4b05cbde4019e3
+  checksum: 10c0/5fe554acf49758aa906b350adeed3bbf8cc46ca824126220aad301e351ffe8a051b7a17c73fc88157023090278bdc29a7724d4f621faade91e80b0e8bbf957ee
   languageName: node
   linkType: hard
 
