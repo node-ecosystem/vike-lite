@@ -19,12 +19,10 @@ export async function onRenderHtml({
   Layout,
   pageTitleTag,
   serializedContext,
-  assets,
+  assets: { cssLinks, jsPreloads, entryClient },
   nonce,
   hydration
 }: SvelteRenderContext) {
-  const { cssLinks, jsPreloads, entryClient } = assets
-
   // Head: rendered separately, statically — not part of the tree that gets
   // hydrated client-side (same principle applied by React/Solid)
   let headHtml = ''
