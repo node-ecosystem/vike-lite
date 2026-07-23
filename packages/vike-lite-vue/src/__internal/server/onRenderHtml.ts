@@ -10,6 +10,11 @@ interface VueRenderContext extends RenderContext {
   Head?: Component
   Layout?: Component
   /**
+    * Enable client hydration (SSR + hydrate) or full client takeover (SPA mode).
+    * @default true
+    */
+  hydration?: boolean
+  /**
    * Stream the app markup via the Web Streams API (`ReadableStream`) instead of
    * buffering it into a single string before sending it.
    * @default false
@@ -26,6 +31,7 @@ export async function onRenderHtml({
   serializedContext,
   assets: { cssLinks, jsPreloads, entryClient },
   nonce,
+  hydration,
   streaming
 }: VueRenderContext) {
   let headHtml = ''
@@ -34,6 +40,11 @@ export async function onRenderHtml({
     headApp.provide(pageContextInjectionKey, { pageContext })
     headHtml = await renderToString(headApp)
   }
+
+  // Client Takeover (hydration: false): skip rendering Page/Layout server-side —
+  // the client discards this HTML anyway and mounts a fresh tree in onRenderClient.
+  if (!hydration)
+    return renderHtmlShell({ pageTitleTag, cssLinks, jsPreloads, headHtml, appHtml: '', serializedContext, entryClient, nonce })
 
   const app = createSSRApp({
     render: () => Layout

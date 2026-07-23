@@ -26,15 +26,7 @@ export default function vikeLiteVue({
    */
   vue?: Partial<VueOptions>
 } = {}): PluginOption[] {
-  const adapter = createFrameworkAdapterPlugin({
-    packageName: 'vike-lite-vue',
-    hydration,
-    streaming,
-    // Vue's onRenderHtml doesn't need the hydration flag: hydration vs. client
-    // takeover is decided entirely client-side in onRenderClient.
-    wrapServerHydration: false
-  })
-
+  const adapter = createFrameworkAdapterPlugin({ packageName: 'vike-lite-vue', hydration, streaming })
   return [
     vuePlugin(mergeConfig(
       { ssr: true },
