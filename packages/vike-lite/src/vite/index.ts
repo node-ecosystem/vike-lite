@@ -114,6 +114,16 @@ export default function vikeLite({
       return {
         // Fix white page issue: Disable Vite's internal HTML middleware
         appType: 'custom',
+        // Build Client + SSR environments
+        builder: {
+          async buildApp(builder) {
+            // client must finish (and flush its manifest to disk) before ssr starts,
+            // since the ssr build's virtual:vike-lite/client-manifest load() reads
+            // dist/client/.vite/manifest.json from disk.
+            await builder.build(builder.environments.client!)
+            await builder.build(builder.environments.ssr!)
+          }
+        },
         ssr: {
           // Solution to https://github.com/vikejs/vike/issues/3070
           noExternal: [/^vike-lite(?:$|-)/]
