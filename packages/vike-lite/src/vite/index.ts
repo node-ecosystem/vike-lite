@@ -365,7 +365,7 @@ export default function vikeLite({
 
       const label = envName === 'client' ? 'Client' : 'Server'
       const sorted = [...usedPackages].sort()
-      console.log(`📦 [${label} bundle] package.json dependencies used (${sorted.length}):`)
+      console.log(`\n📦 [${label} bundle] package.json dependencies used (${sorted.length}):`)
       if (sorted.length === 0) {
         console.log(`   (None)`)
       } else {
