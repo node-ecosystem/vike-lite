@@ -89,16 +89,20 @@ export default function vikeLite({
       if (isProd && printDependencies) {
         const pkgJsonPath = findPackageJsonPath(viteConfigRoot)
         if (pkgJsonPath) {
-          const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
-          projectDependencies = {}
-
-          // Store both the version and the type of dependency to help with auditing
-          for (const [k, v] of Object.entries(pkgJson.dependencies || {}))
-            projectDependencies[k] = { version: v as string, type: '' }
-          for (const [k, v] of Object.entries(pkgJson.devDependencies || {}))
-            projectDependencies[k] = { version: v as string, type: 'dev' }
-          for (const [k, v] of Object.entries(pkgJson.peerDependencies || {}))
-            if (!projectDependencies[k]) projectDependencies[k] = { version: v as string, type: 'peer' }
+          try {
+            const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
+            projectDependencies = {}
+            // Store both the version and the type of dependency to help with auditing
+            for (const [k, v] of Object.entries(pkgJson.dependencies || {}))
+              projectDependencies[k] = { version: String(v), type: '' }
+            for (const [k, v] of Object.entries(pkgJson.devDependencies || {}))
+              if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'dev' }
+            for (const [k, v] of Object.entries(pkgJson.peerDependencies || {}))
+              if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'peer' }
+          } catch (error) {
+            console.warn(`⚠️ Failed to parse package.json for printDependencies:`, error)
+            projectDependencies = null
+          }
         }
       }
 
@@ -354,34 +358,36 @@ export default function vikeLite({
     generateBundle(_options, bundle) {
       if (!printDependencies || !projectDependencies) return
 
+      const deps = projectDependencies // narrow to non-null for the closure below
       // Per-environment view, used for the printed table below
       const usedDeps = new Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>()
+
+      function recordUsage(pkg: string | undefined, patch: Partial<{ isBundled: boolean, isExternal: boolean }>) {
+        if (!pkg || pkg.startsWith('vike-lite') || !Object.hasOwn(deps, pkg)) return
+        const entry = usedDeps.get(pkg) ?? { ...deps[pkg], isBundled: false, isExternal: false }
+        Object.assign(entry, patch)
+        usedDeps.set(pkg, entry)
+      }
 
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk') continue
 
-        // 1. Bundled dependencies (detect via node_modules path)
-        for (const id of chunk.moduleIds) {
-          const pkg = extractPkgName(id)
-          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg)) {
-            const entry = usedDeps.get(pkg) ?? { ...projectDependencies[pkg], isBundled: false, isExternal: false }
-            entry.isBundled = true
-            usedDeps.set(pkg, entry)
-          }
-        }
+        // 1. Bundled dependencies: actual modules folded into this chunk
+        for (const id of chunk.moduleIds) recordUsage(extractPkgName(id)!, { isBundled: true })
+      }
 
-        // 2. Externalized dependencies (static & dynamic bare imports)
-        for (const imp of [...chunk.imports, ...chunk.dynamicImports]) {
-          // A reference to another chunk in this bundle isn't an external package
-          if (bundle[imp]) continue
-
-          const pkg = extractPkgName(imp)
-          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg)) {
-            const entry = usedDeps.get(pkg) ?? { ...projectDependencies[pkg], isBundled: false, isExternal: false }
-            entry.isExternal = true
-            usedDeps.set(pkg, entry)
-          }
-        }
+      // 2. Externalized dependencies: chunk.imports/dynamicImports on an OutputChunk
+      // are the *file names* of other emitted chunks in THIS bundle (internal graph
+      // edges, for modulepreload) — they never contain bare specifiers like "react".
+      // Rolldown still tracks every module it resolved, including ones marked
+      // `external` (and thus never placed in any chunk), via getModuleInfo().
+      // Unlike Rollup, rolldown's `ModuleInfo` has no `isExternal` flag — but `code`
+      // is documented as "null if external or not yet available", and by the time
+      // generateBundle runs every module has already been resolved/loaded, so a
+      // null `code` reliably means the module was externalized.
+      for (const id of this.getModuleIds()) {
+        const info = this.getModuleInfo(id)
+        if (info?.code === null) recordUsage(extractPkgName(id)!, { isExternal: true })
       }
 
       const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
@@ -398,9 +404,6 @@ export default function vikeLite({
         }
       }
 
-      // Compute suggestions IMMEDIATELY for this specific environment.
-      // This guarantees it works even if client and ssr builds are run
-      // as two completely separate CLI commands (e.g. `vite build && vite build --ssr`).
       const suggestions: string[] = []
 
       for (const [name, info] of sorted) {

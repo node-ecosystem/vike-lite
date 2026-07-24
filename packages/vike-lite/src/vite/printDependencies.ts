@@ -14,6 +14,8 @@ export function findPackageJsonPath(startDir: string): string | null {
 }
 
 export function extractPkgName(id: string): string | null {
+  if (id.startsWith('\0')) return null // rolldown/vite virtual module convention
+
   const normalized = id.replaceAll('\\', '/')
 
   // 1. Resolve paths inside node_modules (handles pnpm/yarn nested structure)
