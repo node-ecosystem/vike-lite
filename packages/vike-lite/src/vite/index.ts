@@ -7,7 +7,7 @@ import { loadEnv, type Plugin, type RunnableDevEnvironment } from 'vite'
 import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
-import { escapeRegex } from '../__internal/shared'
+import { escapeRegex } from '../shared'
 import { extractPackageNameFromImport, extractPackageNameFromPath, findPackageJsonPath } from './printDependencies'
 
 export default function vikeLite({

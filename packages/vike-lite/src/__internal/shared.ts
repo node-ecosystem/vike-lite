@@ -1,4 +1,5 @@
 import type { PageContextServer } from '../index'
+import { escapeRegex } from '../shared'
 
 export interface RenderContext {
   pageContext: PageContextServer
@@ -16,10 +17,6 @@ export interface RenderContext {
 }
 
 const regexCache = new Map<string, { regex: RegExp; paramNames: string[] }>()
-
-export function escapeRegex(str: string) {
-  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
-}
 
 export function matchRoute(
   urlPathname: string,

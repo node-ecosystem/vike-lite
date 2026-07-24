@@ -1,7 +1,8 @@
 import { describe, it } from 'vitest'
 import { strictEqual, ok } from 'node:assert/strict'
 
-import { escapeRegex, stripBase, matchRoute, prependBase } from '../src/__internal/shared'
+import { stripBase, matchRoute, prependBase } from '../src/__internal/shared'
+import { escapeRegex } from '../src/shared'
 
 describe('vike-lite shared utils', () => {
   describe('escapeRegex', () => {
