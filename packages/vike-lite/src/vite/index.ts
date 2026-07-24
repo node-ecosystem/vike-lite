@@ -57,6 +57,15 @@ export default function vikeLite({
   let hasAnyPrerender: boolean
   let baseUrl: string
   let projectDependencies: Record<string, { version: string, type: 'peer' | 'dev' | '' }> | null = null
+  // Cross-environment bookkeeping for smart dependency advice
+  const depUsage = new Map<string, {
+    version: string
+    type: 'peer' | 'dev' | ''
+    isBundled: boolean        // inlined into an output chunk in at least one environment
+    isExternal: boolean       // kept as a bare import in at least one environment
+    externalEnvs: Set<string> // which environment(s) need it externally at runtime
+  }>()
+  const processedEnvs = new Set<string>()
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
@@ -347,24 +356,51 @@ export default function vikeLite({
       const envName = this.environment.name
       if (envName !== 'client' && envName !== 'ssr') return
 
-      const usedDeps = new Map<string, { version: string, type: string }>()
+      // Per-environment view, used for the printed table below
+      const usedDeps = new Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>()
+
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk') continue
 
         // 1. Bundled dependencies (detect via node_modules path)
         for (const id of chunk.moduleIds) {
           const pkg = extractPkgName(id)
-          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg))
-            usedDeps.set(pkg, projectDependencies[pkg])
+          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg)) {
+            const entry = usedDeps.get(pkg) ?? { ...projectDependencies[pkg], isBundled: false, isExternal: false }
+            entry.isBundled = true
+            usedDeps.set(pkg, entry)
+          }
         }
 
         // 2. Externalized dependencies (static & dynamic bare imports)
         for (const imp of [...chunk.imports, ...chunk.dynamicImports]) {
+          // A reference to another chunk in this bundle isn't an external package
+          if (bundle[imp]) continue
+
           const pkg = extractPkgName(imp)
-          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg))
-            usedDeps.set(pkg, projectDependencies[pkg])
+          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg)) {
+            const entry = usedDeps.get(pkg) ?? { ...projectDependencies[pkg], isBundled: false, isExternal: false }
+            entry.isExternal = true
+            usedDeps.set(pkg, entry)
+          }
         }
       }
+
+      // Merge into the cross-environment map used by the final advisory below
+      for (const [name, info] of usedDeps) {
+        const global = depUsage.get(name) ?? {
+          version: info.version,
+          type: info.type as 'peer' | 'dev' | '',
+          isBundled: false,
+          isExternal: false,
+          externalEnvs: new Set<string>()
+        }
+        global.isBundled ||= info.isBundled
+        global.isExternal ||= info.isExternal
+        if (info.isExternal) global.externalEnvs.add(envName)
+        depUsage.set(name, global)
+      }
+      processedEnvs.add(envName)
 
       const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
       const label = envName === 'client' ? 'Client' : 'Server'
@@ -372,7 +408,40 @@ export default function vikeLite({
       if (sorted.length === 0) console.log('   (None)')
       else for (const [name, info] of sorted) {
         const typeTag = info.type ? ` \u{1B}[33m[${info.type}]\u{1B}[0m` : ''
-        console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}`)
+        const usageTag = info.isExternal ? ' \u{1B}[90m(external)\u{1B}[0m' : ' \u{1B}[90m(bundled)\u{1B}[0m'
+        console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}${usageTag}`)
+      }
+
+      // Only compute advisories once every environment has reported in, so a package
+      // used differently across client/server (e.g. bundled here, externalized there)
+      // gets a single, non-contradictory verdict instead of premature per-env guesses.
+      if (processedEnvs.has('client') && processedEnvs.has('ssr')) {
+        const suggestions: string[] = []
+
+        for (const [name, info] of [...depUsage.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+          // An externally-required SSR dependency is resolved from node_modules at
+          // runtime — if it's a devDependency, `npm ci --omit=dev` (or equivalent)
+          // will break the app in production.
+          if (info.externalEnvs.has('ssr') && info.type === 'dev')
+            suggestions.push(`\u{1B}[31m🚨 ${name}\u{1B}[0m is externalized in the server bundle but listed as a \u{1B}[33mdevDependency\u{1B}[0m. Move it to \u{1B}[32mdependencies\u{1B}[0m or it will break in production.`)
+          // Never externalized (always fully inlined) → the actual npm package isn't
+          // needed at runtime, only at build time → candidate for devDependencies.
+          else if (info.type === '' && info.isBundled && !info.isExternal)
+            suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is always fully bundled (never externalized). Consider moving it to \u{1B}[33mdevDependencies\u{1B}[0m to reduce production node_modules size.`)
+        }
+
+        // Regular dependencies never found in any bundle — likely dead, or only
+        // used outside the bundle graph (e.g. a config file). Heuristic only.
+        const unusedRegularDeps = Object.entries(projectDependencies)
+          .filter(([name, info]) => info.type === '' && !depUsage.has(name))
+          .sort(([a], [b]) => a.localeCompare(b))
+        for (const [name, info] of unusedRegularDeps)
+          suggestions.push(`\u{1B}[90m🗑️ ${name}@${info.version}\u{1B}[0m is listed in "dependencies" but wasn't found in any bundle — if it's only needed at build/dev time, move it to devDependencies (or remove it if unused).`)
+
+        if (suggestions.length > 0) {
+          console.log('\n   \u{1B}[1mSuggestions:\u{1B}[0m')
+          for (const s of suggestions) console.log(`   ${s}`)
+        }
       }
     },
     // Run SSG at end of the build.
