@@ -56,7 +56,7 @@ export default function vikeLite({
   let outDir: string
   let hasAnyPrerender: boolean
   let baseUrl: string
-  let projectDependencies: Record<string, string> | null = null
+  let projectDependencies: Record<string, { version: string, type: 'peer' | 'dev' | '' }> | null = null
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
@@ -87,11 +87,18 @@ export default function vikeLite({
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
 
       if (isProd && printDependencies) {
-        // Load the project's package.json once (it may live above `root`, e.g. when root: 'src')
         const pkgJsonPath = findPackageJsonPath(viteConfigRoot)
         if (pkgJsonPath) {
           const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
-          projectDependencies = { ...pkgJson.dependencies, ...pkgJson.devDependencies, ...pkgJson.peerDependencies }
+          projectDependencies = {}
+
+          // Store both the version and the type of dependency to help with auditing
+          for (const [k, v] of Object.entries(pkgJson.dependencies || {}))
+            projectDependencies[k] = { version: v as string, type: '' }
+          for (const [k, v] of Object.entries(pkgJson.devDependencies || {}))
+            projectDependencies[k] = { version: v as string, type: 'dev' }
+          for (const [k, v] of Object.entries(pkgJson.peerDependencies || {}))
+            if (!projectDependencies[k]) projectDependencies[k] = { version: v as string, type: 'peer' }
         }
       }
 
@@ -340,28 +347,33 @@ export default function vikeLite({
       const envName = this.environment.name
       if (envName !== 'client' && envName !== 'ssr') return
 
-      const usedDeps = new Map<string, string>() // pkgName -> version
+      const usedDeps = new Map<string, { version: string, type: string }>()
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk') continue
 
         // 1. Bundled dependencies (detect via node_modules path)
         for (const id of chunk.moduleIds) {
           const pkg = extractPkgName(id)
-          if (pkg && Object.hasOwn(projectDependencies, pkg)) usedDeps.set(pkg, projectDependencies[pkg])
+          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg))
+            usedDeps.set(pkg, projectDependencies[pkg])
         }
 
         // 2. Externalized dependencies (static & dynamic bare imports)
         for (const imp of [...chunk.imports, ...chunk.dynamicImports]) {
           const pkg = extractPkgName(imp)
-          if (pkg && Object.hasOwn(projectDependencies, pkg)) usedDeps.set(pkg, projectDependencies[pkg])
+          if (pkg && !pkg.startsWith('vike-lite') && Object.hasOwn(projectDependencies, pkg))
+            usedDeps.set(pkg, projectDependencies[pkg])
         }
       }
+
       const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
       const label = envName === 'client' ? 'Client' : 'Server'
-      console.log(`\n📦 [${label} bundle] dependencies used from package.json (${sorted.length}):`)
+      console.log(`\n📦 [${label} bundle] ${sorted.length} dependencies used from package.json:`)
       if (sorted.length === 0) console.log('   (None)')
-      else for (const [name, version] of sorted)
-        console.log(`   - \u{1B}[36m${name}@${version}\u{1B}[0m`)
+      else for (const [name, info] of sorted) {
+        const typeTag = info.type ? ` \u{1B}[33m[${info.type}]\u{1B}[0m` : ''
+        console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}`)
+      }
     },
     // Run SSG at end of the build.
     // `order: 'pre'` ensures this runs BEFORE other plugins' closeBundle hooks —

@@ -43,10 +43,10 @@ When set to `true`, at the end of each production build (client and server) the 
 
 ```sh
 
-📦 [Client bundle] dependencies used from package.json (1):
+📦 [Client bundle] 1 dependencies used from package.json:
    - solid-js@^1.9.3
 
-📦 [Server bundle] dependencies used from package.json (2):
+📦 [Server bundle] 2 dependencies used from package.json:
    - solid-js@^1.9.3
    - hono@^4.12.31
 ```
