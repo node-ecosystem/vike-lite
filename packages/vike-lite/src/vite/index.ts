@@ -8,12 +8,14 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../__internal/shared'
+import { extractPackageNameFromImport, extractPackageNameFromPath, findPackageJsonPath } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
   apiPrefix = '/api',
   prerender = false,
-  serverEntry
+  serverEntry,
+  printDependencies = false
 }: {
   /**
    * The directory where your page components are located.
@@ -40,12 +42,21 @@ export default function vikeLite({
    * @default undefined
   */
   serverEntry?: string | false
+  /**
+ * Whether to print, at the end of each build (client and server), the list of
+ * package.json dependencies that ended up in that bundle. Useful to debug bundle
+ * size/composition, but adds console output on every production build, so it's
+ * disabled by default.
+ * @default false
+ */
+  printDependencies?: boolean
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   let viteConfigRoot: string
   let outDir: string
   let hasAnyPrerender: boolean
   let baseUrl: string
+  let projectDependencies: Record<string, string> | null = null
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
@@ -74,6 +85,16 @@ export default function vikeLite({
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
+
+      if (isProd && printDependencies) {
+        // Load the project's package.json once (it may live above `root`, e.g. when root: 'src')
+        const pkgJsonPath = findPackageJsonPath(viteConfigRoot)
+        if (pkgJsonPath) {
+          const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
+          projectDependencies = { ...pkgJson.dependencies, ...pkgJson.devDependencies, ...pkgJson.peerDependencies }
+        }
+      }
+
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
       const serverInput: Record<string, string> = { index: VIRTUAL.entryServer }
@@ -310,6 +331,46 @@ export default function vikeLite({
         return importSetup
           + `export{routes}from'${VIRTUAL.routes}';`
           + `export{renderPage}from'vike-lite/server';`
+    },
+    // Runs once per environment build (client / ssr), right after Rolldown
+    // has produced the final chunk graph but before writeBundle.
+    generateBundle(_options, bundle) {
+      if (!printDependencies || !projectDependencies) return
+
+      const envName = this.environment.name
+      if (envName !== 'client' && envName !== 'ssr') return
+
+      const usedPackages = new Set<string>()
+      for (const file of Object.values(bundle)) {
+        if (file.type !== 'chunk') continue
+
+        // 1. Bundled dependencies (detect via node_modules path)
+        for (const moduleId of file.moduleIds) {
+          const pkgName = extractPackageNameFromPath(moduleId)
+          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
+        }
+
+        // 2. Externalized dependencies (mostly SSR bare imports)
+        for (const imp of file.imports) {
+          const pkgName = extractPackageNameFromImport(imp)
+          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
+        }
+
+        // 3. Dynamic external imports
+        for (const imp of file.dynamicImports) {
+          const pkgName = extractPackageNameFromImport(imp)
+          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
+        }
+      }
+
+      const label = envName === 'client' ? 'Client' : 'Server'
+      const sorted = [...usedPackages].sort()
+      console.log(`📦 [${label} bundle] package.json dependencies used (${sorted.length}):`)
+      if (sorted.length === 0) {
+        console.log(`   (None)`)
+      } else {
+        for (const dep of sorted) console.log(`   - ${dep}@${projectDependencies[dep]}`)
+      }
     },
     // Run SSG at end of the build.
     // `order: 'pre'` ensures this runs BEFORE other plugins' closeBundle hooks —

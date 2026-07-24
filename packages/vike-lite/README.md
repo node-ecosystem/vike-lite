@@ -29,12 +29,29 @@ export default {
     vikeLite({
       pagesDir: 'pages',           // Default: Directory containing your pages
       apiPrefix: '/api',           // Default: Prefix to bypass SSR for API routes
-      prerender: false             // Default: Enable SSG globally
+      prerender: false,            // Default: Enable SSG globally
       serverEntry: 'server/index', // Default: unfedined value that allows to use a custom server entry file
+      printDependencies: false     // Default: Print, per build (client/server), which package.json dependencies ended up in the bundle
     })
   ]
 } satisfies UserConfig
 ```
+
+#### printDependencies
+
+When set to `true`, at the end of each production build (client and server) the plugin prints the list of `package.json` dependencies (and devDependencies) that were actually bundled or externally imported in that specific build output. This is useful to debug bundle composition/size — e.g. spotting a heavy dependency that unexpectedly ended up in the client bundle.
+
+```sh
+
+📦 [Client bundle] package.json dependencies used (1):
+   - solid-js@^1.9.3
+
+📦 [Server bundle] package.json dependencies used (2):
+   - solid-js@^1.9.3
+   - hono@^4.12.31
+```
+
+It's disabled by default since it only adds diagnostic console output and isn't needed for normal usage.
 
 ### 🖥️ Server Integration
 
