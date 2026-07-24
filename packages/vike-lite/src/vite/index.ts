@@ -57,6 +57,7 @@ export default function vikeLite({
   let hasAnyPrerender: boolean
   let baseUrl: string
   let projectDependencies: Record<string, { version: string, type: 'peer' | 'dev' | '' }> | null = null
+  const bundleReports: Partial<Record<'client' | 'ssr', Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>>> = {}
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
@@ -390,35 +391,48 @@ export default function vikeLite({
         if (info?.code === null) recordUsage(extractPkgName(id)!, { isExternal: true })
       }
 
+      const envName = this.environment.name as 'client' | 'ssr'
+      bundleReports[envName] = usedDeps
+
       const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
-      const envName = this.environment.name
       const label = envName === 'client' ? 'Client' : 'Server'
       console.log(`\n📦 [${label} bundle] ${sorted.length} dependencies used from package.json:`)
-
       if (sorted.length === 0) console.log('   (None)')
-      else {
-        for (const [name, info] of sorted) {
-          const typeTag = info.type ? ` \u{1B}[33m[${info.type}]\u{1B}[0m` : ''
-          const usageTag = info.isExternal ? ' \u{1B}[90m(external)\u{1B}[0m' : ' \u{1B}[90m(bundled)\u{1B}[0m'
-          console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}${usageTag}`)
-        }
+      else for (const [name, info] of sorted) {
+        const typeTag = info.type ? ` \u{1B}[33m[${info.type}]\u{1B}[0m` : ''
+        const usageTag = info.isExternal ? ' \u{1B}[90m(external)\u{1B}[0m' : ' \u{1B}[90m(bundled)\u{1B}[0m'
+        console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}${usageTag}`)
       }
 
       const suggestions: string[] = []
 
+      // 🚨 Fatal check: doesn't need correlation, already 100% actionable on its own
       for (const [name, info] of sorted) {
-        // 🚨 Fatal Error: An SSR external devDependency will crash `npm ci --omit=dev`
         if (envName === 'ssr' && info.isExternal && info.type === 'dev')
           suggestions.push(`\u{1B}[31m🚨 ${name}\u{1B}[0m is externalized by the server but listed as a \u{1B}[33mdevDependency\u{1B}[0m. Move it to \u{1B}[32mdependencies\u{1B}[0m to prevent production crashes.`)
-        // 💡 Optimization: A completely inlined package doesn't need to be in dependencies
-        else if (info.isBundled && !info.isExternal && info.type === '') {
-          const otherEnv = envName === 'client' ? 'server' : 'client'
-          suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is fully bundled here. If it's also bundled (or unused) in the ${otherEnv}, consider moving it to \u{1B}[33mdevDependencies\u{1B}[0m.`)
+      }
+
+      // 💡 Optimization check: ONLY computed once both environments are known —
+      // buildApp guarantees client finishes before ssr starts, so by the time
+      // ssr's generateBundle runs, bundleReports.client is already populated.
+      if (envName === 'ssr') {
+        const clientDeps = bundleReports.client
+        const allNames = new Set([...(clientDeps?.keys() ?? []), ...usedDeps.keys()])
+        for (const name of allNames) {
+          const meta = deps[name]
+          if (!meta || meta.type !== '') continue // only current "dependencies" are candidates
+          const c = clientDeps?.get(name)
+          const s = usedDeps.get(name)
+          const externalAnywhere = c?.isExternal || s?.isExternal
+          const usedAnywhere = c || s
+          if (usedAnywhere && !externalAnywhere) {
+            suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is fully bundled (or unused) in both client and server — never externalized. Safe to move to \u{1B}[33mdevDependencies\u{1B}[0m.`)
+          }
         }
       }
 
       if (suggestions.length > 0) {
-        console.log(`\n   \u{1B}[1m${label} Suggestions:\u{1B}[0m`)
+        console.log(`\n   \u{1B}[1mSuggestions:\u{1B}[0m`)
         for (const s of suggestions) console.log(`   ${s}`)
       }
     },
