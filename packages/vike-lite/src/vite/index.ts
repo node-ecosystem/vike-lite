@@ -8,7 +8,7 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPackageNameFromImport, extractPackageNameFromPath, findPackageJsonPath } from './printDependencies'
+import { extractPkgName, findPackageJsonPath } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -340,37 +340,28 @@ export default function vikeLite({
       const envName = this.environment.name
       if (envName !== 'client' && envName !== 'ssr') return
 
-      const usedPackages = new Set<string>()
-      for (const file of Object.values(bundle)) {
-        if (file.type !== 'chunk') continue
+      const usedDeps = new Map<string, string>() // pkgName -> version
+      for (const chunk of Object.values(bundle)) {
+        if (chunk.type !== 'chunk') continue
 
         // 1. Bundled dependencies (detect via node_modules path)
-        for (const moduleId of file.moduleIds) {
-          const pkgName = extractPackageNameFromPath(moduleId)
-          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
+        for (const id of chunk.moduleIds) {
+          const pkg = extractPkgName(id)
+          if (pkg && Object.hasOwn(projectDependencies, pkg)) usedDeps.set(pkg, projectDependencies[pkg])
         }
 
-        // 2. Externalized dependencies (mostly SSR bare imports)
-        for (const imp of file.imports) {
-          const pkgName = extractPackageNameFromImport(imp)
-          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
-        }
-
-        // 3. Dynamic external imports
-        for (const imp of file.dynamicImports) {
-          const pkgName = extractPackageNameFromImport(imp)
-          if (pkgName && projectDependencies[pkgName] !== undefined) usedPackages.add(pkgName)
+        // 2. Externalized dependencies (static & dynamic bare imports)
+        for (const imp of [...chunk.imports, ...chunk.dynamicImports]) {
+          const pkg = extractPkgName(imp)
+          if (pkg && Object.hasOwn(projectDependencies, pkg)) usedDeps.set(pkg, projectDependencies[pkg])
         }
       }
-
+      const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
       const label = envName === 'client' ? 'Client' : 'Server'
-      const sorted = [...usedPackages].sort()
-      console.log(`\n📦 [${label} bundle] package.json dependencies used (${sorted.length}):`)
-      if (sorted.length === 0) {
-        console.log(`   (None)`)
-      } else {
-        for (const dep of sorted) console.log(`   - ${dep}@${projectDependencies[dep]}`)
-      }
+      console.log(`\n📦 [${label} bundle] dependencies used from package.json (${sorted.length}):`)
+      if (sorted.length === 0) console.log('   (None)')
+      else for (const [name, version] of sorted)
+        console.log(`   - \u{1B}[36m${name}@${version}\u{1B}[0m`)
     },
     // Run SSG at end of the build.
     // `order: 'pre'` ensures this runs BEFORE other plugins' closeBundle hooks —

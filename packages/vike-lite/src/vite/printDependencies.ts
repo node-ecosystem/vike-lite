@@ -13,18 +13,22 @@ export function findPackageJsonPath(startDir: string): string | null {
   }
 }
 
-// Extracts the npm package name closest to the file from an absolute path
-// (handles pnpm's nested node_modules/.pnpm/.../node_modules/ layout and scoped packages).
-export function extractPackageNameFromPath(moduleId: string): string | null {
-  const normalized = moduleId.replaceAll('\\', '/')
-  const matches = [...normalized.matchAll(/node_modules\/(@[^/]+\/[^/]+|[^/]+)/g)]
-  if (matches.length === 0) return null
-  return matches[matches.length - 1]![1]!
-}
+export function extractPkgName(id: string): string | null {
+  const normalized = id.replaceAll('\\', '/')
 
-// Extracts the npm package name from a bare import specifier (e.g. 'solid-js/web' -> 'solid-js')
-export function extractPackageNameFromImport(imp: string): string | null {
-  if (imp.startsWith('.') || imp.startsWith('/') || imp.startsWith('\0') || path.isAbsolute(imp) || imp.startsWith('node:')) return null
-  const parts = imp.split('/')
-  return imp.startsWith('@') && parts.length > 1 ? `${parts[0]}/${parts[1]}` : parts[0]
+  // 1. Resolve paths inside node_modules (handles pnpm/yarn nested structure)
+  // Using matchAll and grabbing the last match ensures we bypass '.pnpm' virtual stores
+  const matches = [...normalized.matchAll(/(?:node_modules|\.yarn(?:\/__virtual__)?)\/(@[^/]+\/[^/]+|[^/]+)/g)]
+  if (matches.length > 0) {
+    const pkg = matches[matches.length - 1]![1]!
+    if (pkg !== '.pnpm') return pkg
+  }
+
+  // 2. Resolve bare specifiers (e.g. externalized SSR dependencies)
+  if (!normalized.startsWith('.') && !normalized.startsWith('/') && !normalized.includes(':')) {
+    const parts = normalized.split('/')
+    return normalized.startsWith('@') && parts.length > 1 ? `${parts[0]}/${parts[1]}` : parts[0]
+  }
+
+  return null
 }
