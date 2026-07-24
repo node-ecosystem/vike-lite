@@ -39,17 +39,31 @@ export default {
 
 #### printDependencies
 
-When set to `true`, at the end of each production build (client and server) the plugin prints the list of `package.json` dependencies (and devDependencies) that were actually bundled or externally imported in that specific build output. This is useful to debug bundle composition/size — e.g. spotting a heavy dependency that unexpectedly ended up in the client bundle.
+When set to `true`, at the end of each production build (client and server), the plugin prints the list of `package.json` dependencies (and devDependencies) that were actually bundled or externally imported in that specific build output.
+
+More importantly, it cross-references this usage with your `package.json` to provide **smart suggestions** to prevent production crashes and optimize your deployment size.
 
 ```sh
-
 📦 [Client bundle] 1 dependencies used from package.json:
-   - solid-js@^1.9.3
+   - solid-js@^1.9.3 (bundled)
 
-📦 [Server bundle] 2 dependencies used from package.json:
-   - solid-js@^1.9.3
-   - hono@^4.12.31
+📦 [Server bundle] 3 dependencies used from package.json:
+   - solid-js@^1.9.3 (bundled)
+   - hono@^4.12.31 (external)
+   - postgres@^3.4.4 [dev] (external)
+
+   Suggestions:
+   🚨 postgres is externalized in the server bundle but listed as a devDependency. Move it to dependencies or it will break in production.
+   💡 solid-js is always fully bundled (never externalized). Consider moving it to devDependencies to reduce production node_modules size.
+   🗑️ lodash@4.17.21 is listed in "dependencies" but wasn't found in any bundle — if it's only needed at build/dev time, move it to devDependencies (or remove it if unused).
 ```
+
+##### What it catches:
+- 🚨 **Production Crashes:** Flags devDependencies that are externalized by the server (if left as dev dependencies, your app will crash in production environments that use `npm ci --omit=dev`).
+- 💡 **Server Bloat:** Flags regular dependencies that are 100% bundled into the build. Moving these to `devDependencies` shrinks your production node_modules size.
+- 🗑️ **Unused Packages**: Highlights dependencies taking up space in your `package.json` that never appeared in the final build graph.
+
+It's disabled by default since it adds diagnostic console output and isn't needed for normal usage, but it is highly recommended to run occasionally to audit your packages.
 
 It's disabled by default since it only adds diagnostic console output and isn't needed for normal usage.
 
