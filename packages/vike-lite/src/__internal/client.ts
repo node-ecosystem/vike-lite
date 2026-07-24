@@ -1,4 +1,4 @@
-import type { VikeState } from '../server/store'
+import type { VikeState } from '../shared/store'
 import { BASE_URL, matchRoute } from './shared'
 
 function getClientSideUrl(target: HTMLAnchorElement | null): URL | null {

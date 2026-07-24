@@ -2,7 +2,7 @@ import type { PageContextServer } from '..'
 import { BASE_URL, matchRoute, stripBase } from '../__internal/shared'
 import { serializeContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
-import { store } from './store'
+import { store } from '../shared/store'
 
 const isProd = process.env.NODE_ENV === 'production'
 

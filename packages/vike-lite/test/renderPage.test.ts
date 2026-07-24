@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from 'vitest'
 import { strictEqual, ok } from 'node:assert/strict'
 
 import { renderPage } from '../src/server/renderPage'
-import { setVikeState } from '../src/server/store'
+import { setVikeState } from '../src/shared/store'
 import type { RenderContext } from '../src/__internal/shared'
 
 function makeRoute(overrides: Record<string, unknown> = {}) {

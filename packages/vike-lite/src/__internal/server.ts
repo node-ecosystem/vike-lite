@@ -1,4 +1,4 @@
-export * from '../server/store'
+export * from '../shared/store'
 
 interface HtmlShellParams {
   pageTitleTag: string
