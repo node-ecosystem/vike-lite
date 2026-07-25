@@ -69,8 +69,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
   const clientDeps = bundleReports.client
   const serverDeps = bundleReports.ssr
 
-  type Row = { c: string, s: string, typeStr: string, nameStr: string, alert: string, color: string }
-  const rows: Row[] = []
+  const rows: { c: boolean, s: boolean, typeStr: string, nameStr: string, alert: string, color: string }[] = []
 
   for (const [name, meta] of Object.entries(projectDependencies)) {
     const c = clientDeps?.get(name)
@@ -81,55 +80,96 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
     const usedAnywhere = usedC || usedS
     const externalAnywhere = c?.isExternal || s?.isExternal
 
-    let alert = ''
-    let color = ''
-
+    let alert
+    let color
+    // 🚨 FATAL: Dev dependency, but it's externalized. 
     if (meta.type === 'dev' && externalAnywhere) {
-      alert = '🚨 move to dependencies'
+      alert = '🚨 ~ move to dependencies'
       color = '\u{1B}[31m' // red
-    } else if (meta.type === '' && !usedAnywhere) {
-      alert = '💡/🗑️ move to dev dependencies or remove'
+    }
+    // 💡/🗑️ UNUSED: Standard dependency, but completely missing from the build.
+    else if (meta.type === '' && !usedAnywhere) {
+      alert = '💡/🗑️ ~ move to dev dependencies or remove'
       color = '\u{1B}[90m' // gray
-    } else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
-      alert = '💡 safely bundled, can move to dev dependencies'
+    }
+    // 💡 OPTIMIZATION: Standard dependency, but 100% bundled.
+    else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
+      alert = '💡 ~ safely bundled, can move to dev dependencies'
       color = '\u{1B}[34m' // blue
+    }
+    else {
+      alert = ''
+      color = '\u{1B}[36m' // cyan
     }
 
     const typeStr = meta.type === 'dev' ? 'dev dependency' : (meta.type === 'peer' ? 'peer dependency' : 'dependency')
 
-    // Plain "yes"/"" instead of emoji checkmarks: avoids double-width/missing-glyph
-    // rendering issues on terminals (notably legacy Windows cmd.exe) that would
-    // otherwise desync column widths even after correct padding.
-    rows.push({ c: usedC ? 'yes' : '', s: usedS ? 'yes' : '', typeStr, nameStr: `${name}@${meta.version}`, alert, color })
+    rows.push({ c: usedC, s: usedS, typeStr, nameStr: `${name}@${meta.version}`, alert, color })
   }
 
   rows.sort((a, b) => a.nameStr.localeCompare(b.nameStr))
 
-  const headers = ['Used by client', 'Used by server', 'Type', 'Dependency name', 'Alert']
-  const cellsOf = (r: Row) => [r.c, r.s, r.typeStr, r.nameStr, r.alert]
+  // 1. Calculate dynamic column widths (minimum width is the header length)
+  const wClient = 14 // 'used by client'.length
+  const wServer = 14 // 'used by server'.length
+  const wType = 15   // 'peer dependency'.length (max possible)
+  let wName = 15     // 'dependency name'.length
+  let wAlert = 5     // 'alert'.length
 
-  // Compute widths from PLAIN text only — never from a string that already has
-  // ANSI escape codes injected, or the invisible escape bytes would count toward
-  // the padding length and misalign every following column.
-  const widths = headers.map((h, i) => Math.max(h.length, ...rows.map(r => cellsOf(r)[i].length)))
+  // Find the longest string in the dynamic columns
+  for (const row of rows) {
+    if (row.nameStr.length > wName) wName = row.nameStr.length
+    if (row.alert.length > wAlert) wAlert = row.alert.length
+  }
 
-  // Only emit ANSI codes if the terminal actually understands them (this correctly
-  // returns false on legacy Windows cmd.exe, true on Windows Terminal/PowerShell 7+/
-  // most Unix terminals, and false when output is piped/redirected to a file).
-  const useColor = process.stdout.hasColors?.() ?? false
+  // 2. Formatting Helpers
+  const pad = (str: string, len: number) => str.padEnd(len, ' ')
 
-  const separator = () => `+${widths.map(w => '-'.repeat(w + 2)).join('+')}+`
-  const formatRow = (cells: string[], color?: string) =>
-    `|${cells.map((cell, i) => {
-      const padded = ` ${cell.padEnd(widths[i])} `
-      return useColor && color ? `${color}${padded}\x1b[0m` : padded
-    }).join('|')}|`
+  // Centers the checkmark so it looks nice in the column
+  const centerCheck = (isTrue: boolean, len: number) => {
+    if (!isTrue) return pad('', len)
+    const check = '✅'
+    const spaces = len - check.length
+    const left = Math.floor(spaces / 2)
+    const right = spaces - left
+    return ' '.repeat(left) + check + ' '.repeat(right)
+  }
 
   console.log('\n📦 Dependency usage report:\n')
-  console.log(separator())
-  console.log(formatRow(headers))
-  console.log(separator())
-  for (const row of rows) console.log(formatRow(cellsOf(row), row.color))
-  console.log(separator())
+
+  // 3. Print Headers
+  console.log(
+    `| ${pad('used by client', wClient)} ` +
+    `| ${pad('used by server', wServer)} ` +
+    `| ${pad('type', wType)} ` +
+    `| ${pad('dependency name', wName)} ` +
+    `| ${pad('alert', wAlert)} |`
+  )
+
+  // 4. Print Separator Line
+  console.log(
+    `|-${'-'.repeat(wClient)}-` +
+    `|-${'-'.repeat(wServer)}-` +
+    `|-${'-'.repeat(wType)}-` +
+    `|-${'-'.repeat(wName)}-` +
+    `|-${'-'.repeat(wAlert)}-|`
+  )
+
+  // 5. Print Rows
+  for (const row of rows) {
+    const cStr = centerCheck(row.c, wClient)
+    const sStr = centerCheck(row.s, wServer)
+    const tStr = pad(row.typeStr, wType)
+
+    // IMPORTANT: We pad the RAW string first, then wrap the padded string in color codes.
+    // If we applied the color first, the ANSI escape characters would break the string length padding!
+    const paddedName = pad(row.nameStr, wName)
+    const coloredName = `${row.color}${paddedName}\x1b[0m`
+
+    const paddedAlert = pad(row.alert, wAlert)
+    const coloredAlert = row.alert ? `${row.color}${paddedAlert}\x1b[0m` : paddedAlert
+
+    console.log(`| ${cStr} | ${sStr} | ${tStr} | ${coloredName} | ${coloredAlert} |`)
+  }
   console.log()
 }
