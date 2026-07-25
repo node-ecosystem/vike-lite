@@ -372,7 +372,6 @@ export default function vikeLite({
 
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk') continue
-
         // 1. Bundled dependencies: actual modules folded into this chunk
         for (const id of chunk.moduleIds) recordUsage(extractPkgName(id)!, { isBundled: true })
       }
@@ -412,21 +411,30 @@ export default function vikeLite({
           suggestions.push(`\u{1B}[31m🚨 ${name}\u{1B}[0m is externalized by the server but listed as a \u{1B}[33mdevDependency\u{1B}[0m. Move it to \u{1B}[32mdependencies\u{1B}[0m to prevent production crashes.`)
       }
 
-      // 💡 Optimization check: ONLY computed once both environments are known —
-      // buildApp guarantees client finishes before ssr starts, so by the time
-      // ssr's generateBundle runs, bundleReports.client is already populated.
+      // 💡/🗑️ checks: ONLY computed once both environments are known — buildApp
+      // guarantees client finishes before ssr starts, so by the time ssr's
+      // generateBundle runs, bundleReports.client is already populated.
+      // Unlike the checks above (limited to packages actually seen in a bundle),
+      // these two iterate over the FULL package.json "dependencies" list, since
+      // detecting "used nowhere at all" requires checking every declared name,
+      // not just the ones that already showed up in usedDeps.
       if (envName === 'ssr') {
         const clientDeps = bundleReports.client
-        const allNames = new Set([...(clientDeps?.keys() ?? []), ...usedDeps.keys()])
-        for (const name of allNames) {
-          const meta = deps[name]
-          if (!meta || meta.type !== '') continue // only current "dependencies" are candidates
+        for (const [name, meta] of Object.entries(deps)) {
+          if (meta.type !== '') continue // only current "dependencies" are candidates
           const c = clientDeps?.get(name)
           const s = usedDeps.get(name)
-          const externalAnywhere = c?.isExternal || s?.isExternal
           const usedAnywhere = c || s
-          if (usedAnywhere && !externalAnywhere) {
-            suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is fully bundled (or unused) in both client and server — never externalized. Safe to move to \u{1B}[33mdevDependencies\u{1B}[0m.`)
+          const externalAnywhere = c?.isExternal || s?.isExternal
+
+          if (!usedAnywhere) {
+            // 🗑️ Never showed up — bundled or external — in either build.
+            // Likely dead weight, or only needed for build/dev-time tooling.
+            suggestions.push(`\u{1B}[90m🗑️ ${name}@${meta.version}\u{1B}[0m is listed in \u{1B}[33m"dependencies"\u{1B}[0m but wasn't found in any bundle — if it's only needed at build/dev time, move it to \u{1B}[33mdevDependencies\u{1B}[0m (or remove it if unused).`)
+          } else if (!externalAnywhere) {
+            // 💡 Used, but always fully inlined — never required as a physical
+            // node_modules package at runtime.
+            suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is fully bundled in both client and server — never externalized. Safe to move to \u{1B}[33mdevDependencies\u{1B}[0m.`)
           }
         }
       }
