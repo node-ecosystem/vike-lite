@@ -10,6 +10,9 @@ import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
 import { extractPkgName, getProjectDependencies, printDependencyReport, type BundleReports, type DepUsage, type ProjectDependencies } from './analizeDependencies'
 
+const bundleReports: BundleReports = {}
+let projectDependencies: ProjectDependencies | null | undefined
+
 export default function vikeLite({
   pagesDir = 'pages',
   apiPrefix = '/api',
@@ -61,9 +64,6 @@ export default function vikeLite({
   let outDir: string
   let hasAnyPrerender: boolean
   let baseUrl: string
-  let projectDependencies: ProjectDependencies | null | undefined
-  const bundleReports: BundleReports = {}
-
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',
     manifest: 'virtual:vike-lite/client-manifest',
@@ -91,7 +91,9 @@ export default function vikeLite({
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
-      if (isProd && analizeDependencies && !BUILD_TARGET) projectDependencies = getProjectDependencies(viteConfigRoot)
+
+      if (isProd && analizeDependencies && !BUILD_TARGET && !projectDependencies)
+        projectDependencies = getProjectDependencies(viteConfigRoot)
 
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
