@@ -86,8 +86,8 @@ export default function vikeLite({
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
-
-      if (isProd && printDependencies) projectDependencies = getProjectDependencies(viteConfigRoot)
+      const { BUILD_TARGET } = process.env // 'client' | 'server' | undefined
+      if (isProd && printDependencies && !BUILD_TARGET) projectDependencies = getProjectDependencies(viteConfigRoot)
 
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
@@ -104,16 +104,15 @@ export default function vikeLite({
         // Build Client + SSR environments
         builder: {
           async buildApp(builder) {
-            const target = process.env.BUILD_TARGET // 'client' | 'ssr' | undefined
-            if (!target) {
+            if (!BUILD_TARGET) {
               // client must finish (and flush its manifest to disk) before ssr starts,
               // since the ssr build's virtual:vike-lite/client-manifest load() reads
               // dist/client/.vite/manifest.json from disk.
               await builder.build(builder.environments.client)
               await builder.build(builder.environments.ssr)
-            } else if (target === 'client') await builder.build(builder.environments.client)
-            else if (target === 'server') await builder.build(builder.environments.ssr)
-            else throw new Error(`Invalid BUILD_TARGET: "${target}". Expected 'client' or 'server'.`)
+            } else if (BUILD_TARGET === 'client') await builder.build(builder.environments.client)
+            else if (BUILD_TARGET === 'server') await builder.build(builder.environments.ssr)
+            else throw new Error(`Invalid BUILD_TARGET: "${BUILD_TARGET}". Expected 'client' or 'server'.`)
           }
         },
         ssr: {
