@@ -8,7 +8,7 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPkgName, getProjectDependencies, type DepUsage, type ProjectDependencies } from './printDependencies'
+import { extractPkgName, getProjectDependencies, type BundleReports, type DepUsage, type ProjectDependencies } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -58,7 +58,7 @@ export default function vikeLite({
   let hasAnyPrerender: boolean
   let baseUrl: string
   let projectDependencies: ProjectDependencies | null | undefined
-  const bundleReports: Partial<Record<'client' | 'ssr', Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>>> = {}
+  const bundleReports: BundleReports = {}
 
   const VIRTUAL = {
     routes: 'virtual:vike-lite/routes',

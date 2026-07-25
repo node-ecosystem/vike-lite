@@ -62,3 +62,5 @@ export function extractPkgName(id: string): string | null {
 }
 
 export type DepUsage = { version: string, type: DepType, isBundled: boolean, isExternal: boolean }
+
+export type BundleReports = Partial<Record<'client' | 'ssr', Map<string, DepUsage>>>
