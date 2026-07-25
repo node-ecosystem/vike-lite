@@ -52,6 +52,7 @@ export default function vikeLite({
   printDependencies?: boolean
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
+  const { BUILD_TARGET } = process.env // 'client' | 'server' | undefined
   let viteConfigRoot: string
   let outDir: string
   let hasAnyPrerender: boolean
@@ -86,7 +87,6 @@ export default function vikeLite({
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
-      const { BUILD_TARGET } = process.env // 'client' | 'server' | undefined
       if (isProd && printDependencies && !BUILD_TARGET) projectDependencies = getProjectDependencies(viteConfigRoot)
 
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
@@ -343,7 +343,7 @@ export default function vikeLite({
     // Runs once per environment build (client / ssr), right after Rolldown
     // has produced the final chunk graph but before writeBundle.
     generateBundle(_options, bundle) {
-      if (!printDependencies || !projectDependencies) return
+      if (!printDependencies || BUILD_TARGET || !projectDependencies) return
 
       const deps = projectDependencies // narrow to non-null for the closure below
       // Per-environment view, used for the printed table below
