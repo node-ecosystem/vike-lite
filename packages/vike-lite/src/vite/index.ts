@@ -365,13 +365,13 @@ export default function vikeLite({
       // 2. Externalized dependencies: chunk.imports/dynamicImports on an OutputChunk
       // are the *file names* of other emitted chunks in THIS bundle (internal graph
       // edges, for modulepreload) — they never contain bare specifiers like "react".
-      // Rollup/Rolldown still tracks every module it resolved, including ones marked
-      // `external` (and thus never placed in any chunk), via getModuleInfo().
-      // Unlike Rollup, rolldown's `ModuleInfo` has no `isExternal` flag — but `code`
-      // is documented as "null if external or not yet available", and by the time
-      // generateBundle runs every module has already been resolved/loaded, so a
-      // null `code` reliably means the module was externalized.
       for (const id of this.getModuleIds()) {
+        // Rollup/Rolldown still tracks every module it resolved, including ones marked
+        // `external` (and thus never placed in any chunk), via getModuleInfo().
+        // Unlike Rollup, rolldown's `ModuleInfo` has no `isExternal` flag — but `code`
+        // is documented as "null if external or not yet available", and by the time
+        // generateBundle runs every module has already been resolved/loaded, so a
+        // null `code` reliably means the module was externalized.
         const info = this.getModuleInfo(id)
         if (info?.code === null) recordUsage(extractPkgName(id)!, { isExternal: true })
       }
