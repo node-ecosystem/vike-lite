@@ -47,7 +47,7 @@ When set to `true`, at the end of the production build (once both the client and
 > |✅|✅|dependency|solid-js@^1.9.3|💡 ~ safely bundled, can move to dev dependencies
 > ||✅|dependency|hono@^4.12.31|
 > ||✅|dev dependency| postgres@^3.4.4 |🚨 ~ move to dependencies
-> |||dependency|lodash@^4.17.21 |💡/♻️ ~ move to dev dependencies or remove
+> |||dependency|lodash@^4.17.21 |💡/🗑️ ~ move to dev dependencies or remove
 
 **Alerts explained:**
 
@@ -58,7 +58,7 @@ __Fix:__ Move the package to `dependencies`.
 - 💡 **Optimization** ~ Safely bundled, can move to `devDependencies`
 A regular dependency is used, but it is 100% **bundled** into the final build (like UI frameworks or tiny utils). It works perfectly fine where it is, but moving it to `devDependencies` is a pro-tip to shrink the actual `node_modules` weight shipped to production.
 
-- 💡/♻️ **Unused** ~ Move to dev dependencies or remove
+- 💡/🗑️ **Unused** ~ Move to dev dependencies or remove
 A regular dependency is completely absent from both the client and server output. It is pure dead weight in your production deployment. It's either dead code you can remove, or a build/dev-only tool (like ESLint or `@types/*`) accidentally placed in the wrong list.
 
 - **OK** ~ No alert
@@ -68,7 +68,7 @@ The dependency is correctly placed and harmless. This applies to regular depende
 ##### What it catches:
 - 🚨 **Production Crashes:** Flags devDependencies that are externalized by the server (if left as dev dependencies, your app will crash in production environments that use `npm ci --omit=dev`).
 - 💡 **Server Bloat:** Flags regular dependencies that are 100% bundled into the build. Moving these to `devDependencies` shrinks your production node_modules size.
-- ♻️ **Unused Packages**: Highlights dependencies taking up space in your `package.json` that never appeared in the final build graph.
+- 🗑️ **Unused Packages**: Highlights dependencies taking up space in your `package.json` that never appeared in the final build graph.
 
 It's disabled by default since it adds diagnostic console output and isn't needed for normal usage, but it is highly recommended to run occasionally to audit your packages.
 

@@ -125,7 +125,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
   const wServer = 6 // 'Server'.length
   let wType = 4     // 'Type'.length
   let wName = 4     // 'Name'.length
-  let wAlert = 43   // 'Alert'.length
+  let wAlert = 41   // 'Alert'.length
 
   // Find the longest string in the dynamic columns
   for (const row of rows) {
@@ -153,6 +153,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
   )
 
   // 5. Print Rows
+  const emptyAlert = ' '.repeat(wAlert)
   for (const row of rows) {
     const cStr = centerCheck(row.c, wClient)
     const sStr = centerCheck(row.s, wServer)
@@ -161,7 +162,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
     // Name column only contains ASCII characters, so standard padding is perfectly safe
     const paddedName = pad(row.nameStr, wName)
     const coloredName = `${row.color}${paddedName}\x1b[0m`
-    const coloredAlert = row.alert ? `${row.color}${row.alert}\x1b[0m` : row.alert
+    const coloredAlert = row.alert ? `${row.color}${row.alert}\x1b[0m` : emptyAlert
 
     console.log(`| ${cStr} | ${sStr} | ${tStr} | ${coloredName} | ${coloredAlert} |`)
   }
