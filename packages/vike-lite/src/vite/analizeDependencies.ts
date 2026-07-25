@@ -87,9 +87,9 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
       alert = '🚨 ~ move to dependencies'
       color = '\u{1B}[31m' // red
     }
-    // 💡/♻️ UNUSED: Standard dependency, but completely missing from the build.
+    // 💡/🗑️ UNUSED: Standard dependency, but completely missing from the build.
     else if (meta.type === '' && !usedAnywhere) {
-      alert = '💡/♻️  ~ move to devDependencies or remove'
+      alert = '💡/🗑️  ~ move to devDependencies or remove'
       color = '\u{1B}[90m' // gray
     }
     // 💡 OPTIMIZATION: Standard dependency, but 100% bundled.
