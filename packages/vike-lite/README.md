@@ -31,7 +31,7 @@ export default {
       apiPrefix: '/api',           // Prefix to bypass SSR for API routes
       prerender: false,            // Enable SSG globally
       serverEntry: 'server/index', // Allows to use a custom server entry file
-      analizeDependencies: false     // Print, at the end of the build, a dependency usage/audit table
+      analizeDependencies: false   // Print, at the end of the build, a dependency usage/audit table
     })
   ]
 } satisfies UserConfig
