@@ -27,11 +27,11 @@ import type { UserConfig } from 'vite'
 export default {
   plugins: [
     vikeLite({
-      pagesDir: 'pages',           // Default: Directory containing your pages
-      apiPrefix: '/api',           // Default: Prefix to bypass SSR for API routes
-      prerender: false,            // Default: Enable SSG globally
-      serverEntry: 'server/index', // Default: unfedined value that allows to use a custom server entry file
-      printDependencies: false     // Default: Print, per build (client/server), which package.json dependencies ended up in the bundle
+      pagesDir: 'pages',           // Directory containing your pages
+      apiPrefix: '/api',           // Prefix to bypass SSR for API routes
+      prerender: false,            // Enable SSG globally
+      serverEntry: 'server/index', // Allows to use a custom server entry file
+      printDependencies: false     // Print, at the end of the build, a dependency usage/audit table
     })
   ]
 } satisfies UserConfig
@@ -39,24 +39,23 @@ export default {
 
 #### printDependencies
 
-When set to `true`, at the end of each production build (client and server), the plugin prints the list of `package.json` dependencies (and devDependencies) that were actually bundled or externally imported in that specific build output.
-
-More importantly, it cross-references this usage with your `package.json` to provide **smart suggestions** to prevent production crashes and optimize your deployment size.
+When set to `true`, at the end of the production build (once both the client and server builds have finished), the plugin prints a single table cross-referencing every dependency/devDependency/peerDependency in your package.json with whether it ended up in the client bundle, the server bundle, both, or neither — and flags anything worth fixing.
 
 ```sh
-📦 [Client bundle] 1 dependencies used from package.json:
-   - solid-js@^1.9.3 (bundled)
-
-📦 [Server bundle] 3 dependencies used from package.json:
-   - solid-js@^1.9.3 (bundled)
-   - hono@^4.12.31 (external)
-   - postgres@^3.4.4 [dev] (external)
-
-   Suggestions:
-   🚨 postgres is externalized in the server bundle but listed as a devDependency. Move it to dependencies or it will break in production.
-   💡 solid-js is always fully bundled (never externalized). Consider moving it to devDependencies to reduce production node_modules size.
-   🗑️ lodash@4.17.21 is listed in "dependencies" but wasn't found in any bundle — if it's only needed at build/dev time, move it to devDependencies (or remove it if unused).
+📦 Dependency usage report:
 ```
+| Used by Client | Used by Server | Type | Dependency name | Alert |
+|---|---|---|---|---|
+| ✅ |  | dependency | solid-js@^1.9.3 | 💡 ~ safely bundled, can move to dev dependencies |
+| ✅ | ✅ | dependency | hono@^4.12.31 |  |
+|  | ✅ | dev dependency | postgres@^3.4.4 | 🚨 ~ move to dependencies |
+|  |  | dependency | lodash@^4.17.21 | 💡/🗑️ ~ move to dev dependencies or remove |
+
+**Alerts explained:**
+- 🚨 **move to dependencies** — a devDependency ends up externalized (imported at runtime from `node_modules` instead of bundled) in the client or server output. This is the only fatal case: deploying with `npm ci --omit=dev` (or the pnpm/yarn equivalent) will crash at runtime because the package won't be installed. Fix it by moving the package to `dependencies`.
+- 💡 **safely bundled, can move to dev dependencies** — a regular `dependency` is used, but it's always fully bundled (never externalized) wherever it's used. It works fine where it is, but moving it to devDependencies shrinks the `node_modules` actually shipped to production.
+- 💡/🗑️ **move to dev dependencies or remove** — a regular dependency isn't used by the client or the server at all. It's either dead code you can remove, or a build/dev-only tool that was accidentally placed in `dependencies` instead of `devDependencies`.
+- **No alert** — the dependency is correctly placed: a regular dependency that's used and externalized somewhere (e.g. `hono`), or a `devDependency`/`peerDependency` that's harmless in its current spot (fully bundled, or simply never touched by the build).
 
 ##### What it catches:
 - 🚨 **Production Crashes:** Flags devDependencies that are externalized by the server (if left as dev dependencies, your app will crash in production environments that use `npm ci --omit=dev`).

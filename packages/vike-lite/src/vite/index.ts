@@ -8,7 +8,7 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPkgName, getProjectDependencies, type BundleReports, type DepUsage, type ProjectDependencies } from './printDependencies'
+import { extractPkgName, getProjectDependencies, printDependencyReport, type BundleReports, type DepUsage, type ProjectDependencies } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -43,12 +43,16 @@ export default function vikeLite({
   */
   serverEntry?: string | false
   /**
- * Whether to print, at the end of each build (client and server), the list of
- * package.json dependencies that ended up in that bundle. Useful to debug bundle
- * size/composition, but adds console output on every production build, so it's
- * disabled by default.
- * @default false
- */
+   * Whether to print, at the end of the production build, a table cross-referencing
+   * every package.json dependency (dependencies/devDependencies/peerDependencies)
+   * with whether it was actually bundled/externalized by the client and/or server
+   * build, plus a suggested fix when something looks misplaced or unused (e.g. a
+   * devDependency required at runtime, which would break `npm ci --omit=dev`).
+   * Useful to audit bundle composition and catch production-breaking dependency
+   * mistakes, but adds console output on every production build, so it's disabled
+   * by default.
+   * @default false
+   */
   printDependencies?: boolean
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
@@ -387,56 +391,7 @@ export default function vikeLite({
       const envName = this.environment.name as 'client' | 'ssr'
       bundleReports[envName] = usedDeps
 
-      const sorted = [...usedDeps.entries()].sort(([a], [b]) => a.localeCompare(b))
-      const label = envName === 'client' ? 'Client' : 'Server'
-      console.log(`\n📦 [${label} bundle] ${sorted.length} dependencies used from package.json:`)
-      if (sorted.length === 0) console.log('   (None)')
-      else for (const [name, info] of sorted) {
-        const typeTag = info.type ? ` \u{1B}[33m[${info.type}]\u{1B}[0m` : ''
-        const usageTag = info.isExternal ? ' \u{1B}[90m(external)\u{1B}[0m' : ' \u{1B}[90m(bundled)\u{1B}[0m'
-        console.log(`   - \u{1B}[36m${name}@${info.version}\u{1B}[0m${typeTag}${usageTag}`)
-      }
-
-      const suggestions: string[] = []
-
-      // 🚨 Fatal check: doesn't need correlation, already 100% actionable on its own
-      for (const [name, info] of sorted) {
-        if (envName === 'ssr' && info.isExternal && info.type === 'dev')
-          suggestions.push(`\u{1B}[31m🚨 ${name}\u{1B}[0m is externalized by the server but listed as a \u{1B}[33mdevDependency\u{1B}[0m. Move it to \u{1B}[32mdependencies\u{1B}[0m to prevent production crashes.`)
-      }
-
-      // 💡/🗑️ checks: ONLY computed once both environments are known — buildApp
-      // guarantees client finishes before ssr starts, so by the time ssr's
-      // generateBundle runs, bundleReports.client is already populated.
-      // Unlike the checks above (limited to packages actually seen in a bundle),
-      // these two iterate over the FULL package.json "dependencies" list, since
-      // detecting "used nowhere at all" requires checking every declared name,
-      // not just the ones that already showed up in usedDeps.
-      if (envName === 'ssr') {
-        const clientDeps = bundleReports.client
-        for (const [name, meta] of Object.entries(deps)) {
-          if (meta.type !== '') continue // only current "dependencies" are candidates
-          const c = clientDeps?.get(name)
-          const s = usedDeps.get(name)
-          const usedAnywhere = c || s
-          const externalAnywhere = c?.isExternal || s?.isExternal
-
-          if (!usedAnywhere) {
-            // 🗑️ Never showed up — bundled or external — in either build.
-            // Likely dead weight, or only needed for build/dev-time tooling.
-            suggestions.push(`\u{1B}[90m🗑️ ${name}@${meta.version}\u{1B}[0m is listed in \u{1B}[33m"dependencies"\u{1B}[0m but wasn't found in any bundle — if it's only needed at build/dev time, move it to \u{1B}[33mdevDependencies\u{1B}[0m (or remove it if unused).`)
-          } else if (!externalAnywhere) {
-            // 💡 Used, but always fully inlined — never required as a physical
-            // node_modules package at runtime.
-            suggestions.push(`\u{1B}[34m💡 ${name}\u{1B}[0m is fully bundled in both client and server — never externalized. Safe to move to \u{1B}[33mdevDependencies\u{1B}[0m.`)
-          }
-        }
-      }
-
-      if (suggestions.length > 0) {
-        console.log(`\n   \u{1B}[1mSuggestions:\u{1B}[0m`)
-        for (const s of suggestions) console.log(`   ${s}`)
-      }
+      if (envName === 'ssr') printDependencyReport(bundleReports, projectDependencies!)
     },
     // Run SSG at end of the build, and — once both environments are known — print the
     // combined dependency audit table.
