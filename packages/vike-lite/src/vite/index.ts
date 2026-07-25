@@ -8,7 +8,7 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPkgName, findPackageJsonPath } from './printDependencies'
+import { extractPkgName, getProjectDependencies, type ProjectDependencies } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -56,7 +56,7 @@ export default function vikeLite({
   let outDir: string
   let hasAnyPrerender: boolean
   let baseUrl: string
-  let projectDependencies: Record<string, { version: string, type: 'peer' | 'dev' | '' }> | null = null
+  let projectDependencies: ProjectDependencies | null | undefined
   const bundleReports: Partial<Record<'client' | 'ssr', Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>>> = {}
 
   const VIRTUAL = {
@@ -87,25 +87,7 @@ export default function vikeLite({
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
 
-      if (isProd && printDependencies) {
-        const pkgJsonPath = findPackageJsonPath(viteConfigRoot)
-        if (pkgJsonPath) {
-          try {
-            const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
-            projectDependencies = {}
-            // Store both the version and the type of dependency to help with auditing
-            for (const [k, v] of Object.entries(pkgJson.dependencies || {}))
-              projectDependencies[k] = { version: String(v), type: '' }
-            for (const [k, v] of Object.entries(pkgJson.devDependencies || {}))
-              if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'dev' }
-            for (const [k, v] of Object.entries(pkgJson.peerDependencies || {}))
-              if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'peer' }
-          } catch (error) {
-            console.warn(`⚠️ Failed to parse package.json for printDependencies:`, error)
-            projectDependencies = null
-          }
-        }
-      }
+      if (isProd && printDependencies) projectDependencies = getProjectDependencies(viteConfigRoot)
 
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)

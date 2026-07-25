@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 // Walks up from `startDir` until a package.json is found.
-export function findPackageJsonPath(startDir: string): string | null {
+function findPackageJsonPath(startDir: string): string | null {
   let dir = startDir
   while (true) {
     const candidate = path.join(dir, 'package.json')
@@ -11,6 +11,30 @@ export function findPackageJsonPath(startDir: string): string | null {
     if (parent === dir) return null
     dir = parent
   }
+}
+
+export type ProjectDependencies = Record<string, { version: string, type: DepType }>
+
+export function getProjectDependencies(viteConfigRoot: string): ProjectDependencies | null {
+  const pkgJsonPath = findPackageJsonPath(viteConfigRoot)
+  if (pkgJsonPath) {
+    try {
+      const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
+      const projectDependencies: ProjectDependencies = {}
+      // Store both the version and the type of dependency to help with auditing
+      for (const [k, v] of Object.entries(pkgJson.dependencies || {}))
+        projectDependencies[k] = { version: String(v), type: '' }
+      for (const [k, v] of Object.entries(pkgJson.devDependencies || {}))
+        if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'dev' }
+      for (const [k, v] of Object.entries(pkgJson.peerDependencies || {}))
+        if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'peer' }
+      return projectDependencies
+    } catch (error) {
+      console.warn(`⚠️ Failed to parse package.json for printDependencies:`, error)
+    }
+  }
+  console.warn(`⚠️ Failed to find package.json for printDependencies starting from:`, viteConfigRoot)
+  return null
 }
 
 export function extractPkgName(id: string): string | null {
