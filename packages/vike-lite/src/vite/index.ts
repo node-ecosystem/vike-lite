@@ -122,11 +122,16 @@ export default function vikeLite({
         // Build Client + SSR environments
         builder: {
           async buildApp(builder) {
-            // client must finish (and flush its manifest to disk) before ssr starts,
-            // since the ssr build's virtual:vike-lite/client-manifest load() reads
-            // dist/client/.vite/manifest.json from disk.
-            await builder.build(builder.environments.client!)
-            await builder.build(builder.environments.ssr!)
+            const target = process.env.BUILD_TARGET // 'client' | 'ssr' | undefined
+            if (!target) {
+              // client must finish (and flush its manifest to disk) before ssr starts,
+              // since the ssr build's virtual:vike-lite/client-manifest load() reads
+              // dist/client/.vite/manifest.json from disk.
+              await builder.build(builder.environments.client)
+              await builder.build(builder.environments.ssr)
+            } else if (target === 'client') await builder.build(builder.environments.client)
+            else if (target === 'server') await builder.build(builder.environments.ssr)
+            else throw new Error(`Invalid BUILD_TARGET: "${target}". Expected 'client' or 'server'.`)
           }
         },
         ssr: {
