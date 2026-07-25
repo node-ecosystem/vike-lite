@@ -8,7 +8,7 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPkgName, getProjectDependencies, type ProjectDependencies } from './printDependencies'
+import { extractPkgName, getProjectDependencies, type DepUsage, type ProjectDependencies } from './printDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
@@ -355,7 +355,7 @@ export default function vikeLite({
 
       const deps = projectDependencies // narrow to non-null for the closure below
       // Per-environment view, used for the printed table below
-      const usedDeps = new Map<string, { version: string, type: string, isBundled: boolean, isExternal: boolean }>()
+      const usedDeps = new Map<string, DepUsage>()
 
       function recordUsage(pkg: string | undefined, patch: Partial<{ isBundled: boolean, isExternal: boolean }>) {
         if (!pkg || pkg.startsWith('vike-lite') || !Object.hasOwn(deps, pkg)) return

@@ -13,6 +13,8 @@ function findPackageJsonPath(startDir: string): string | null {
   }
 }
 
+type DepType = 'peer' | 'dev' | ''
+
 export type ProjectDependencies = Record<string, { version: string, type: DepType }>
 
 export function getProjectDependencies(viteConfigRoot: string): ProjectDependencies | null {
@@ -58,3 +60,5 @@ export function extractPkgName(id: string): string | null {
 
   return null
 }
+
+export type DepUsage = { version: string, type: DepType, isBundled: boolean, isExternal: boolean }
