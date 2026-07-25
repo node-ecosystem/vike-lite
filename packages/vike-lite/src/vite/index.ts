@@ -449,13 +449,14 @@ export default function vikeLite({
         for (const s of suggestions) console.log(`   ${s}`)
       }
     },
-    // Run SSG at end of the build.
-    // `order: 'pre'` ensures this runs BEFORE other plugins' closeBundle hooks —
-    // in particular, standalone/single-file bundling plugins that inline dist/server/index.mjs
-    // and then delete the shared chunks directory. Since dist/server/prerender.mjs is a
-    // separate entry that still imports from those shared chunks, if it were deleted first
-    // the dynamic import() below would fail with ERR_MODULE_NOT_FOUND.
+    // Run SSG at end of the build, and — once both environments are known — print the
+    // combined dependency audit table.
     closeBundle: {
+      // Ensures this runs BEFORE other plugins' closeBundle hooks —
+      // in particular, standalone/single-file bundling plugins that inline dist/server/index.mjs
+      // and then delete the shared chunks directory. Since dist/server/prerender.mjs is a
+      // separate entry that still imports from those shared chunks, if it were deleted first
+      // the dynamic import() below would fail with ERR_MODULE_NOT_FOUND.
       order: 'pre',
       async handler() {
         if (!isProd || !hasAnyPrerender || this.environment.name !== 'ssr') return
