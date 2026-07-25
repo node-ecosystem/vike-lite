@@ -86,7 +86,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
       alert = '🚨 ~ move to dependencies'
       color = '\u{1B}[31m' // red
     } else if (meta.type === '' && !usedAnywhere) {
-      alert = '💡/🗑️  ~ move to devDependencies or remove'
+      alert = '💡/♻️  ~ move to devDependencies or remove'
       color = '\u{1B}[90m' // gray
     } else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
       alert = '💡 ~ safely bundled, move to devDependencies'
