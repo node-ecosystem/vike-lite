@@ -343,7 +343,15 @@ export default function vikeLite({
     // Runs once per environment build (client / ssr), right after Rolldown
     // has produced the final chunk graph but before writeBundle.
     generateBundle(_options, bundle) {
-      if (!printDependencies || BUILD_TARGET || !projectDependencies) return
+      if (!printDependencies) return
+      if (BUILD_TARGET) {
+        console.warn(`⚠️ Skipping "printDependencies" because it can start only with full build ("vite build" without BUILD_TARGET environment variable), current build is "${BUILD_TARGET}"`)
+        return
+      }
+      if (!projectDependencies) {
+        console.warn(`⚠️ Skipping "printDependencies" because no dependencies found`)
+        return
+      }
 
       const deps = projectDependencies // narrow to non-null for the closure below
       // Per-environment view, used for the printed table below
