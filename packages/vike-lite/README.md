@@ -39,23 +39,31 @@ export default {
 
 #### `analizeDependencies`
 
-When set to `true`, at the end of the production build (once both the client and server builds have finished), the plugin prints a single table cross-referencing every dependency/devDependency/peerDependency in your package.json with whether it ended up in the client bundle, the server bundle, both, or neither — and flags anything worth fixing.
+When set to `true`, at the end of the production build (once both the client and server builds have finished), the plugin prints a single table cross-referencing every `dependency`/`devDependency`/`peerDependency` in your `package.json` with whether it ended up in the client bundle, the server bundle, both, or neither — and flags anything worth fixing.
 
-```sh
-📦 Dependency usage report:
-```
-| Used by Client | Used by Server | Type | Dependency name | Alert |
-|---|---|---|---|---|
-| ✅ |  | dependency | solid-js@^1.9.3 | 💡 ~ safely bundled, can move to dev dependencies |
-| ✅ | ✅ | dependency | hono@^4.12.31 |  |
-|  | ✅ | dev dependency | postgres@^3.4.4 | 🚨 ~ move to dependencies |
-|  |  | dependency | lodash@^4.17.21 | 💡/🗑️ ~ move to dev dependencies or remove |
+> 📦 Dependency usage report:
+> |Used by Client|Used by Server|Type|Dependency name|Alert
+> |-|-|-|-|-
+> |✅|✅|dependency|solid-js@^1.9.3|💡 ~ safely bundled, can move to dev dependencies
+> ||✅|dependency|hono@^4.12.31|
+> ||✅|dev dependency| postgres@^3.4.4 |🚨 ~ move to dependencies
+> |||dependency|lodash@^4.17.21 |💡/🗑️ ~ move to dev dependencies or remove
 
 **Alerts explained:**
-- 🚨 **move to dependencies** — a devDependency ends up externalized (imported at runtime from `node_modules` instead of bundled) in the client or server output. This is the only fatal case: deploying with `npm ci --omit=dev` (or the pnpm/yarn equivalent) will crash at runtime because the package won't be installed. Fix it by moving the package to `dependencies`.
-- 💡 **safely bundled, can move to dev dependencies** — a regular `dependency` is used, but it's always fully bundled (never externalized) wherever it's used. It works fine where it is, but moving it to devDependencies shrinks the `node_modules` actually shipped to production.
-- 💡/🗑️ **move to dev dependencies or remove** — a regular dependency isn't used by the client or the server at all. It's either dead code you can remove, or a build/dev-only tool that was accidentally placed in `dependencies` instead of `devDependencies`.
-- **No alert** — the dependency is correctly placed: a regular dependency that's used and externalized somewhere (e.g. `hono`), or a `devDependency`/`peerDependency` that's harmless in its current spot (fully bundled, or simply never touched by the build).
+
+- 🚨 **Fatal** ~ Move to `dependencies`
+A `devDependency` ended up externalized (imported at runtime from `node_modules` instead of bundled). This is strictly reserved for things that will break a production server: deploying with `npm ci --omit=dev` will cause a `MODULE_NOT_FOUND` crash because the package won't be installed.
+__Fix:__ Move the package to `dependencies`.
+
+- 💡 **Optimization** ~ Safely bundled, can move to `devDependencies`
+A regular dependency is used, but it is 100% **bundled** into the final build (like UI frameworks or tiny utils). It works perfectly fine where it is, but moving it to `devDependencies` is a pro-tip to shrink the actual `node_modules` weight shipped to production.
+
+- 💡/🗑️ **Unused** ~ Move to dev dependencies or remove
+A regular dependency is completely absent from both the client and server output. It is pure dead weight in your production deployment. It's either dead code you can remove, or a build/dev-only tool (like ESLint or `@types/*`) accidentally placed in the wrong list.
+
+- **OK** ~ No alert
+The dependency is correctly placed and harmless. This applies to regular dependencies that are externalized (e.g. `hono` or `express`), or `devDependencies` that pass through silently because they are either build tools (like `vite`, `vike-lite` or `typescript`) or 100% bundled libraries (like `nanoid`).
+
 
 ##### What it catches:
 - 🚨 **Production Crashes:** Flags devDependencies that are externalized by the server (if left as dev dependencies, your app will crash in production environments that use `npm ci --omit=dev`).
