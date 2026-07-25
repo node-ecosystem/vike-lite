@@ -492,9 +492,7 @@ export default function vikeLite({
           }
         }
 
-        if (analizeDependencies && projectDependencies) {
-          printDependencyReport(bundleReports, projectDependencies)
-        }
+        if (analizeDependencies && projectDependencies) printDependencyReport(bundleReports, projectDependencies)
       }
     },
     configureServer(server) {
