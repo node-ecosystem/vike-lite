@@ -89,12 +89,12 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
     }
     // 💡/🗑️ UNUSED: Standard dependency, but completely missing from the build.
     else if (meta.type === '' && !usedAnywhere) {
-      alert = '💡/🗑️ ~ move to dev dependencies or remove'
+      alert = '💡/🗑️  ~ move to devDependencies or remove'
       color = '\u{1B}[90m' // gray
     }
     // 💡 OPTIMIZATION: Standard dependency, but 100% bundled.
     else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
-      alert = '💡 ~ safely bundled, can move to dev dependencies'
+      alert = '💡 ~ safely bundled, move to devDependencies'
       color = '\u{1B}[34m' // blue
     }
     else {
@@ -102,24 +102,22 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
       color = '\u{1B}[36m' // cyan
     }
 
-    const typeStr = meta.type === 'dev' ? 'dev dependency' : (meta.type === 'peer' ? 'peer dependency' : 'dependency')
-
-    rows.push({ c: usedC, s: usedS, typeStr, nameStr: `${name}@${meta.version}`, alert, color })
+    rows.push({ c: usedC, s: usedS, typeStr: meta.type, nameStr: `${name}@${meta.version}`, alert, color })
   }
 
   rows.sort((a, b) => a.nameStr.localeCompare(b.nameStr))
 
   // 1. Calculate dynamic column widths (minimum width is the header length)
-  const wClient = 14 // 'used by client'.length
-  const wServer = 14 // 'used by server'.length
-  const wType = 15   // 'peer dependency'.length (max possible)
-  let wName = 15     // 'dependency name'.length
-  let wAlert = 5     // 'alert'.length
+  const wClient = 6 // 'client'.length
+  const wServer = 6 // 'server'.length
+  const wType = 4   // 'peer'.length
+  let wName = 4     // 'name'.length
+  let wAlert = 5    // 'alert'.length
 
   // Find the longest string in the dynamic columns
   for (const row of rows) {
     if (row.nameStr.length > wName) wName = row.nameStr.length
-    if (row.alert.length > wAlert) wAlert = row.alert.length
+    if (row.alert.length > wAlert) wAlert = row.alert.length - 2
   }
 
   // 2. Formatting Helpers
@@ -129,7 +127,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
   const centerCheck = (isTrue: boolean, len: number) => {
     if (!isTrue) return pad('', len)
     const check = '✅'
-    const spaces = len - check.length
+    const spaces = len - check.length + 1
     const left = Math.floor(spaces / 2)
     const right = spaces - left
     return ' '.repeat(left) + check + ' '.repeat(right)
@@ -139,11 +137,11 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
 
   // 3. Print Headers
   console.log(
-    `| ${pad('used by client', wClient)} ` +
-    `| ${pad('used by server', wServer)} ` +
-    `| ${pad('type', wType)} ` +
-    `| ${pad('dependency name', wName)} ` +
-    `| ${pad('alert', wAlert)} |`
+    `| ${pad('Client', wClient)} ` +
+    `| ${pad('Server', wServer)} ` +
+    `| ${pad('Type', wType)} ` +
+    `| ${pad('Name', wName)} ` +
+    `| ${pad('Alert', wAlert)} |`
   )
 
   // 4. Print Separator Line
