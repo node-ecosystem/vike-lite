@@ -8,14 +8,14 @@ import { generateRoutes } from '../utils/generateRoutes'
 import { injectFOUCStyles } from '../utils/injectFOUCStyles'
 import { SUPPORTED_RENDERERS } from '../config'
 import { escapeRegex } from '../shared'
-import { extractPkgName, getProjectDependencies, printDependencyReport, type BundleReports, type DepUsage, type ProjectDependencies } from './printDependencies'
+import { extractPkgName, getProjectDependencies, printDependencyReport, type BundleReports, type DepUsage, type ProjectDependencies } from './analizeDependencies'
 
 export default function vikeLite({
   pagesDir = 'pages',
   apiPrefix = '/api',
   prerender = false,
   serverEntry,
-  printDependencies = false
+  analizeDependencies = false
 }: {
   /**
    * The directory where your page components are located.
@@ -53,7 +53,7 @@ export default function vikeLite({
    * by default.
    * @default false
    */
-  printDependencies?: boolean
+  analizeDependencies?: boolean
 } = {}): Plugin {
   const isProd = process.env.NODE_ENV === 'production'
   const { BUILD_TARGET } = process.env // 'client' | 'server' | undefined
@@ -91,7 +91,7 @@ export default function vikeLite({
       outDir = config.build?.outDir ?? 'dist'
       const { emptyOutDir, minify = true, cssMinify = true, sourcemap } = config.build || {}
       viteConfigRoot = config.root ? path.resolve(config.root) : process.cwd()
-      if (isProd && printDependencies && !BUILD_TARGET) projectDependencies = getProjectDependencies(viteConfigRoot)
+      if (isProd && analizeDependencies && !BUILD_TARGET) projectDependencies = getProjectDependencies(viteConfigRoot)
 
       const { routes } = generateRoutes(viteConfigRoot, pagesDir)
       hasAnyPrerender = prerender || routes.some(r => r.prerender)
@@ -347,13 +347,13 @@ export default function vikeLite({
     // Runs once per environment build (client / ssr), right after Rolldown
     // has produced the final chunk graph but before writeBundle.
     generateBundle(_options, bundle) {
-      if (!printDependencies) return
+      if (!analizeDependencies) return
       if (BUILD_TARGET) {
-        console.warn(`⚠️ Skipping "printDependencies" because it can start only with full build ("vite build" without BUILD_TARGET environment variable), current build is "${BUILD_TARGET}"`)
+        console.warn(`⚠️ Skipping "analizeDependencies" because it can start only with full build ("vite build" without BUILD_TARGET environment variable), current build is "${BUILD_TARGET}"`)
         return
       }
       if (!projectDependencies) {
-        console.warn(`⚠️ Skipping "printDependencies" because no dependencies found`)
+        console.warn(`⚠️ Skipping "analizeDependencies" because no dependencies found`)
         return
       }
 

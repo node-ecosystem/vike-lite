@@ -32,10 +32,10 @@ export function getProjectDependencies(viteConfigRoot: string): ProjectDependenc
         if (!projectDependencies[k]) projectDependencies[k] = { version: String(v), type: 'peer' }
       return projectDependencies
     } catch (error) {
-      console.warn(`⚠️ Failed to parse package.json for printDependencies:`, error)
+      console.warn(`⚠️ Failed to parse package.json for "analizeDependencies":`, error)
     }
   }
-  console.warn(`⚠️ Failed to find package.json for printDependencies starting from:`, viteConfigRoot)
+  console.warn(`⚠️ Failed to find package.json for "analizeDependencies" starting from:`, viteConfigRoot)
   return null
 }
 

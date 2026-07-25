@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest'
 import { strictEqual } from 'node:assert/strict'
-import { extractPkgName } from '../src/vite/printDependencies'
+import { extractPkgName } from '../src/vite/analizeDependencies'
 
 describe('extractPkgName', () => {
   it('resolves plain npm node_modules paths', () => {

@@ -31,13 +31,13 @@ export default {
       apiPrefix: '/api',           // Prefix to bypass SSR for API routes
       prerender: false,            // Enable SSG globally
       serverEntry: 'server/index', // Allows to use a custom server entry file
-      printDependencies: false     // Print, at the end of the build, a dependency usage/audit table
+      analizeDependencies: false     // Print, at the end of the build, a dependency usage/audit table
     })
   ]
 } satisfies UserConfig
 ```
 
-#### printDependencies
+#### `analizeDependencies`
 
 When set to `true`, at the end of the production build (once both the client and server builds have finished), the plugin prints a single table cross-referencing every dependency/devDependency/peerDependency in your package.json with whether it ended up in the client bundle, the server bundle, both, or neither — and flags anything worth fixing.
 
