@@ -82,22 +82,16 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
 
     let alert
     let color
-    // 🚨 FATAL: Dev dependency, but it's externalized. 
     if (meta.type === 'dev' && externalAnywhere) {
       alert = '🚨 ~ move to dependencies'
       color = '\u{1B}[31m' // red
-    }
-    // 💡/🗑️ UNUSED: Standard dependency, but completely missing from the build.
-    else if (meta.type === '' && !usedAnywhere) {
+    } else if (meta.type === '' && !usedAnywhere) {
       alert = '💡/🗑️  ~ move to devDependencies or remove'
       color = '\u{1B}[90m' // gray
-    }
-    // 💡 OPTIMIZATION: Standard dependency, but 100% bundled.
-    else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
+    } else if (meta.type === '' && usedAnywhere && !externalAnywhere) {
       alert = '💡 ~ safely bundled, move to devDependencies'
       color = '\u{1B}[34m' // blue
-    }
-    else {
+    } else {
       alert = ''
       color = '\u{1B}[36m' // cyan
     }
@@ -107,53 +101,56 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
 
   rows.sort((a, b) => a.nameStr.localeCompare(b.nameStr))
 
-  // --- Terminal formatting helpers ---
-  const getVisualLength = (str: string) => {
-    let len = 0
-    for (const char of str) {
-      if (char === '\uFE0F') continue // Ignore invisible variation selector inside emojis
-      len += char.length // Surrogate pairs count as 2, matching terminal rendering width
-    }
-    return len
+  // `.length` counts UTF-16 code units, which lies about on-screen width for
+  // anything outside plain ASCII:
+  // - Astral characters (🚨💡🗑✅) are 2 code units in `.length` but render as a
+  //   single glyph occupying 2 terminal columns ("wide" characters).
+  // - Variation Selector-16 (U+FE0F, e.g. the invisible modifier in "🗑️") adds a
+  //   code unit to `.length` but occupies 0 columns on screen.
+  // Both width calculation and padding MUST use the same function, or columns
+  // drift out of alignment as soon as two different alert strings appear.
+
+  // Invisible modifiers that add to `.length` but occupy 0 terminal columns
+  const ZERO_WIDTH = /[\u{FE0F}\u{200D}]/gu
+  // Code points terminals render as double-width (covers the emoji used here:
+  // 🚨 💡 🗑 ✅, plus the wider emoji/dingbat ranges in general)
+  const WIDE_CHAR = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}]/u
+
+  function stringWidth(str: string): number {
+    let width = 0
+    // for...of iterates by Unicode code point, so surrogate-pair emoji count as
+    // a single iteration step instead of being split in two like .length does
+    for (const char of str.replaceAll(ZERO_WIDTH, '')) width += WIDE_CHAR.test(char) ? 2 : 1
+    return width
   }
 
-  const pad = (str: string, len: number) => str.padEnd(len, ' ')
-
-  const padVisual = (str: string, len: number) => {
-    const vLen = getVisualLength(str)
-    return vLen >= len ? str : str + ' '.repeat(len - vLen)
+  function pad(str: string, len: number): string {
+    return str + ' '.repeat(Math.max(0, len - stringWidth(str)))
   }
 
-  // Centers the checkmark so it looks nice in the column
-  const centerCheck = (isTrue: boolean, len: number) => {
+  function centerCheck(isTrue: boolean, len: number): string {
     if (!isTrue) return ' '.repeat(len)
     const check = '✅'
-    const spaces = len - 2 // ✅ takes exactly 2 visual columns in terminal
+    const spaces = Math.max(0, len - stringWidth(check))
     const left = Math.floor(spaces / 2)
-    const right = spaces - left
-    return ' '.repeat(left) + check + ' '.repeat(right)
+    return ' '.repeat(left) + check + ' '.repeat(spaces - left)
   }
 
-  // 1. Calculate dynamic column widths (minimum width is the header length)
-  const wClient = 6 // 'Client'.length
-  const wServer = 6 // 'Server'.length
-  let wType = 4     // 'Type'.length
-  let wName = 4     // 'Name'.length
-  let wAlert = 5    // 'Alert'.length
+  const wClient = 6 // 'client'.length
+  const wServer = 6 // 'server'.length
+  const wType = 4   // 'peer'.length
+  let wName = 4     // 'name'.length
+  let wAlert = 5    // 'alert'.length
 
   // Find the longest string in the dynamic columns
   for (const row of rows) {
-    if (row.typeStr.length > wType) wType = row.typeStr.length
-    if (row.nameStr.length > wName) wName = row.nameStr.length
-
-    // We strictly use Visual Length for the alert column to avoid emoji warping
-    const alertVLen = getVisualLength(row.alert)
-    if (alertVLen > wAlert) wAlert = alertVLen
+    wName = Math.max(wName, stringWidth(row.nameStr))
+    wAlert = Math.max(wAlert, stringWidth(row.alert))
   }
 
   console.log('\n📦 Dependency usage report:\n')
 
-  // 3. Print Headers
+  // Print Headers
   console.log(
     `| ${pad('Client', wClient)} ` +
     `| ${pad('Server', wServer)} ` +
@@ -162,7 +159,7 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
     `| ${pad('Alert', wAlert)} |`
   )
 
-  // 4. Print Separator Line
+  // Print Separator Line
   console.log(
     `|-${'-'.repeat(wClient)}-` +
     `|-${'-'.repeat(wServer)}-` +
@@ -171,19 +168,17 @@ export function printDependencyReport(bundleReports: BundleReports, projectDepen
     `|-${'-'.repeat(wAlert)}-|`
   )
 
-  // 5. Print Rows
+  // Print Rows
   for (const row of rows) {
     const cStr = centerCheck(row.c, wClient)
     const sStr = centerCheck(row.s, wServer)
     const tStr = pad(row.typeStr, wType)
 
-    // Name column only contains ASCII characters, so standard padding is perfectly safe
-    const paddedName = pad(row.nameStr, wName)
-    const coloredName = `${row.color}${paddedName}\x1b[0m`
-
-    // Alert column contains emojis, so we must pad it using visual logic before adding colors
-    const paddedAlert = padVisual(row.alert, wAlert)
-    const coloredAlert = row.alert ? `${row.color}${paddedAlert}\x1b[0m` : paddedAlert
+    // Pad the RAW string first (using visible width), THEN wrap in color codes —
+    // ANSI escape bytes have zero visible width but nonzero .length, so coloring
+    // before padding would corrupt the width math.
+    const coloredName = `${row.color}${pad(row.nameStr, wName)}\x1b[0m`
+    const coloredAlert = row.alert ? `${row.color}${pad(row.alert, wAlert)}\x1b[0m` : pad(row.alert, wAlert)
 
     console.log(`| ${cStr} | ${sStr} | ${tStr} | ${coloredName} | ${coloredAlert} |`)
   }
