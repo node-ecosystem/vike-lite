@@ -190,9 +190,9 @@ async function renderErrorPage(
 
 export async function renderPage(
   req: Request,
-  { nonce, headers }: {
-    nonce?: string
+  { headers, nonce }: {
     headers?: Headers | Record<string, string>
+    nonce?: string
     // Accepts additional keys because platforms like Vercel inject a default `context` object
     // (e.g. { params: ... }) when you export GET/POST.
     [key: string]: unknown
