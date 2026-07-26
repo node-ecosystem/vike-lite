@@ -51,8 +51,7 @@ When set to `true`, at the end of the production build (once both the client and
 
 **Alerts explained:**
 
-- 🚨 **Fatal** ~ Move to `dependencies`
-A `devDependency` ended up externalized (imported at runtime from `node_modules` instead of bundled). This is strictly reserved for things that will break a production server: deploying with `npm ci --omit=dev` will cause a `MODULE_NOT_FOUND` crash because the package won't be installed.
+- 🚨 **Fatal** ~ Move to `dependencies` a `devDependency` ended up externalized (imported at runtime from `node_modules` instead of bundled). This is strictly reserved for things that will break a production server: deploying with `npm ci --omit=dev` will cause a `MODULE_NOT_FOUND` crash because the package won't be installed.
 __Fix:__ Move the package to `dependencies`.
 
 - 💡 **Optimization** ~ Safely bundled, can move to `devDependencies`
