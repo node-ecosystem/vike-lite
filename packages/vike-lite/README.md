@@ -42,12 +42,12 @@ export default {
 When set to `true`, at the end of the production build (once both the client and server builds have finished), the plugin prints a single table cross-referencing every `dependency`/`devDependency`/`peerDependency` in your `package.json` with whether it ended up in the client bundle, the server bundle, both, or neither — and flags anything worth fixing.
 
 > 📦 Dependency usage report:
-> |Used by Client|Used by Server|Type|Dependency name|Alert
+> |Client|Server|Type|Name|Alert
 > |-|-|-|-|-
-> |✅|✅|dependency|solid-js@^1.9.3|💡 ~ safely bundled, can move to dev dependencies
-> ||✅|dependency|hono@^4.12.31|
-> ||✅|dev dependency| postgres@^3.4.4 |🚨 ~ move to dependencies
-> |||dependency|lodash@^4.17.21 |💡/🗑️ ~ move to dev dependencies or remove
+> |✅|✅||solid-js@^1.9.3|💡 ~ safely bundled, can move to dev dependencies
+> ||✅||hono@^4.12.31|
+> ||✅|dev| postgres@^3.4.4 |🚨 ~ move to dependencies
+> ||||lodash@^4.17.21 |💡/🗑️ ~ move to dev dependencies or remove
 
 **Alerts explained:**
 
