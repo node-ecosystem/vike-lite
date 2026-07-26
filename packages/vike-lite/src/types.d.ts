@@ -12,7 +12,7 @@ type Route = {
   // - "data" path indicates if "data" can be fetched by the client
   // - "title" path indicates if "title" can be fetched by the client
   // - Flags are present only if errorRoute isn't undefined
-  data?: string
+  data?: string[]
   title?: string
   prerender?: string
 }

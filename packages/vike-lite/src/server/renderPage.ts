@@ -92,6 +92,15 @@ function getAssets(route: typeof store.routes[number], nonce?: string) {
   }
 }
 
+function mergeCumulativeData(prev: unknown, next: unknown): unknown {
+  if (next === undefined) return prev
+  const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+    typeof v === 'object' && v !== null && !Array.isArray(v)
+  // Shallow-merge when both levels return plain objects (deeper level wins on conflicts).
+  // Otherwise (primitives/arrays), the deepest +data simply replaces the value.
+  return isPlainObject(prev) && isPlainObject(next) ? { ...prev, ...next } : next
+}
+
 async function buildPageContext(urlPathname: string, urlOriginal: string, headers: Headers | Record<string, string> | undefined, isJsonRequest: boolean) {
   const matched = matchRoute(urlPathname, store.routes)
   if (!matched) return null
@@ -99,21 +108,24 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, header
   const { route, routeParams } = matched
   const pageContext = { routeParams, urlOriginal, urlPathname, headers, isClientSide: false } as PageContextServer
 
-  const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
-    route.Data?.() ?? null,
+  const [dataMods, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
+    route.Data ? Promise.all(route.Data.map(loadData => loadData())) : null,
     route.Title?.() ?? null,
     isJsonRequest ? null : route.Page(),
     isJsonRequest ? null : route.Head?.() ?? null,
     isJsonRequest ? null : route.Layout?.() ?? null
   ])
 
-  if (dataMod) {
+  if (dataMods) {
     try {
-      const dataFn = (dataMod.data ?? dataMod.default)!
-      pageContext.data = await dataFn(pageContext)
+      // Root -> leaf: each +data can read pageContext.data already produced by its ancestors
+      for (const dataMod of dataMods) {
+        const dataFn = (dataMod.data ?? dataMod.default)!
+        const result = await dataFn(pageContext)
+        pageContext.data = mergeCumulativeData(pageContext.data, result)
+      }
     } catch (error) {
-      if (!(error instanceof AbortRedirect || error instanceof AbortRender))
-        console.error('+data hook failed at:', urlPathname)
+      if (!(error instanceof AbortRedirect || error instanceof AbortRender)) console.error('+data hook failed at:', urlPathname)
       throw error
     }
   }

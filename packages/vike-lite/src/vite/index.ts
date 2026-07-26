@@ -265,11 +265,11 @@ export default function vikeLite({
           code += `{path:'${r.path}',page:'${r.page}',Page:()=>import('/${r.page}'),`
           if (r.head) code += `head:'${r.head}',Head:()=>import('/${r.head}'),`
           if (r.layout) code += `layout:'${r.layout}',Layout:()=>import('/${r.layout}'),`
-          if (r.data) code += `data:'${r.data}',`
+          if (r.data?.length) code += `data:${JSON.stringify(r.data)},`
           if (r.title) code += `title:'${r.title}',`
           if (r.prerender) code += `prerender:'${r.prerender}',`
           if (isSSR) {
-            if (r.data) code += `Data:()=>import('/${r.data}'),`
+            if (r.data?.length) code += `Data:[${r.data.map(d => `()=>import('/${d}')`).join(',')}],`
             if (r.title) code += `Title:()=>import('/${r.title}'),`
             if (r.prerender) code += `Prerender:()=>import('/${r.prerender}'),`
           }

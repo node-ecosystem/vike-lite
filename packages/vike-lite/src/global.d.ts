@@ -28,7 +28,7 @@ declare module 'virtual:vike-lite/routes' {
   export const config: Config
 
   export const routes: Array<RouteBase & {
-    Data?: Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']>>
+    Data?: Array<Imported<'data', (pageContext: PageContext) => Promise<PageContext['data']> | PageContext['data']>>
     Title?: Imported<'title', string | ((pageContext: PageContext) => string)>
   }>
 

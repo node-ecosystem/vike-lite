@@ -15,7 +15,7 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
   const routes: Route[] = []
   let errorRoute: Route | undefined
 
-  function walk(dir: string, routePath: string, parentLayout?: string, parentHead?: string) {
+  function walk(dir: string, routePath: string, parentLayout?: string, parentHead?: string, parentDataChain: string[] = []) {
     const entries = fs.readdirSync(dir, { withFileTypes: true })
     const files = entries.map(entry => entry.name)
 
@@ -27,17 +27,20 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
     const headFile = findFile(files, '+Head', pageExtensions)
     const currentHead = headFile ? `${importPath}/${headFile}` : parentHead
 
+    // +data is cumulative: like +Layout/+Head it can live in any ancestor folder
+    const dataFile = findFile(files, '+data', nonPageExtensions)
+    const currentDataChain = dataFile ? [...parentDataChain, `${importPath}/${dataFile}`] : parentDataChain
+
     const pageFile = findFile(files, '+Page', pageExtensions)
     if (pageFile) {
       const route: Route = {
         path: routePath || '/',
         page: `${importPath}/${pageFile}`
       }
-      const dataFile = findFile(files, '+data', nonPageExtensions)
       const titleFile = findFile(files, '+title', nonPageExtensions)
       const prerenderFile = findFile(files, '+prerender', nonPageExtensions)
 
-      if (dataFile) route.data = `${importPath}/${dataFile}`
+      if (currentDataChain.length > 0) route.data = currentDataChain
       if (titleFile) route.title = `${importPath}/${titleFile}`
       if (prerenderFile) route.prerender = `${importPath}/${prerenderFile}`
 
@@ -71,7 +74,7 @@ export function generateRoutes(viteRoot: string, pagesDir: string): { routes: Ro
       if (file.startsWith('_')) continue  // ignore other private folders
 
       const newRoutePath = routePath + (routePath.endsWith('/') ? '' : '/') + file.replace(/^@/, ':')
-      walk(fullPath, newRoutePath, currentLayout, currentHead)
+      walk(fullPath, newRoutePath, currentLayout, currentHead, currentDataChain)
     }
   }
 
