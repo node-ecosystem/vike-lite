@@ -65,14 +65,15 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     const contextOverride = pendingContextOverride.value
     pendingContextOverride.value = null
 
-    const renderErrorPage = async (is404: boolean, message?: string) => {
+    const renderErrorPage = async (is404: boolean, message?: string, data?: unknown) => {
       if (!props.errorRoute) return
       const errorView = await loadViewModules<Component>(props.errorRoute)
       if (signal.aborted) return
       setPageContext({
         ...pageContext,
         urlOriginal: urlFull, urlPathname: pathname, routeParams: {},
-        is404, is500: !is404, errorMessage: message
+        is404, is500: !is404, errorMessage: message,
+        ...(data !== undefined ? { data } : {})
       } as PageContextClient)
       view.value = errorView
       document.title = is404 ? 'Not Found' : 'Server Error'
@@ -106,7 +107,7 @@ const RouterApp = defineComponent<RouterProps>((props) => {
       }
 
       if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-        return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
+        return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error', ctx.data)
       }
 
       const newView = await loadViewModules<Component>(route)

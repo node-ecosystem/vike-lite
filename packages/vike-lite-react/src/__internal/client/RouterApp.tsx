@@ -122,7 +122,7 @@ export function RouterApp(props: RouterProps) {
     const urlFull = currentUrl
     const matched = matchedRoute
 
-    const renderErrorPage = async (is404: boolean, message?: string) => {
+    const renderErrorPage = async (is404: boolean, message?: string, data?: unknown) => {
       if (!props.errorRoute) return
       const errorView = await loadViewModules<ComponentType<any>>(props.errorRoute)
       if (signal.aborted) return
@@ -135,7 +135,8 @@ export function RouterApp(props: RouterProps) {
         is500: !is404,
         errorMessage: message,
         isClientSide: true,
-        isHydration: false
+        isHydration: false,
+        ...(data !== undefined ? { data } : {})
       } as PageContextClient))
       setView(errorView)
       document.title = is404 ? 'Not Found' : 'Server Error'
@@ -173,7 +174,7 @@ export function RouterApp(props: RouterProps) {
         }
 
         if (ctx && (ctx.is404 || ctx.is500 || ctx.isError)) {
-          return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error')
+          return renderErrorPage(ctx.is404 ?? false, ctx.reason || 'Server Error', ctx.data)
         }
 
         const newView = await loadViewModules<ComponentType<any>>(route)

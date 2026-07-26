@@ -126,6 +126,11 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, header
       }
     } catch (error) {
       if (!(error instanceof AbortRedirect || error instanceof AbortRender)) console.error('+data hook failed at:', urlPathname)
+      // Preserve whatever ancestor +data hooks already resolved, so the
+      // error page's inherited +Layout/+Head can still read it via useData().
+      if (error && typeof error === 'object') {
+        (error as { cumulativeData?: unknown }).cumulativeData = pageContext.data
+      }
       throw error
     }
   }
@@ -150,7 +155,8 @@ async function renderErrorPage(
   urlPathname: string,
   headers: Headers | Record<string, string> | undefined,
   nonce: string | undefined,
-  error?: unknown
+  error?: unknown,
+  cumulativeData?: unknown
 ): Promise<Response> {
   let errorMessage
   let is500
@@ -179,7 +185,8 @@ async function renderErrorPage(
       is404: status === 404,
       is500,
       errorMessage,
-      isClientSide: false
+      isClientSide: false,
+      ...(cumulativeData !== undefined ? { data: cumulativeData } : {})
     } as PageContextServer
 
     const html = await store.config!.onRenderHtml({
@@ -243,6 +250,7 @@ export async function renderPage(
 
     return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
   } catch (error) {
+    const cumulativeData = (error as { cumulativeData?: unknown } | null)?.cumulativeData
     if (error instanceof AbortRedirect) {
       // Add the base path if the URL is internal
       let redirectUrl = error.url
@@ -265,17 +273,18 @@ export async function renderPage(
             is404: error.statusCode === 404,
             is500: error.statusCode >= 500,
             isError: true,
-            reason: error.reason
+            reason: error.reason,
+            data: cumulativeData
           },
           { status: error.statusCode }
         )
       }
       // First load, render the error UI (with layout and styles)
-      return renderErrorPage(urlOriginal, error.statusCode, targetPathname, headers, nonce, error.reason)
+      return renderErrorPage(urlOriginal, error.statusCode, targetPathname, headers, nonce, error.reason, cumulativeData)
     }
 
     console.error('Render Error:', error)
-    if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })
-    return renderErrorPage(urlOriginal, 500, targetPathname, headers, nonce, error)
+    if (isJsonRequest) return Response.json({ is500: true, data: cumulativeData }, { status: 500 })
+    return renderErrorPage(urlOriginal, 500, targetPathname, headers, nonce, error, cumulativeData)
   }
 }
