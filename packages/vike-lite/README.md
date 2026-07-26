@@ -51,17 +51,22 @@ When set to `true`, at the end of the production build (once both the client and
 
 **Alerts explained:**
 
-- 🚨 **Fatal** ~ Move to `dependencies` a `devDependency` ended up externalized (imported at runtime from `node_modules` instead of bundled). This is strictly reserved for things that will break a production server: deploying with `npm ci --omit=dev` will cause a `MODULE_NOT_FOUND` crash because the package won't be installed.
+- 🚨 **Fatal** ~ Move to `dependencies`
+
+  A `devDependency` ended up externalized (imported at runtime from `node_modules` instead of bundled). This is strictly reserved for things that will break a production server: deploying with `npm ci --omit=dev` will cause a `MODULE_NOT_FOUND` crash because the package won't be installed.
 __Fix:__ Move the package to `dependencies`.
 
 - 💡 **Optimization** ~ Safely bundled, can move to `devDependencies`
-A regular dependency is used, but it is 100% **bundled** into the final build (like UI frameworks or tiny utils). It works perfectly fine where it is, but moving it to `devDependencies` is a pro-tip to shrink the actual `node_modules` weight shipped to production.
+
+  A regular dependency is used, but it is 100% **bundled** into the final build (like UI frameworks or tiny utils). It works perfectly fine where it is, but moving it to `devDependencies` is a pro-tip to shrink the actual `node_modules` weight shipped to production.
 
 - 💡/🗑️ **Unused** ~ Move to dev dependencies or remove
-A regular dependency is completely absent from both the client and server output. It is pure dead weight in your production deployment. It's either dead code you can remove, or a build/dev-only tool (like ESLint or `@types/*`) accidentally placed in the wrong list.
+
+  A regular dependency is completely absent from both the client and server output. It is pure dead weight in your production deployment. It's either dead code you can remove, or a build/dev-only tool (like ESLint or `@types/*`) accidentally placed in the wrong list.
 
 - **OK** ~ No alert
-The dependency is correctly placed and harmless. This applies to regular dependencies that are externalized (e.g. `hono` or `express`), or `devDependencies` that pass through silently because they are either build tools (like `vite`, `vike-lite` or `typescript`) or 100% bundled libraries (like `nanoid`).
+
+  The dependency is correctly placed and harmless. This applies to regular dependencies that are externalized (e.g. `hono` or `express`), or `devDependencies` that pass through silently because they are either build tools (like `vite`, `vike-lite` or `typescript`) or 100% bundled libraries (like `nanoid`).
 
 
 ##### What it catches:
