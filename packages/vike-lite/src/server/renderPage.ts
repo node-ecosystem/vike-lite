@@ -155,15 +155,20 @@ async function renderErrorPage(
   urlPathname: string,
   headers: Headers | Record<string, string> | undefined,
   nonce: string | undefined,
-  error?: unknown,
+  reason?: unknown,
   cumulativeData?: unknown
 ): Promise<Response> {
-  let errorMessage
-  let is500
-  if (status === 500) {
-    errorMessage = isProd ? 'Internal Server Error' : (error instanceof Error ? error.message : 'Unknown error')
-    is500 = true
-  } else is500 = false
+  const is500 = status >= 500
+  let errorMessage: string | undefined
+  if (typeof reason === 'string') {
+    // Explicit, developer-authored reason: throw render(404, 'Document not found!')
+    // Always safe to show, at any status code, in dev or prod.
+    errorMessage = reason
+  } else if (is500) {
+    // Unexpected/uncaught crash: only reveal internals in dev to avoid leaking
+    // stack traces / implementation details in production.
+    errorMessage = isProd ? 'Internal Server Error' : (reason instanceof Error ? reason.message : 'Unknown error')
+  }
 
   const fallbackText = status === 404 ? 'Not Found' : 'Internal Server Error'
 
