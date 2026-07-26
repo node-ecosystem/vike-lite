@@ -18,7 +18,7 @@ export class AbortRedirect extends Error {
  * @example throw redirect('/login')
  */
 export function redirect(url: string, statusCode: number = 302): AbortRedirect {
-  return new AbortRedirect(url, statusCode)
+  throw new AbortRedirect(url, statusCode)
 }
 
 export class AbortRender extends Error {
@@ -43,5 +43,5 @@ export class AbortRender extends Error {
  * @param reason Optional: the reason for the error to display in the UI
  */
 export function render(statusCode: number, reason?: unknown): AbortRender {
-  return new AbortRender(statusCode, reason)
+  throw new AbortRender(statusCode, reason)
 }
