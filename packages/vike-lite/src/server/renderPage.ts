@@ -1,6 +1,6 @@
 import type { PageContextServer } from '..'
 import { BASE_URL, matchRoute, stripBase } from '../__internal/shared'
-import { serializeContext } from '../utils/serializeContext'
+import { serializeContext, toClientPageContext } from '../utils/serializeContext'
 import { AbortRedirect, AbortRender } from './abort'
 import { store } from '../shared/store'
 
@@ -92,12 +92,12 @@ function getAssets(route: typeof store.routes[number], nonce?: string) {
   }
 }
 
-async function buildPageContext(urlPathname: string, urlOriginal: string, isJsonRequest: boolean) {
+async function buildPageContext(urlPathname: string, urlOriginal: string, headers: Headers | Record<string, string> | undefined, isJsonRequest: boolean) {
   const matched = matchRoute(urlPathname, store.routes)
   if (!matched) return null
 
   const { route, routeParams } = matched
-  const pageContext = { routeParams, urlOriginal, urlPathname, isClientSide: false } as PageContextServer
+  const pageContext = { routeParams, urlOriginal, urlPathname, headers, isClientSide: false } as PageContextServer
 
   const [dataMod, titleMod, PageModule, HeadModule, LayoutModule] = await Promise.all([
     route.Data?.() ?? null,
@@ -136,8 +136,9 @@ async function renderErrorPage(
   req: Request,
   status: number,
   urlPathname: string,
-  error?: unknown,
-  nonce?: string
+  headers: Headers | Record<string, string> | undefined,
+  nonce: string | undefined,
+  error?: unknown
 ): Promise<Response> {
   let errorMessage
   let is500
@@ -161,6 +162,7 @@ async function renderErrorPage(
     const pageContext = {
       urlOriginal: req.url,
       urlPathname,
+      headers,
       routeParams: {},
       is404: status === 404,
       is500,
@@ -190,34 +192,30 @@ export async function renderPage(
   req: Request,
   // Accepts additional keys because platforms like Vercel inject a default `context` object
   // (e.g. { params: ... }) when you export GET/POST.
-  { nonce }: {
+  options: {
     nonce?: string
-    [key: string]: unknown
+    headers?: Headers | Record<string, string>
   } = {}
 ): Promise<Response> {
   let { pathname } = new URL(req.url)
-
   pathname = stripBase(pathname)
-
   const isJsonRequest = pathname.endsWith('.pageContext.json')
-
   let targetPathname = pathname
   if (isJsonRequest) {
     targetPathname = targetPathname.replace(/\.pageContext\.json$/, '')
     if (targetPathname === '/index') targetPathname = '/'
   }
-
+  const { nonce } = options
   try {
-    const resolved = await buildPageContext(targetPathname, req.url, isJsonRequest)
-
+    const resolved = await buildPageContext(targetPathname, req.url, options.headers, isJsonRequest)
     if (!resolved) {
       if (isJsonRequest) return Response.json({ is404: true }, { status: 404 })
-      return renderErrorPage(req, 404, targetPathname, nonce)
+      return renderErrorPage(req, 404, targetPathname, options.headers, nonce)
     }
 
     const { pageContext, route, PageModule, HeadModule, LayoutModule } = resolved
 
-    if (isJsonRequest) return Response.json(pageContext)
+    if (isJsonRequest) return Response.json(toClientPageContext(pageContext))
 
     const html = await store.config!.onRenderHtml({
       pageContext,
@@ -260,11 +258,11 @@ export async function renderPage(
         )
       }
       // First load, render the error UI (with layout and styles)
-      return renderErrorPage(req, error.statusCode, targetPathname, error.reason, nonce)
+      return renderErrorPage(req, error.statusCode, targetPathname, options.headers, nonce, error.reason)
     }
 
     console.error('Render Error:', error)
     if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })
-    return renderErrorPage(req, 500, targetPathname, error, nonce)
+    return renderErrorPage(req, 500, targetPathname, options.headers, nonce, error)
   }
 }

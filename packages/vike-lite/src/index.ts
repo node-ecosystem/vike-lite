@@ -15,9 +15,9 @@ type PageContextBase<Data = unknown> = {
 
 export type PageContextServer<Data = unknown> = PageContextBase<Data> & {
   isClientSide: false
+  headers: Headers | Record<string, string> | undefined
   nonce?: string
   // request?: Request OR request: Request    // Fetch API Request native
-  // responseHeaders: Headers   // To set Set-Cookie, etc.
 }
 
 export type PageContextClient<Data = unknown> = PageContextBase<Data> & {
