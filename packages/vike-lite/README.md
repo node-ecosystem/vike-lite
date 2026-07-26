@@ -76,8 +76,6 @@ __Fix:__ Move the package to `dependencies`.
 
 It's disabled by default since it adds diagnostic console output and isn't needed for normal usage, but it is highly recommended to run occasionally to audit your packages.
 
-It's disabled by default since it only adds diagnostic console output and isn't needed for normal usage.
-
 ### 🖥️ Server Integration
 
 #### `renderPage()`
