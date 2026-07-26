@@ -133,7 +133,7 @@ async function buildPageContext(urlPathname: string, urlOriginal: string, header
 }
 
 async function renderErrorPage(
-  req: Request,
+  urlOriginal: string,
   status: number,
   urlPathname: string,
   headers: Headers | Record<string, string> | undefined,
@@ -160,7 +160,7 @@ async function renderErrorPage(
     ])
 
     const pageContext = {
-      urlOriginal: req.url,
+      urlOriginal,
       urlPathname,
       headers,
       routeParams: {},
@@ -190,11 +190,12 @@ async function renderErrorPage(
 
 export async function renderPage(
   req: Request,
-  // Accepts additional keys because platforms like Vercel inject a default `context` object
-  // (e.g. { params: ... }) when you export GET/POST.
-  options: {
+  { nonce, headers }: {
     nonce?: string
     headers?: Headers | Record<string, string>
+    // Accepts additional keys because platforms like Vercel inject a default `context` object
+    // (e.g. { params: ... }) when you export GET/POST.
+    [key: string]: unknown
   } = {}
 ): Promise<Response> {
   let { pathname } = new URL(req.url)
@@ -205,12 +206,12 @@ export async function renderPage(
     targetPathname = targetPathname.replace(/\.pageContext\.json$/, '')
     if (targetPathname === '/index') targetPathname = '/'
   }
-  const { nonce } = options
+  const urlOriginal = req.url
   try {
-    const resolved = await buildPageContext(targetPathname, req.url, options.headers, isJsonRequest)
+    const resolved = await buildPageContext(targetPathname, urlOriginal, headers, isJsonRequest)
     if (!resolved) {
       if (isJsonRequest) return Response.json({ is404: true }, { status: 404 })
-      return renderErrorPage(req, 404, targetPathname, options.headers, nonce)
+      return renderErrorPage(urlOriginal, 404, targetPathname, headers, nonce)
     }
 
     const { pageContext, route, PageModule, HeadModule, LayoutModule } = resolved
@@ -258,11 +259,11 @@ export async function renderPage(
         )
       }
       // First load, render the error UI (with layout and styles)
-      return renderErrorPage(req, error.statusCode, targetPathname, options.headers, nonce, error.reason)
+      return renderErrorPage(urlOriginal, error.statusCode, targetPathname, headers, nonce, error.reason)
     }
 
     console.error('Render Error:', error)
     if (isJsonRequest) return Response.json({ is500: true }, { status: 500 })
-    return renderErrorPage(req, 500, targetPathname, options.headers, nonce, error)
+    return renderErrorPage(urlOriginal, 500, targetPathname, headers, nonce, error)
   }
 }
