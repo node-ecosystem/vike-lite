@@ -51,6 +51,14 @@ The renderPage API works the same way, only the import path changes:
 ```diff
 -import { renderPage } from 'vike/server'
 +import { renderPage } from 'vike-lite/server'
+
+-renderPage({
+-  urlOriginal: c.req.url,
+-  headersOriginal: c.req.raw.headers
+-})
++renderPage(req.raw, {
++  headers: c.req.raw.headers  // OR c.req.header()
++})
 ```
 
 ### 🪝 Hooks & Page Context

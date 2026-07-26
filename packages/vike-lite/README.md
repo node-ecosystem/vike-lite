@@ -101,7 +101,10 @@ app.route('/api', apiRoutes)
 // 2. Catch-all remaining requests and pass them to vike-lite
 app.get('*', async (c, next) => {
   // renderPage will return a Node.js Response
-  return await renderPage(c.req.raw)
+  return await renderPage(c.req.raw, {
+    // Optionally you can pass headers to get them from PageContext parameter of +data hook
+    headers: c.req.raw.headers  // OR c.req.header()
+  })
 })
 
 // 3. Error Handling
