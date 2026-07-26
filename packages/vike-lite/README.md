@@ -60,7 +60,7 @@ __Fix:__ Move the package to `dependencies`.
 
   A regular dependency is used, but it is 100% **bundled** into the final build (like UI frameworks or tiny utils). It works perfectly fine where it is, but moving it to `devDependencies` is a pro-tip to shrink the actual `node_modules` weight shipped to production.
 
-- 💡/🗑️ **Unused** ~ Move to dev dependencies or remove
+- 💡/🗑️ **Unused** ~ Move to `devDependencies` or remove
 
   A regular dependency is completely absent from both the client and server output. It is pure dead weight in your production deployment. It's either dead code you can remove, or a build/dev-only tool (like ESLint or `@types/*`) accidentally placed in the wrong list.
 
@@ -69,9 +69,9 @@ __Fix:__ Move the package to `dependencies`.
   The dependency is correctly placed and harmless. This applies to regular dependencies that are externalized (e.g. `hono` or `express`), or `devDependencies` that pass through silently because they are either build tools (like `vite`, `vike-lite` or `typescript`) or 100% bundled libraries (like `nanoid`).
 
 
-##### What it catches:
-- 🚨 **Production Crashes:** Flags devDependencies that are externalized by the server (if left as dev dependencies, your app will crash in production environments that use `npm ci --omit=dev`).
-- 💡 **Server Bloat:** Flags regular dependencies that are 100% bundled into the build. Moving these to `devDependencies` shrinks your production node_modules size.
+##### Summary: What this catches
+- 🚨 **Production Crashes:** Flags `devDependencies` that are actively required by the server at runtime. Move these to `dependencies`.
+- 💡 **Server Bloat:** Flags regular `dependencies` that are 100% bundled into the build. Move these to `devDependencies` shrinks your production `node_modules` size.
 - 🗑️ **Unused Packages**: Highlights dependencies taking up space in your `package.json` that never appeared in the final build graph.
 
 It's disabled by default since it adds diagnostic console output and isn't needed for normal usage, but it is highly recommended to run occasionally to audit your packages.
