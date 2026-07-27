@@ -9,30 +9,27 @@ import { prependBase } from '../__internal/shared'
 export function navigate(
   url: string,
   options?: {
-    keepScrollPosition?: boolean,
+    keepScrollPosition?: boolean
     pageContext?: Partial<PageContext>
   }
-) {
-  if (typeof globalThis === 'undefined') {
-    throw new Error('navigate() can only be called on the client side.')
-  }
-
+): Promise<void> {
+  if (typeof globalThis === 'undefined') throw new Error('navigate() can only be called on the client side.')
   let finalUrl = url
-  if (finalUrl.startsWith('/')) {
-    finalUrl = prependBase(finalUrl)
-  }
+  if (finalUrl.startsWith('/')) finalUrl = prependBase(finalUrl)
 
-  // Change the URL in the address bar
-  globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', finalUrl)
-
-  // Notify the vike-lite router to update:
-  // dispatch a custom event instead of popstate, passing the options
-  globalThis.dispatchEvent(new CustomEvent('vike-navigate', {
-    detail: {
-      keepScrollPosition: options?.keepScrollPosition,
-      pageContext: options?.pageContext
-    }
-  }))
+  return new Promise((resolve) => {
+    // Change the URL in the address bar
+    globalThis.history.pushState({ triggeredBy: 'vike-lite' }, '', finalUrl)
+    // Notify the vike-lite router to update:
+    // dispatch a custom event instead of popstate, passing the options
+    globalThis.dispatchEvent(new CustomEvent('vike-navigate', {
+      detail: {
+        keepScrollPosition: options?.keepScrollPosition,
+        pageContext: options?.pageContext,
+        resolve
+      }
+    }))
+  })
 }
 
 export const reload = (): Promise<void> => {

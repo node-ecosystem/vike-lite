@@ -20,9 +20,6 @@ The signature is the same, but navigate() in vike-lite is synchronous (it doesn'
 ```diff
 -import { navigate } from 'vike/client/router'
 +import { navigate } from 'vike-lite/client/router'
-
--await navigate()
-+navigate()
 ```
 
 #### `reload`
