@@ -176,9 +176,14 @@ const RouterApp = defineComponent<RouterProps>((props) => {
     }
 
     const handleProgrammaticNavigate = (e: Event) => {
-      const detail = (e as CustomEvent<{ keepScrollPosition?: boolean; pageContext?: Partial<PageContextClient> }>).detail || {}
+      const detail = (e as CustomEvent<{
+        keepScrollPosition?: boolean
+        pageContext?: Partial<PageContextClient>
+        resolve?: () => void
+      }>).detail || {}
       if (!detail.keepScrollPosition) shouldScrollToTop.current = true
       if (detail.pageContext) pendingContextOverride.value = detail.pageContext
+      if (detail.resolve) reloadResolvers.push(detail.resolve)
       currentUrl.value = globalThis.location.href
       currentPathname.value = stripBase(globalThis.location.pathname)
     }
