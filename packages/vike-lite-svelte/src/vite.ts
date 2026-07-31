@@ -33,7 +33,9 @@ export default function vikeLiteSvelte({
       {
         // .svelte.ts modules (used for rune-based helpers like useUrl) must also be
         // compiled by the Svelte plugin, not just .svelte components
-        extensions: ['.svelte', '.svelte.ts'],
+        // .svelte.ts is not reconized by the Svelte plugin so use .svelte.js
+        // By default extensions is .svelte
+        // extensions: ['.svelte', '.svelte.ts'],
         compilerOptions: { hydratable: true }
       },
       svelteUserOptions
