@@ -5,6 +5,9 @@ import { usePageContext } from './usePageContext'
  */
 export function useUrl(): { readonly current: URL } {
   const pageContext = usePageContext()
-  const url = $derived(new URL(pageContext.urlOriginal))
-  return { get current() { return url } }
+  return {
+    get current() {
+      return new URL(pageContext.urlOriginal)
+    }
+  }
 }

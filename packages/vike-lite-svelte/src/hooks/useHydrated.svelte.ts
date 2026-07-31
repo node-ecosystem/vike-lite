@@ -5,7 +5,7 @@ import { onMount } from 'svelte'
  * during SSR). Useful for rendering something only after hydration, e.g. to
  * avoid a server/client markup mismatch for browser-only content.
  */
-export function useHydrated(): { readonly current: boolean } {
+export function useHydrated() {
   let hydrated = $state(false)
   onMount(() => { hydrated = true })
   return { get current() { return hydrated } }

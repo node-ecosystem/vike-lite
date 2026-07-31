@@ -1,4 +1,4 @@
-export { useData } from './hooks/useData.svelte'
+export { useData } from './hooks/useData'
 export { useHydrated } from './hooks/useHydrated.svelte'
 export { usePageContext } from './hooks/usePageContext'
-export { useUrl } from './hooks/useUrl.svelte'
+export { useUrl } from './hooks/useUrl'

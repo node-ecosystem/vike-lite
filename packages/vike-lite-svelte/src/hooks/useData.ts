@@ -11,8 +11,6 @@ export function useData<Data = unknown>(): [{ readonly current: Data }, (updater
   const ctx = getContext(pageContextKey) as InternalContextValue<Data> | undefined
   if (!ctx) throw new Error('useData() must be called inside a page rendered by vike-lite-svelte')
 
-  const data = $derived(ctx.pageContext.data as Data)
-
   const setData = (updater: Data | ((prev: Data) => Data)) => {
     const next = typeof updater === 'function'
       ? (updater as (prev: Data) => Data)(ctx.pageContext.data as Data)
@@ -23,5 +21,12 @@ export function useData<Data = unknown>(): [{ readonly current: Data }, (updater
       ; (ctx.pageContext as { data: Data }).data = next
   }
 
-  return [{ get current() { return data } }, setData]
+  return [
+    {
+      get current() {
+        return ctx.pageContext.data as Data
+      }
+    },
+    setData
+  ]
 }
